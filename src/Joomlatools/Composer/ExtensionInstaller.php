@@ -79,8 +79,6 @@ class ExtensionInstaller extends LibraryInstaller
 
         require_once JPATH_LIBRARIES . '/cms.php';
 
-        error_reporting(0);
-
         $application = \JFactory::getApplication('administrator');
         $application->initialise();
 
