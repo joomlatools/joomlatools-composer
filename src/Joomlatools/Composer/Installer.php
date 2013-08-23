@@ -7,7 +7,7 @@ use Composer\Package\PackageInterface;
 use Composer\Repository\InstalledRepositoryInterface;
 use Composer\Installer\LibraryInstaller;
 
-class ExtensionInstaller extends LibraryInstaller
+class Installer extends LibraryInstaller
 {
     protected $_credentials = array();
 

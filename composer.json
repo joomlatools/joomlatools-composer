@@ -1,10 +1,10 @@
 {
-    "name": "joomlatools/extensions",
+    "name": "joomlatools/installer",
     "type": "composer-installer",
     "autoload": {
-        "psr-0": {"joomlatools\\Composer": "src/"}
+        "psr-0": {"Joomlatools\\Composer\\": "src/"}
     },
     "extra": {
-        "class": "joomlatools\\Composer\\ExtensionInstaller"
+        "class": "Joomlatools\\Composer\\Installer"
     }
 }
