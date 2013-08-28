@@ -1,5 +1,5 @@
 <?php
-namespace Joomlatools\Composer;
+namespace Joomlatools\Application;
 
 use \JApplicationCli as JApplicationCli;
 use \JFactory as JFactory;
@@ -19,6 +19,8 @@ class Application extends JApplicationCli
         jimport('joomla.event.dispatcher');
         jimport('joomla.utilities.utility');
         jimport('joomla.utilities.arrayhelper');
+
+        jimport('joomla.application.module.helper');
 
         //JPluginHelper::importPlugin('system');
     }
