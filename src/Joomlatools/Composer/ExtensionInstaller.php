@@ -11,22 +11,9 @@ use Composer\Installer\LibraryInstaller;
 
 class ExtensionInstaller extends LibraryInstaller
 {
-    protected $_credentials = array();
-
     public function __construct(IOInterface $io, Composer $composer, $type = 'library')
     {
         parent::__construct($io, $composer, $type);
-
-        $username = $composer->getConfig()->get('joomla-username');
-        $password = $composer->getConfig()->get('joomla-password');
-
-        if(!empty($username) && !empty($password))
-        {
-            $this->_credentials = array(
-                'username' => $composer->getConfig()->get('joomla-username'),
-                'password' => $composer->getConfig()->get('joomla-password'),
-            );
-        }
     }
 
     public function getInstallPath(PackageInterface $package)
@@ -81,7 +68,9 @@ class ExtensionInstaller extends LibraryInstaller
 
         require_once JPATH_LIBRARIES . '/cms.php';
 
-        $application = \JFactory::getApplication('administrator');
+        /*$application = \JFactory::getApplication('administrator');
+        $application->initialise();*/
+        $application = new Application();
         $application->initialise();
 
         $this->_authenticate();
@@ -91,11 +80,7 @@ class ExtensionInstaller extends LibraryInstaller
     {
         $application = \JFactory::getApplication();
 
-        if(empty($this->_credentials['username']) || empty($this->_credentials['password'])) {
-            return false;
-        }
-
-        if($application->login($this->_credentials) !== true) {
+        if($application->login() !== true) {
             throw new \KException('Login failed for user ' . $this->_credentials['username'], \KHttpResponse::UNAUTHORIZED);
         }
 
