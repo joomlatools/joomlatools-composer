@@ -1,8 +1,6 @@
 <?php
 namespace Joomlatools\Composer;
 
-use Joomlatools\Application as Application;
-
 use Composer\Composer;
 use Composer\IO\IOInterface;
 use Composer\Package\PackageInterface;
