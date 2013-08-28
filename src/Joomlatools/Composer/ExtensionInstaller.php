@@ -9,6 +9,8 @@ use Composer\Installer\LibraryInstaller;
 
 class ExtensionInstaller extends LibraryInstaller
 {
+    protected $_application = null;
+
     public function __construct(IOInterface $io, Composer $composer, $type = 'library')
     {
         parent::__construct($io, $composer, $type);
@@ -68,17 +70,15 @@ class ExtensionInstaller extends LibraryInstaller
 
         /*$application = \JFactory::getApplication('administrator');
         $application->initialise();*/
-        $application = new Application();
-        $application->initialise();
+        $this->_application = new Application();
+        $this->_application->initialise();
 
         $this->_authenticate();
     }
 
     protected function _authenticate()
     {
-        $application = \JFactory::getApplication();
-
-        if($application->login() !== true) {
+        if($this->_application->login() !== true) {
             throw new \KException('Login failed for user ' . $this->_credentials['username'], \KHttpResponse::UNAUTHORIZED);
         }
 

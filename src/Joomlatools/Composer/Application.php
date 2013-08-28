@@ -23,7 +23,7 @@ class Application extends JApplicationCli
         jimport('joomla.application.module.helper');
     }
 
-    public function login($credentials, $options = array())
+    public function login()
     {
         return true;
     }
