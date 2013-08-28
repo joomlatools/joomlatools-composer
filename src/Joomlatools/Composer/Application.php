@@ -1,5 +1,5 @@
 <?php
-namespace Joomlatools\Application;
+namespace Joomlatools\Composer;
 
 use \JApplicationCli as JApplicationCli;
 use \JFactory as JFactory;
