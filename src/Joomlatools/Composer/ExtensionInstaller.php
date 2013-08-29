@@ -68,18 +68,27 @@ class ExtensionInstaller extends LibraryInstaller
 
         require_once JPATH_LIBRARIES . '/cms.php';
 
-        /*$application = \JFactory::getApplication('administrator');
-        $application->initialise();*/
         $this->_application = new Application();
         $this->_application->initialise();
+
+        \JFactory::$application = $this->_application;
 
         $this->_authenticate();
     }
 
     protected function _authenticate()
     {
-        if($this->_application->login() !== true) {
-            throw new \KException('Login failed for user ' . $this->_credentials['username'], \KHttpResponse::UNAUTHORIZED);
+        $user = \JFactory::getUser();
+
+        $properties = array(
+            'name'      => 'root',
+            'username'  => 'root',
+            'groups'    => array(8),
+            'email'     => 'root@localhost.home'
+        );
+
+        foreach($properties as $property => $value) {
+            $user->{$property} = $value;
         }
 
         return true;

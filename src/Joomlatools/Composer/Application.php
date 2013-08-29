@@ -3,6 +3,7 @@ namespace Joomlatools\Composer;
 
 use \JApplicationCli as JApplicationCli;
 use \JFactory as JFactory;
+use \JLoader as JLoader;
 use \JDispatcher as JDispatcher;
 use \JPluginHelper as JPluginHelper;
 use \JAuthentication as JAuthentication;
@@ -56,5 +57,16 @@ class Application extends JApplicationCli
     public function isAdmin()
     {
         return true;
+    }
+
+    public function loadConfiguration($data)
+    {
+        $data->root_user = 'root';
+
+        $this->config->loadObject($data);
+
+        JFactory::$config = $this->config;
+
+        return $this;
     }
 }
