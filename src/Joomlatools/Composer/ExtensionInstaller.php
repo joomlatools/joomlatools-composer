@@ -44,8 +44,8 @@ class ExtensionInstaller extends LibraryInstaller
         }
 
         // Clean-up to prevent PHP calling the session object's __destruct() method;
-        // which will burp out Fatal Errors all over the place 'cos the MySQLI connection
-        // has already closed at tha point.
+        // which will burp out Fatal Errors all over the place because the MySQLI connection
+        // has already closed at that point.
         $session = \JFactory::$session;
         if(!is_null($session) && is_a($session, 'JSession')) {
             $session->close();
