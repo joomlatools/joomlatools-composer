@@ -44,6 +44,11 @@ class Application extends JApplicationCli
         return $this->_messageQueue;
     }
 
+    public function getTemplate()
+    {
+        return 'system';
+    }
+
     public function getName()
     {
         return 'cli';

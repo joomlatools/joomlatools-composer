@@ -73,6 +73,10 @@ class ExtensionInstaller extends LibraryInstaller
 
         \JFactory::$application = $this->_application;
 
+        $lang = \JFactory::getLanguage();
+        $lang->load('lib_joomla', JPATH_ADMINISTRATOR, null, true);
+        $lang->load('com_installer', JPATH_ADMINISTRATOR, null, true);
+
         $this->_authenticate();
     }
 
