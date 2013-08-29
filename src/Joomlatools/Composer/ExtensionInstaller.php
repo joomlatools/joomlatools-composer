@@ -42,6 +42,14 @@ class ExtensionInstaller extends LibraryInstaller
 
             throw new \UnexpectedValueException($error);
         }
+
+        // Clean-up to prevent PHP calling the session object's __destruct() method;
+        // which will burp out Fatal Errors all over the place 'cos the MySQLI connection
+        // has already closed at tha point.
+        $session = \JFactory::$session;
+        if(!is_null($session) && is_a($session, 'JSession')) {
+            $session->close();
+        }
     }
 
     public function supports($packageType)
