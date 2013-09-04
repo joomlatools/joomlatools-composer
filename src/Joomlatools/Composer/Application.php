@@ -14,10 +14,10 @@ class Application extends JApplicationCli
     {
         parent::__construct($input, $config, $dispatcher);
 
-        $this->_initialise();
+        $this->_initialize();
     }
 
-    protected function _initialise()
+    protected function _initialize()
     {
         // Load dependencies
         jimport('joomla.application.component.helper');

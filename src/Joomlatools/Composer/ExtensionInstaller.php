@@ -11,6 +11,19 @@ class ExtensionInstaller extends LibraryInstaller
 {
     protected $_application = null;
 
+    public function __construct(IOInterface $io, Composer $composer, $type = 'library')
+    {
+        parent::__construct($io, $composer, $type);
+
+        $this->_initialize();
+    }
+
+    protected function _initialize()
+    {
+        // Initialize the Joomla environment
+        $this->_bootstrap();
+    }
+
     public function getInstallPath(PackageInterface $package)
     {
         return 'tmp/' . $package->getPrettyName();
@@ -20,9 +33,6 @@ class ExtensionInstaller extends LibraryInstaller
     {
         // Install the package into the temporary directory, so we can access all it's files
         parent::install($repo, $package);
-
-        // Initialize the Joomla environment
-        $this->_bootstrap();
 
         // Now install into Joomla
         if(!$this->_application->install($this->getInstallPath($package)))
