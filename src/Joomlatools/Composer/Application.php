@@ -12,26 +12,56 @@ class Application extends JApplicationCli
 {
     protected $_messageQueue = array();
 
-    public function initialise($options = array())
+    public function __construct($options = array(), JInputCli $input = null, JRegistry $config = null, JDispatcher $dispatcher = null)
     {
+        parent::__construct($input, $config, $dispatcher);
+
+        $this->_initialise();
+    }
+
+    protected function _initialise()
+    {
+        // Load dependencies
         jimport('joomla.application.component.helper');
         jimport('joomla.application.menu');
+
         jimport('joomla.environment.uri');
+
         jimport('joomla.event.dispatcher');
+
         jimport('joomla.utilities.utility');
         jimport('joomla.utilities.arrayhelper');
 
         jimport('joomla.application.module.helper');
+
+        // Tell JFactory where to find the current application object
+        JFactory::$application = $this->_application;
+
+        // Load required languages
+        $lang = JFactory::getLanguage();
+        $lang->load('lib_joomla', JPATH_ADMINISTRATOR, null, true);
+        $lang->load('com_installer', JPATH_ADMINISTRATOR, null, true);
     }
 
-    public function login()
+    public function authenticate()
     {
-        return true;
+        $user = JFactory::getUser();
+
+        $properties = array(
+            'name'      => 'root',
+            'username'  => 'root',
+            'groups'    => array(8),
+            'email'     => 'root@localhost.home'
+        );
+
+        foreach($properties as $property => $value) {
+            $user->{$property} = $value;
+        }
     }
 
     public function getCfg($varname, $default = null)
     {
-        return \JFactory::getConfig()->get('' . $varname, $default);
+        return JFactory::getConfig()->get('' . $varname, $default);
     }
 
     public function enqueueMessage($msg, $type = 'message')
@@ -64,14 +94,18 @@ class Application extends JApplicationCli
         return true;
     }
 
-    public function loadConfiguration($data)
+    protected function fetchConfigurationData($file = '', $class = 'JConfig')
     {
-        $data->root_user = 'root';
+        $config = parent::fetchConfigurationData($file, $class);
 
-        $this->config->loadObject($data);
+        // Inject the root user configuration
+        if (is_array($config)) {
+            $data['root_user'] = 'root';
+        }
+        elseif (is_object($config)) {
+            $config->root_user = 'root';
+        }
 
-        JFactory::$config = $this->config;
-
-        return $this;
+        return $config;
     }
 }

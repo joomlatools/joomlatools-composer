@@ -11,11 +11,6 @@ class ExtensionInstaller extends LibraryInstaller
 {
     protected $_application = null;
 
-    public function __construct(IOInterface $io, Composer $composer, $type = 'library')
-    {
-        parent::__construct($io, $composer, $type);
-    }
-
     public function getInstallPath(PackageInterface $package)
     {
         return 'tmp/' . $package->getPrettyName();
@@ -26,13 +21,15 @@ class ExtensionInstaller extends LibraryInstaller
         // Install the package into the temporary directory, so we can access all it's files
         parent::install($repo, $package);
 
-        // Now install into the Joomla environment
+        // Initialize the Joomla environment
         $this->_bootstrap();
 
+        // Now install into Joomla
         $installer = new \JInstaller();
 
         if(!$installer->install($this->getInstallPath($package)))
         {
+            // Get all error messages that were stored in the message queue
             $descriptions = $this->_getApplicationMessages();
 
             $error = 'Error while installing '.$package->getPrettyName();
@@ -77,38 +74,12 @@ class ExtensionInstaller extends LibraryInstaller
         require_once JPATH_LIBRARIES . '/cms.php';
 
         $this->_application = new Application();
-        $this->_application->initialise();
-
-        \JFactory::$application = $this->_application;
-
-        $lang = \JFactory::getLanguage();
-        $lang->load('lib_joomla', JPATH_ADMINISTRATOR, null, true);
-        $lang->load('com_installer', JPATH_ADMINISTRATOR, null, true);
-
-        $this->_authenticate();
-    }
-
-    protected function _authenticate()
-    {
-        $user = \JFactory::getUser();
-
-        $properties = array(
-            'name'      => 'root',
-            'username'  => 'root',
-            'groups'    => array(8),
-            'email'     => 'root@localhost.home'
-        );
-
-        foreach($properties as $property => $value) {
-            $user->{$property} = $value;
-        }
-
-        return true;
+        $this->_application->authenticate();
     }
 
     protected function _getApplicationMessages()
     {
-        $messages = \JFactory::getApplication()->getMessageQueue();
+        $messages = $this->_application->getMessageQueue();
         $descriptions = array();
 
         foreach($messages as $message)
