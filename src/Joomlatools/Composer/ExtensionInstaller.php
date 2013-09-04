@@ -25,9 +25,7 @@ class ExtensionInstaller extends LibraryInstaller
         $this->_bootstrap();
 
         // Now install into Joomla
-        $installer = new \JInstaller();
-
-        if(!$installer->install($this->getInstallPath($package)))
+        if(!$this->_application->install($this->getInstallPath($package)))
         {
             // Get all error messages that were stored in the message queue
             $descriptions = $this->_getApplicationMessages();

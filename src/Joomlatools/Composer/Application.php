@@ -2,11 +2,9 @@
 namespace Joomlatools\Composer;
 
 use \JApplicationCli as JApplicationCli;
-use \JFactory as JFactory;
-use \JLoader as JLoader;
 use \JDispatcher as JDispatcher;
-use \JPluginHelper as JPluginHelper;
-use \JAuthentication as JAuthentication;
+use \JFactory as JFactory;
+use \JInstaller as JInstaller;
 
 class Application extends JApplicationCli
 {
@@ -57,6 +55,13 @@ class Application extends JApplicationCli
         foreach($properties as $property => $value) {
             $user->{$property} = $value;
         }
+    }
+
+    public function install($path)
+    {
+        $installer = new JInstaller();
+
+        return $installer->install($path);
     }
 
     public function getCfg($varname, $default = null)
