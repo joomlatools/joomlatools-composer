@@ -33,7 +33,7 @@ class Application extends JApplicationCli
         jimport('joomla.application.module.helper');
 
         // Tell JFactory where to find the current application object
-        JFactory::$application = $this->_application;
+        JFactory::$application = $this;
 
         // Load required languages
         $lang = JFactory::getLanguage();
@@ -105,12 +105,21 @@ class Application extends JApplicationCli
 
         // Inject the root user configuration
         if (is_array($config)) {
-            $data['root_user'] = 'root';
+            $config['root_user'] = 'root';
         }
         elseif (is_object($config)) {
             $config->root_user = 'root';
         }
 
         return $config;
+    }
+
+    public function loadConfiguration($data)
+    {
+        parent::loadConfiguration($data);
+
+        JFactory::$config = $this->config;
+
+        return $this;
     }
 }

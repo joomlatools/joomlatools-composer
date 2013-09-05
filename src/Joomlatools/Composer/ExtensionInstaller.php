@@ -45,7 +45,7 @@ class ExtensionInstaller extends LibraryInstaller
                 $error .= ':'.PHP_EOL.implode(PHP_EOL, $descriptions);
             }
 
-            throw new \UnexpectedValueException($error);
+            throw new \RuntimeException($error);
         }
 
         // Clean-up to prevent PHP calling the session object's __destruct() method;
@@ -87,8 +87,8 @@ class ExtensionInstaller extends LibraryInstaller
 
     protected function _getApplicationMessages()
     {
-        $messages = $this->_application->getMessageQueue();
-        $descriptions = array();
+        $messages       = $this->_application->getMessageQueue();
+        $descriptions   = array();
 
         foreach($messages as $message)
         {
