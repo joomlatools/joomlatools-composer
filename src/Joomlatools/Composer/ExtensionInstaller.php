@@ -20,7 +20,6 @@ class ExtensionInstaller extends LibraryInstaller
 
     protected function _initialize()
     {
-        // Initialize the Joomla environment
         $this->_bootstrap();
     }
 
@@ -47,19 +46,42 @@ class ExtensionInstaller extends LibraryInstaller
 
             throw new \RuntimeException($error);
         }
-
-        // Clean-up to prevent PHP calling the session object's __destruct() method;
-        // which will burp out Fatal Errors all over the place because the MySQLI connection
-        // has already closed at that point.
-        $session = \JFactory::$session;
-        if(!is_null($session) && is_a($session, 'JSession')) {
-            $session->close();
-        }
     }
 
     public function supports($packageType)
     {
         return 'joomlatools-extension' === $packageType;
+    }
+
+    public function isInstalled(InstalledRepositoryInterface $repo, PackageInterface $package)
+    {
+        $installer = $this->_application->getInstaller();
+        $installer->setPath('source', $this->getInstallPath($package));
+
+        $manifest = $installer->getManifest();
+
+        if($manifest)
+        {
+            $identifier = (string) $manifest->identifier;
+
+            if(empty($identifier))
+            {
+                $name = strtolower((string) $manifest->name);
+                $name = preg_replace('/[^A-Z0-9_\.-]/i', '', $name);
+
+                $identifier = $name;
+                if(substr($name, 0, 4) != "com_") {
+                    $identifier = "com_$name";
+                }
+            }
+            else $identifier = str_replace(':', '_', $identifier);
+
+            var_dump($identifier, $this->_application->hasExtension($identifier));
+
+            return $this->_application->hasExtension($identifier);
+        }
+
+        return false;
     }
 
     protected function _bootstrap()
@@ -98,5 +120,16 @@ class ExtensionInstaller extends LibraryInstaller
         }
 
         return $descriptions;
+    }
+
+    public function __destruct()
+    {
+        // Clean-up to prevent PHP calling the session object's __destruct() method;
+        // which will burp out Fatal Errors all over the place because the MySQLI connection
+        // has already closed at that point.
+        $session = \JFactory::$session;
+        if(!is_null($session) && is_a($session, 'JSession')) {
+            $session->close();
+        }
     }
 }

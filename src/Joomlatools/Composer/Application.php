@@ -57,9 +57,19 @@ class Application extends JApplicationCli
         }
     }
 
+    public function hasExtension($identifier)
+    {
+        $db = JFactory::getDbo();
+        $sql = "SELECT extension_id, state FROM #__extensions WHERE element = ".$db->quote($identifier);
+
+        $extension = $db->setQuery($sql)->loadObject();
+
+        return ($extension && $extension->state != -1);
+    }
+
     public function install($path)
     {
-        $installer = new JInstaller();
+        $installer = $this->getInstaller();
 
         return $installer->install($path);
     }
@@ -77,6 +87,13 @@ class Application extends JApplicationCli
     public function getMessageQueue()
     {
         return $this->_messageQueue;
+    }
+
+    public function getInstaller()
+    {
+        // @TODO keep one instance available per install package
+        // and not per composer run, as this will break multiple installations in one go.
+        return new JInstaller();
     }
 
     public function getTemplate()
