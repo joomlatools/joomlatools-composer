@@ -76,8 +76,6 @@ class ExtensionInstaller extends LibraryInstaller
             }
             else $identifier = str_replace(':', '_', $identifier);
 
-            var_dump($identifier, $this->_application->hasExtension($identifier));
-
             return $this->_application->hasExtension($identifier);
         }
 
