@@ -5,6 +5,7 @@ use \JApplicationCli as JApplicationCli;
 use \JDispatcher as JDispatcher;
 use \JFactory as JFactory;
 use \JInstaller as JInstaller;
+use \JPluginHelper as JPluginHelper;
 
 class Application extends JApplicationCli
 {
@@ -34,6 +35,9 @@ class Application extends JApplicationCli
 
         // Tell JFactory where to find the current application object
         JFactory::$application = $this;
+
+        // Load plugins
+        JPluginHelper::importPlugin('system');
 
         // Load required languages
         $lang = JFactory::getLanguage();

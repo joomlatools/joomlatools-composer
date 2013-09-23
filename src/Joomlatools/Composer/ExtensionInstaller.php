@@ -33,6 +33,16 @@ class ExtensionInstaller extends LibraryInstaller
         // Install the package into the temporary directory, so we can access all it's files
         parent::install($repo, $package);
 
+        // If we are installing a Joomlatools extension, make sure to load the ComExtmanDatabaseRowExtension class
+        $name = strtolower($package->getPrettyName());
+        $parts = explode('/', $name);
+        if($parts[0] == 'joomlatools' && $parts[1] != 'extman')
+        {
+            if(class_exists('Koowa') && !class_exists('ComExtmanDatabaseRowExtension')) {
+                \KObjectManager::getInstance()->getObject('com://admin/extman.database.row.extension');
+            }
+        }
+
         // Now install into Joomla
         if(!$this->_application->install($this->getInstallPath($package)))
         {
