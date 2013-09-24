@@ -79,6 +79,13 @@ class Application extends JApplicationCli
         return $installer->install($path);
     }
 
+    public function update($path)
+    {
+        $installer = $this->getInstaller();
+
+        return $installer->update($path);
+    }
+
     public function getCfg($varname, $default = null)
     {
         return JFactory::getConfig()->get('' . $varname, $default);

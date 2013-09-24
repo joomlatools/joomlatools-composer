@@ -30,7 +30,6 @@ class ExtensionInstaller extends LibraryInstaller
 
     public function install(InstalledRepositoryInterface $repo, PackageInterface $package)
     {
-        // Install the package into the temporary directory, so we can access all it's files
         parent::install($repo, $package);
 
         // If we are installing a Joomlatools extension, make sure to load the ComExtmanDatabaseRowExtension class
@@ -43,13 +42,44 @@ class ExtensionInstaller extends LibraryInstaller
             }
         }
 
-        // Now install into Joomla
+        $this->io->write('    <fg=cyan>Installing</fg=cyan> into Joomla'.PHP_EOL);
+
         if(!$this->_application->install($this->getInstallPath($package)))
         {
             // Get all error messages that were stored in the message queue
             $descriptions = $this->_getApplicationMessages();
 
             $error = 'Error while installing '.$package->getPrettyName();
+            if(count($descriptions)) {
+                $error .= ':'.PHP_EOL.implode(PHP_EOL, $descriptions);
+            }
+
+            throw new \RuntimeException($error);
+        }
+    }
+
+    public function update(InstalledRepositoryInterface $repo, PackageInterface $initial, PackageInterface $target)
+    {
+        parent::update($repo, $initial, $target);
+
+        // If we are installing a Joomlatools extension, make sure to load the ComExtmanDatabaseRowExtension class
+        $name = strtolower($target->getPrettyName());
+        $parts = explode('/', $name);
+        if($parts[0] == 'joomlatools' && $parts[1] != 'extman')
+        {
+            if(class_exists('Koowa') && !class_exists('ComExtmanDatabaseRowExtension')) {
+                \KObjectManager::getInstance()->getObject('com://admin/extman.database.row.extension');
+            }
+        }
+
+        $this->io->write('    <fg=cyan>Updating</fg=cyan> Joomla extension'.PHP_EOL);
+
+        if(!$this->_application->update($this->getInstallPath($target)))
+        {
+            // Get all error messages that were stored in the message queue
+            $descriptions = $this->_getApplicationMessages();
+
+            $error = 'Error while updating '.$target->getPrettyName();
             if(count($descriptions)) {
                 $error .= ':'.PHP_EOL.implode(PHP_EOL, $descriptions);
             }
