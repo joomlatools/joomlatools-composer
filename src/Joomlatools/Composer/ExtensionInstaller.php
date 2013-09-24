@@ -72,9 +72,10 @@ class ExtensionInstaller extends LibraryInstaller
 
         if($manifest)
         {
+            $type    = (string) $manifest->attributes()->type;
             $element = $this->_getElementFromManifest($manifest);
 
-            return !empty($element) ? $this->_application->hasExtension($element) : false;
+            return !empty($element) ? $this->_application->hasExtension($element, $type) : false;
         }
 
         return false;

@@ -61,10 +61,11 @@ class Application extends JApplicationCli
         }
     }
 
-    public function hasExtension($element)
+    public function hasExtension($element, $type = 'component')
     {
         $db = JFactory::getDbo();
-        $sql = "SELECT extension_id, state FROM #__extensions WHERE element = ".$db->quote($element);
+        $sql = "SELECT `extension_id`, `state` FROM `#__extensions`"
+                ." WHERE `element` = ".$db->quote($element)." AND `type` = ".$db->quote($type);
 
         $extension = $db->setQuery($sql)->loadObject();
 
