@@ -72,21 +72,9 @@ class ExtensionInstaller extends LibraryInstaller
 
         if($manifest)
         {
-            $identifier = (string) $manifest->identifier;
+            $element = $this->_getElementFromManifest($manifest);
 
-            if(empty($identifier))
-            {
-                $name = strtolower((string) $manifest->name);
-                $name = preg_replace('/[^A-Z0-9_\.-]/i', '', $name);
-
-                $identifier = $name;
-                if(substr($name, 0, 4) != "com_") {
-                    $identifier = "com_$name";
-                }
-            }
-            else $identifier = str_replace(':', '_', $identifier);
-
-            return $this->_application->hasExtension($identifier);
+            return !empty($element) ? $this->_application->hasExtension($element) : false;
         }
 
         return false;
@@ -94,25 +82,27 @@ class ExtensionInstaller extends LibraryInstaller
 
     protected function _bootstrap()
     {
-        if(defined('_JEXEC')) {
-            return;
+        if(!defined('_JEXEC'))
+        {
+            $_SERVER['HTTP_HOST']   = 'localhost';
+
+            define('_JEXEC', 1);
+            define('DS', DIRECTORY_SEPARATOR);
+
+            define('JPATH_BASE', realpath('.'));
+            require_once JPATH_BASE . '/includes/defines.php';
+
+            require_once JPATH_BASE . '/includes/framework.php';
+            require_once JPATH_LIBRARIES . '/import.php';
+
+            require_once JPATH_LIBRARIES . '/cms.php';
         }
 
-        $_SERVER['HTTP_HOST']   = 'localhost';
-
-        define('_JEXEC', 1);
-        define('DS', DIRECTORY_SEPARATOR);
-
-        define('JPATH_BASE', realpath('.'));
-        require_once JPATH_BASE . '/includes/defines.php';
-
-        require_once JPATH_BASE . '/includes/framework.php';
-        require_once JPATH_LIBRARIES . '/import.php';
-
-        require_once JPATH_LIBRARIES . '/cms.php';
-
-        $this->_application = new Application();
-        $this->_application->authenticate();
+        if(!($this->_application instanceof Application))
+        {
+            $this->_application = new Application();
+            $this->_application->authenticate();
+        }
     }
 
     protected function _getApplicationMessages()
@@ -128,6 +118,54 @@ class ExtensionInstaller extends LibraryInstaller
         }
 
         return $descriptions;
+    }
+
+    protected function _getElementFromManifest($manifest)
+    {
+        $element    = '';
+        $type       = (string) $manifest->attributes()->type;
+        $prefix     = isset($this->_prefixes[$type]) ? $this->_prefixes[$type].'_' : 'com_';
+
+        switch($type)
+        {
+            case 'module':
+                if(count($manifest->files->children()))
+                {
+                    foreach($manifest->files->children() as $file)
+                    {
+                        if((string) $file->attributes()->module)
+                        {
+                            $element = (string) $file->attributes()->module;
+                            break;
+                        }
+                    }
+                }
+                break;
+            case 'plugin':
+                if(count($manifest->files->children()))
+                {
+                    foreach($manifest->files->children() as $file)
+                    {
+                        if ((string) $file->attributes()->$type)
+                        {
+                            $element = (string) $file->attributes()->$type;
+                            break;
+                        }
+                    }
+                }
+                break;
+            case 'component':
+            default:
+                $element = strtolower((string) $manifest->name);
+                $element = preg_replace('/[^A-Z0-9_\.-]/i', '', $element);
+
+                if(substr($element, 0, 4) != 'com_') {
+                    $element = 'com_'.$element;
+                }
+                break;
+        }
+
+        return $element;
     }
 
     public function __destruct()
