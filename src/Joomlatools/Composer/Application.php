@@ -104,7 +104,8 @@ class Application extends JApplicationCli
     public function getInstaller()
     {
         // @TODO keep one instance available per install package
-        // and not per composer run, as this will break multiple installations in one go.
+        // instead of instantiating a new object each time.
+        // Re-using the same instance for multiple installations will fail.
         return new JInstaller();
     }
 

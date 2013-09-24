@@ -32,15 +32,7 @@ class ExtensionInstaller extends LibraryInstaller
     {
         parent::install($repo, $package);
 
-        // If we are installing a Joomlatools extension, make sure to load the ComExtmanDatabaseRowExtension class
-        $name = strtolower($package->getPrettyName());
-        $parts = explode('/', $name);
-        if($parts[0] == 'joomlatools' && $parts[1] != 'extman')
-        {
-            if(class_exists('Koowa') && !class_exists('ComExtmanDatabaseRowExtension')) {
-                \KObjectManager::getInstance()->getObject('com://admin/extman.database.row.extension');
-            }
-        }
+        $this->_setupExtmanSupport($package);
 
         $this->io->write('    <fg=cyan>Installing</fg=cyan> into Joomla'.PHP_EOL);
 
@@ -62,15 +54,7 @@ class ExtensionInstaller extends LibraryInstaller
     {
         parent::update($repo, $initial, $target);
 
-        // If we are installing a Joomlatools extension, make sure to load the ComExtmanDatabaseRowExtension class
-        $name = strtolower($target->getPrettyName());
-        $parts = explode('/', $name);
-        if($parts[0] == 'joomlatools' && $parts[1] != 'extman')
-        {
-            if(class_exists('Koowa') && !class_exists('ComExtmanDatabaseRowExtension')) {
-                \KObjectManager::getInstance()->getObject('com://admin/extman.database.row.extension');
-            }
-        }
+        $this->_setupExtmanSupport($target);
 
         $this->io->write('    <fg=cyan>Updating</fg=cyan> Joomla extension'.PHP_EOL);
 
@@ -149,6 +133,19 @@ class ExtensionInstaller extends LibraryInstaller
         }
 
         return $descriptions;
+    }
+
+    protected function _setupExtmanSupport(PackageInterface $target)
+    {
+        // If we are installing a Joomlatools extension, make sure to load the ComExtmanDatabaseRowExtension class
+        $name = strtolower($target->getPrettyName());
+        $parts = explode('/', $name);
+        if($parts[0] == 'joomlatools' && $parts[1] != 'extman')
+        {
+            if(class_exists('Koowa') && !class_exists('ComExtmanDatabaseRowExtension')) {
+                \KObjectManager::getInstance()->getObject('com://admin/extman.database.row.extension');
+            }
+        }
     }
 
     protected function _getElementFromManifest($manifest)
