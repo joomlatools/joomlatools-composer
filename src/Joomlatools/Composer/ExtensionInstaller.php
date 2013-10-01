@@ -74,7 +74,7 @@ class ExtensionInstaller extends LibraryInstaller
 
     public function supports($packageType)
     {
-        return 'joomlatools-extension' === $packageType;
+        return $packageType === 'joomlatools-installer';
     }
 
     public function isInstalled(InstalledRepositoryInterface $repo, PackageInterface $package)
@@ -198,6 +198,10 @@ class ExtensionInstaller extends LibraryInstaller
 
     public function __destruct()
     {
+        if(!defined('_JEXEC')) {
+            return;
+        }
+
         // Clean-up to prevent PHP calling the session object's __destruct() method;
         // which will burp out Fatal Errors all over the place because the MySQLI connection
         // has already closed at that point.
