@@ -2,6 +2,8 @@
 
 This Composer plugin will install extensions into your Joomla setup. 
 
+Currently supporting Joomla versions 2.5 and up.
+
 ## Usage
 
 ### Defining a package
