@@ -10,9 +10,12 @@ use \JPluginHelper as JPluginHelper;
 class Application extends JApplicationCli
 {
     protected $_messageQueue = array();
+    protected $_options      = array();
 
     public function __construct($options = array(), JInputCli $input = null, JRegistry $config = null, JDispatcher $dispatcher = null)
     {
+        $this->_options = $options;
+
         parent::__construct($input, $config, $dispatcher);
 
         $this->_initialize();
@@ -45,19 +48,12 @@ class Application extends JApplicationCli
         $lang->load('com_installer', JPATH_ADMINISTRATOR, null, true);
     }
 
-    public function authenticate()
+    public function authenticate($credentials)
     {
         $user = JFactory::getUser();
 
-        $properties = array(
-            'name'      => 'root',
-            'username'  => 'root',
-            'groups'    => array(8),
-            'email'     => 'root@localhost.home'
-        );
-
-        foreach($properties as $property => $value) {
-            $user->{$property} = $value;
+        foreach($credentials as $key => $value) {
+            $user->$key = $value;
         }
     }
 
@@ -134,11 +130,16 @@ class Application extends JApplicationCli
         $config = parent::fetchConfigurationData($file, $class);
 
         // Inject the root user configuration
-        if (is_array($config)) {
-            $config['root_user'] = 'root';
-        }
-        elseif (is_object($config)) {
-            $config->root_user = 'root';
+        if(isset($this->_options['root_user']))
+        {
+            $root_user = isset($this->_options['root_user']) ? $this->_options['root_user'] : 'root';
+
+            if (is_array($config)) {
+                $config['root_user'] = $root_user;
+            }
+            elseif (is_object($config)) {
+                $config->root_user = $root_user;
+            }
         }
 
         return $config;

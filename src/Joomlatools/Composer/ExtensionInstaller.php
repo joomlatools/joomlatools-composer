@@ -9,17 +9,29 @@ use Composer\Installer\LibraryInstaller;
 
 class ExtensionInstaller extends LibraryInstaller
 {
+    protected $_config      = null;
     protected $_application = null;
+    protected $_credentials = array();
 
     public function __construct(IOInterface $io, Composer $composer, $type = 'library')
     {
         parent::__construct($io, $composer, $type);
+
+        $this->_config = $composer->getConfig();
 
         $this->_initialize();
     }
 
     protected function _initialize()
     {
+        $config = $this->_config->get('joomla');
+        $defaults = array('name'      => 'root',
+            'username'  => 'root',
+            'groups'    => array(8),
+            'email'     => 'root@localhost.home');
+
+        $this->_credentials = array_merge($defaults, $config);
+
         $this->_bootstrap();
     }
 
@@ -115,8 +127,10 @@ class ExtensionInstaller extends LibraryInstaller
 
         if(!($this->_application instanceof Application))
         {
-            $this->_application = new Application();
-            $this->_application->authenticate();
+            $options = array('root_user' => $this->_credentials['username']);
+
+            $this->_application = new Application($options);
+            $this->_application->authenticate($this->_credentials);
         }
     }
 
