@@ -6,6 +6,7 @@ use \JDispatcher as JDispatcher;
 use \JFactory as JFactory;
 use \JInstaller as JInstaller;
 use \JPluginHelper as JPluginHelper;
+use \JSession as JSession;
 
 class Application extends JApplicationCli
 {
@@ -39,6 +40,11 @@ class Application extends JApplicationCli
         // Tell JFactory where to find the current application object
         JFactory::$application = $this;
 
+        // Start a new session and tell JFactory where to find it if we're on Joomla 3
+        if(version_compare(JVERSION, '3.0.0', '>=')) {
+            JFactory::$session = $this->_startSession();
+        }
+
         // Load plugins
         JPluginHelper::importPlugin('system');
 
@@ -51,9 +57,16 @@ class Application extends JApplicationCli
     public function authenticate($credentials)
     {
         $user = JFactory::getUser();
+        $user->guest = 0;
 
         foreach($credentials as $key => $value) {
             $user->$key = $value;
+        }
+
+        // If we're on Joomla 3, explicitely push the JUser object into the session
+        // otherwise getUser() always returns a new instance of JUser.
+        if(version_compare(JVERSION, '3.0.0', '>=')) {
+            JFactory::getSession()->set('user', $user);
         }
     }
 
@@ -84,7 +97,7 @@ class Application extends JApplicationCli
 
     public function getCfg($varname, $default = null)
     {
-        return JFactory::getConfig()->get('' . $varname, $default);
+        return JFactory::getConfig()->get($varname, $default);
     }
 
     public function enqueueMessage($msg, $type = 'message')
@@ -143,6 +156,29 @@ class Application extends JApplicationCli
         }
 
         return $config;
+    }
+
+    protected function _startSession()
+    {
+        $name     = md5($this->getCfg('secret') . get_class($this));
+        $lifetime = $this->getCfg('lifetime') * 60 ;
+        $handler  = $this->getCfg('session_handler', 'none');
+
+        $options = array(
+            'name' => $name,
+            'expire' => $lifetime
+        );
+
+        $session = JSession::getInstance($handler, $options);
+        $session->initialise($this->input, $this->dispatcher);
+
+        if ($session->getState() == 'expired') {
+            $session->restart();
+        } else {
+            $session->start();
+        }
+
+        return $session;
     }
 
     public function loadConfiguration($data)
