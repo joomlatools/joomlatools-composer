@@ -53,16 +53,14 @@ The package definition should contain the following basic information to make it
 
 ```json
 {
-	{
     	"name": "vendor/my-extension",
     	"require": {
         	"joomlatools/installer": "*"
     	}
-	}
 }
 ```
 	
-You can now publish your extension on [Packagist](https://packagist.org/) or serve them yourself using your own [Satis repository](http://getcomposer.org/doc/articles/handling-private-packages-with-satis.md). 
+You can now publish your extension on [Packagist](https://packagist.org/) or serve it yourself using your own [Satis repository](http://getcomposer.org/doc/articles/handling-private-packages-with-satis.md). 
 
 For more information on rolling your own package, please refer to the [Composer documentation](http://getcomposer.org/doc/02-libraries.md).
 

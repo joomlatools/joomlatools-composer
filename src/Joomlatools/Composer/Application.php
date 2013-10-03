@@ -1,4 +1,12 @@
 <?php
+/**
+ * Joomlatools Composer plugin - https://github.com/joomlatools/joomla-composer
+ *
+ * @copyright	Copyright (C) 2011 - 2013 Johan Janssens and Timble CVBA. (http://www.timble.net)
+ * @license		MPL v2.0 <http://www.mozilla.org/MPL/2.0/index.txt>
+ * @link		http://github.com/joomlatools/joomla-composer for the canonical source repository
+ */
+
 namespace Joomlatools\Composer;
 
 use \JApplicationCli as JApplicationCli;
@@ -8,6 +16,12 @@ use \JInstaller as JInstaller;
 use \JPluginHelper as JPluginHelper;
 use \JSession as JSession;
 
+/**
+ * Application extending Joomla CLI class.
+ *
+ * @author  Steven Rombauts <https://github.com/stevenrombauts>
+ * @package Joomlatools\Composer
+ */
 class Application extends JApplicationCli
 {
     protected $_messageQueue = array();
