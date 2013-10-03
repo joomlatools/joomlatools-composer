@@ -2,8 +2,6 @@
 
 This Composer plugin will install extensions into your Joomla setup. 
 
-Currently supporting Joomla versions 2.5 and up.
-
 ## Usage
 
 ### Defining a package
@@ -12,6 +10,7 @@ The easiest way to get started is by defining a custom package in your `composer
 
 Create the `composer.json` file in the root directory of your Joomla installation and have it look something like this: 
 
+```json
 	{
     	"repositories": [
         	{
@@ -35,15 +34,16 @@ Create the `composer.json` file in the root directory of your Joomla installatio
     		"vendor/extension": "1.0.0"
     	}
 	}
+```
 	
 Using this JSON file, we have now defined our own custom package. Pay attention to the following settings:
 
 * The `type` has to be set to `joomlatools-installer`
 * Make sure the `url` directive points to the location of the install package.
 
-Executing `composer install` will now prepare the `joomlatools/installer` and use it to install the package into your Joomla installation.
+Executing `composer install` will now fetch the `joomlatools/installer` plugin and use it to install the package into your Joomla installation.
 
-For more information on creating custom packages, please refer to the [Composer documentation](http://getcomposer.org/doc/05-repositories.md#package-2)
+For more information on creating these custom packages for project which do not support Composer, see the [Composer docs](http://getcomposer.org/doc/05-repositories.md#package-2)
 
 ### Creating a custom package
 
@@ -51,22 +51,30 @@ To really make use of all Composer's features, like upgrading to a newer version
 
 The package definition should contain the following basic information to make it installable into Joomla: 
 
+```json
+{
 	{
     	"name": "vendor/my-extension",
     	"require": {
         	"joomlatools/installer": "*"
     	}
 	}
+}
+```
 	
-You can now publish using a VCS repository or register your extension on Packagist. For more information on creating a Composer package, please refer to the [Composer documentation](http://getcomposer.org/doc/02-libraries.md).
+You can now publish your extension on [Packagist](https://packagist.org/) or serve them yourself using your own [Satis repository](http://getcomposer.org/doc/articles/handling-private-packages-with-satis.md). 
+
+For more information on rolling your own package, please refer to the [Composer documentation](http://getcomposer.org/doc/02-libraries.md).
 
 
 ### Change the user
 
 The installer injects a user called `root` into the Joomla application at runtime to make sure that the installer scripts have the necessary permissions to execute.
 
-If for some reason, you need to change the details of this mock user, you can do so by adding a `joomla` block into the `config` section of your `composer.json`. Example:  
+If for some reason, you need to change the details of this mock user, you can override them by adding a `joomla` block into the `config` section of your `composer.json`. Example:  
 
+```json
+{
     "config": {
         "joomla": {
             "username": "johndoe",
@@ -74,7 +82,13 @@ If for some reason, you need to change the details of this mock user, you can do
             "email": 	 "john@doe.com"
         }
     }
+}
+```
 
+## Requirements
+
+* Composer
+* Joomla version 2.5 and up.
 
 ## Contributing
 
