@@ -43,11 +43,11 @@ Using this JSON file, we have now defined our own custom package. Pay attention 
 
 Executing `composer install` will now fetch the `joomlatools/installer` plugin and use it to install the package into your Joomla installation.
 
-For more information on creating these custom packages for project which do not support Composer, see the [Composer docs](http://getcomposer.org/doc/05-repositories.md#package-2)
+For more information on creating these custom packages for projects which do not support Composer, see the [Composer docs](http://getcomposer.org/doc/05-repositories.md#package-2).
 
 ### Creating a custom package
 
-To really make use of all Composer's features, like upgrading to a newer version, you are better off creating a package using your extension's source code. 
+To make use of all Composer's features, eg. upgrading to a newer version, you are better off creating a package using your extension's source code. 
 
 The package definition should contain the following basic information to make it installable into Joomla: 
 
@@ -59,7 +59,9 @@ The package definition should contain the following basic information to make it
     	}
 }
 ```
-	
+
+If you want to make your extension available directly from Github or any other VCS, you want to make sure that the file layout in your repo resembles your install package. 
+
 You can now publish your extension on [Packagist](https://packagist.org/) or serve it yourself using your own [Satis repository](http://getcomposer.org/doc/articles/handling-private-packages-with-satis.md). 
 
 For more information on rolling your own package, please refer to the [Composer documentation](http://getcomposer.org/doc/02-libraries.md).
