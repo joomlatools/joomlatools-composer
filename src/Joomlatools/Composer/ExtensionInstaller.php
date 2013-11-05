@@ -39,6 +39,11 @@ class ExtensionInstaller extends LibraryInstaller
     protected function _initialize()
     {
         $config = $this->_config->get('joomla');
+
+        if(is_null($config) || !is_array($config)) {
+            $config = array();
+        }
+
         $defaults = array('name'      => 'root',
             'username'  => 'root',
             'groups'    => array(8),
