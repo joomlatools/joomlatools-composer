@@ -27,6 +27,9 @@ class ExtensionInstaller extends LibraryInstaller
     protected $_application = null;
     protected $_credentials = array();
 
+    /**
+     * {@inheritDoc}
+     */
     public function __construct(IOInterface $io, Composer $composer, $type = 'library')
     {
         parent::__construct($io, $composer, $type);
@@ -36,6 +39,11 @@ class ExtensionInstaller extends LibraryInstaller
         $this->_initialize();
     }
 
+    /**
+     * Initializes extension installer.
+     *
+     * @return void
+     */
     protected function _initialize()
     {
         $config = $this->_config->get('joomla');
@@ -54,11 +62,17 @@ class ExtensionInstaller extends LibraryInstaller
         $this->_bootstrap();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getInstallPath(PackageInterface $package)
     {
         return 'tmp/' . $package->getPrettyName();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function install(InstalledRepositoryInterface $repo, PackageInterface $package)
     {
         parent::install($repo, $package);
@@ -81,6 +95,9 @@ class ExtensionInstaller extends LibraryInstaller
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function update(InstalledRepositoryInterface $repo, PackageInterface $initial, PackageInterface $target)
     {
         parent::update($repo, $initial, $target);
@@ -103,11 +120,17 @@ class ExtensionInstaller extends LibraryInstaller
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function supports($packageType)
     {
         return $packageType === 'joomlatools-installer';
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function isInstalled(InstalledRepositoryInterface $repo, PackageInterface $package)
     {
         $installer = $this->_application->getInstaller();
@@ -126,6 +149,11 @@ class ExtensionInstaller extends LibraryInstaller
         return false;
     }
 
+    /**
+     * Bootstraps the Joomla application
+     *
+     * @return void
+     */
     protected function _bootstrap()
     {
         if(!defined('_JEXEC'))
@@ -153,6 +181,11 @@ class ExtensionInstaller extends LibraryInstaller
         }
     }
 
+    /**
+     * Fetches the enqueued flash messages from the Joomla application object.
+     *
+     * @return array
+     */
     protected function _getApplicationMessages()
     {
         $messages       = $this->_application->getMessageQueue();

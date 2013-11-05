@@ -21,6 +21,12 @@ use Composer\Plugin\PluginInterface;
  */
 class ExtensionInstallerPlugin implements PluginInterface
 {
+    /**
+     * Apply plugin modifications to composer
+     *
+     * @param Composer $composer
+     * @param IOInterface $io
+     */
     public function activate(Composer $composer, IOInterface $io)
     {
         $installer = new ExtensionInstaller($io, $composer);
