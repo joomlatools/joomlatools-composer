@@ -100,4 +100,4 @@ See the list of [contributors](https://github.com/joomlatools/joomla-composer/co
 
 ## License
 
-The `joomlatools/installer` plugin is licensed under the MPL license - see the LICENSE file for details.
+The `joomlatools/installer` plugin is licensed under the GPL v3 license - see the LICENSE file for details.

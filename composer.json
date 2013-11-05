@@ -1,7 +1,7 @@
 {
     "name": "joomlatools/installer",
     "type": "composer-plugin",
-    "license": "MPL",
+    "license": "GPLv3",
     "description": "A Composer plugin to install Joomla extensions into your installation.",
     "keywords": ["joomla", "extension", "installer"],
     "homepage": "https://github.com/joomlatools/joomla-composer",
