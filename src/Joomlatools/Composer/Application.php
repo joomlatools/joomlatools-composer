@@ -15,6 +15,8 @@ use \JFactory as JFactory;
 use \JInstaller as JInstaller;
 use \JPluginHelper as JPluginHelper;
 use \JSession as JSession;
+use \JRouter as JRouter;
+use \JVersion as JVersion;
 
 /**
  * Application extending Joomla CLI class.
@@ -332,5 +334,60 @@ class Application extends JApplicationCli
         JFactory::$config = $this->config;
 
         return $this;
+    }
+
+    /**
+     * Determine if we are using a secure (SSL) connection.
+     *
+     * @return  boolean  True if using SSL, false if not.
+     *
+     * @since   12.2
+     */
+    public function isSSLConnection()
+    {
+        return ((isset($_SERVER['HTTPS']) && ($_SERVER['HTTPS'] == 'on')) || getenv('SSL_PROTOCOL_VERSION'));
+    }
+
+    /**
+     * Flush the media version to refresh versionable assets
+     *
+     * @return  void
+     *
+     * @since   3.2
+     */
+    public function flushAssets()
+    {
+        $version = new JVersion;
+        $version->refreshMediaVersion();
+    }
+
+    /**
+     * Returns the application JRouter object.
+     *
+     * @param   string  $name     The name of the application.
+     * @param   array   $options  An optional associative array of configuration settings.
+     *
+     * @return  JRouter
+     *
+     * @since   3.2
+     */
+    public static function getRouter($name = 'administrator', array $options = array())
+    {
+        if (!isset($name))
+        {
+            $app = JFactory::getApplication();
+            $name = $app->getName();
+        }
+
+        try
+        {
+            $router = JRouter::getInstance($name, $options);
+        }
+        catch (Exception $e)
+        {
+            return null;
+        }
+
+        return $router;
     }
 }
