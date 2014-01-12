@@ -159,6 +159,7 @@ class ExtensionInstaller extends LibraryInstaller
         if(!defined('_JEXEC'))
         {
             $_SERVER['HTTP_HOST']   = 'localhost';
+            $_SERVER['HTTP_USER_AGENT'] = 'Composer';
 
             define('_JEXEC', 1);
             define('DS', DIRECTORY_SEPARATOR);
@@ -208,6 +209,8 @@ class ExtensionInstaller extends LibraryInstaller
         $parts = explode('/', $name);
         if($parts[0] == 'joomlatools' && $parts[1] != 'extman')
         {
+            \JPluginHelper::importPlugin('system', 'koowa');
+
             if(class_exists('Koowa') && !class_exists('ComExtmanDatabaseRowExtension')) {
                 \KObjectManager::getInstance()->getObject('com://admin/extman.database.row.extension');
             }

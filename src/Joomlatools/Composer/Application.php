@@ -84,9 +84,6 @@ class Application extends JApplicationCli
             JFactory::$session = $this->_startSession();
         }
 
-        // Load plugins
-        JPluginHelper::importPlugin('system');
-
         // Load required languages
         $lang = JFactory::getLanguage();
         $lang->load('lib_joomla', JPATH_ADMINISTRATOR, null, true);
@@ -339,13 +336,14 @@ class Application extends JApplicationCli
     /**
      * Determine if we are using a secure (SSL) connection.
      *
-     * @return  boolean  True if using SSL, false if not.
+     * This method is a stub; Joomla 3.2.x requires this method to be available in the application object.
      *
+     * @return  boolean  false
      * @since   12.2
      */
     public function isSSLConnection()
     {
-        return ((isset($_SERVER['HTTPS']) && ($_SERVER['HTTPS'] == 'on')) || getenv('SSL_PROTOCOL_VERSION'));
+        return false;
     }
 
     /**
@@ -357,7 +355,7 @@ class Application extends JApplicationCli
      */
     public function flushAssets()
     {
-        $version = new JVersion;
+        $version = new JVersion();
         $version->refreshMediaVersion();
     }
 
