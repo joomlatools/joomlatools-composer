@@ -102,5 +102,3 @@ See the list of [contributors](https://github.com/joomlatools/joomla-composer/co
 
 The `joomlatools/installer` plugin is licensed under the GPL v3 license - see the LICENSE file for details.
 
-[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/joomlatools/joomla-composer/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
-
