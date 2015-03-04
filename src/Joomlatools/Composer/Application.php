@@ -389,3 +389,15 @@ class Application extends JApplicationCli
         return $router;
     }
 }
+
+/**
+ * Workaround for Joomla 3.4+
+ * 
+ * Fix Fatal error: Call to undefined function Composer\Autoload\includeFile() in /libraries/ClassLoader.php on line 43
+ */
+namespace Composer\Autoload;
+
+function includeFile($file)
+{
+    include $file;
+}
