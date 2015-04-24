@@ -14,7 +14,7 @@ use Composer\IO\IOInterface;
 use Composer\Package\PackageInterface;
 use Composer\Repository\InstalledRepositoryInterface;
 use Composer\Installer\LibraryInstaller;
-
+use \JLog as JLog;
 /**
  * Composer installer class
  *
@@ -171,6 +171,10 @@ class ExtensionInstaller extends LibraryInstaller
             require_once JPATH_LIBRARIES . '/import.php';
 
             require_once JPATH_LIBRARIES . '/cms.php';
+            
+            // Add logger to standard out for error messages during install
+            require_once JPATH_LIBRARIES . '/joomla/log/log.php';               
+            JLog::addLogger(array('logger' => 'echo'), JLog::ALL);
         }
 
         if(!($this->_application instanceof Application))
