@@ -173,8 +173,8 @@ class ExtensionInstaller extends LibraryInstaller
             require_once JPATH_LIBRARIES . '/cms.php';
             
             // Add logger to standard out for error messages during install
-            require_once JPATH_LIBRARIES . '/joomla/log/log.php';               
-            JLog::addLogger(array('logger' => 'echo'), JLog::ALL);
+            require_once JPATH_LIBRARIES . '/joomla/log/log.php';
+            JLog::addLogger(array('logger' => 'echo'), JLog::WARNING, array('jerror'));
         }
 
         if(!($this->_application instanceof Application))
