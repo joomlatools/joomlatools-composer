@@ -394,10 +394,17 @@ class Application extends JApplicationCli
  * Workaround for Joomla 3.4+
  * 
  * Fix Fatal error: Call to undefined function Composer\Autoload\includeFile() in /libraries/ClassLoader.php on line 43
+ *
+ * Fix Fatal error: Cannot redeclare Composer\Autoload\includeFile() (previously declared in
+ *  phar:///usr/bin/composer/vendor/composer/ClassLoader.php:410) in /vendor/joomlatools/installer/src/Joomlatools/Composer/Application.php
+ *  on line 403
  */
 namespace Composer\Autoload;
 
-function includeFile($file)
+if( !function_exists('Composer\Autoload\includeFile') )
 {
-    include $file;
+    function includeFile($file)
+    {
+        include $file;
+    }
 }
