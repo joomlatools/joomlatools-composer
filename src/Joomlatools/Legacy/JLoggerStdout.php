@@ -15,7 +15,6 @@
  * @author  Steven Rombauts <https://github.com/stevenrombauts>
  * @package Joomlatools\Composer
  */
-clas
 class JLoggerStdout extends JLogger
 {
     protected $priorities = array(
