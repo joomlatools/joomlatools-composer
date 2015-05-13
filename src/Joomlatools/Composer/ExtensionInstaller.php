@@ -46,10 +46,10 @@ class ExtensionInstaller extends LibraryInstaller
      */
     protected function _initialize()
     {
-        $config = $this->_config->get('joomla');
+        $credentials = $this->_config->get('joomla');
 
-        if(is_null($config) || !is_array($config)) {
-            $config = array();
+        if(is_null($credentials) || !is_array($credentials)) {
+            $credentials = array();
         }
 
         $defaults = array('name'      => 'root',
@@ -57,7 +57,7 @@ class ExtensionInstaller extends LibraryInstaller
             'groups'    => array(8),
             'email'     => 'root@localhost.home');
 
-        $this->_credentials = array_merge($defaults, $config);
+        $this->_credentials = array_merge($defaults, $credentials);
 
         $this->_bootstrap();
     }

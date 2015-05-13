@@ -77,7 +77,7 @@ If for some reason, you need to change the details of this mock user, you can ov
 {
     "config": {
         "joomla": {
-            "username": "johndoe",
+            "username":  "johndoe",
             "name":		 "John Doe",
             "email": 	 "john@doe.com"
         }
@@ -92,9 +92,7 @@ You can output Joomla's logging calls by adding this to your composer.json file:
 ```json
 {
     "config": {
-        "joomla": {
-            "loglevel": "debug"
-        }
+        "loglevel": "debug"
     }
 }
 ```
