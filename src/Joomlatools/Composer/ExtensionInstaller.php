@@ -52,10 +52,12 @@ class ExtensionInstaller extends LibraryInstaller
             $credentials = array();
         }
 
-        $defaults = array('name'      => 'root',
+        $defaults = array(
+            'name'      => 'root',
             'username'  => 'root',
             'groups'    => array(8),
-            'email'     => 'root@localhost.home');
+            'email'     => 'root@localhost.home'
+        );
 
         $this->_credentials = array_merge($defaults, $credentials);
 
@@ -306,8 +308,11 @@ class ExtensionInstaller extends LibraryInstaller
                     break;
             }
 
-            if (!is_null($priority)) {
-                JLog::addLogger(array('logger' => 'echo'), $priority);
+            if (!is_null($priority))
+            {
+                require_once dirname(__DIR__) . '/Legacy/JLoggerStdout.php';
+
+                JLog::addLogger(array('logger' => 'stdout'), $priority);
             }
         }
     }
