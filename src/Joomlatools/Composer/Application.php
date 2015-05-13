@@ -389,6 +389,12 @@ class Application extends JApplicationCli
         return $router;
     }
 
+    /**
+     * Enable logging to stdout of Joomla system messages.
+     *
+     * @param   int  $loglevel  The log level
+     * @return  void
+     */
     protected function _setupLogging($loglevel)
     {
         require_once JPATH_LIBRARIES . '/joomla/log/log.php';
@@ -449,6 +455,7 @@ class Application extends JApplicationCli
         }
         else
         {
+            // Deal with Joomla 3.4 which does not have a logger class that accepts callbacks
             require_once dirname(__DIR__) . '/Legacy/JLoggerStdout.php';
 
             $options = array('logger' => 'stdout');
