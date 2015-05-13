@@ -110,11 +110,7 @@ class Application extends JApplicationCli
             $user->$key = $value;
         }
 
-        // If we're on Joomla 3, explicitely push the JUser object into the session
-        // otherwise getUser() always returns a new instance of JUser.
-        if(version_compare(JVERSION, '3.0.0', '>=')) {
-            JFactory::getSession()->set('user', $user);
-        }
+        JFactory::getSession()->set('user', $user);
     }
 
     /**
