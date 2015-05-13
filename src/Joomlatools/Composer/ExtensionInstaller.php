@@ -172,9 +172,7 @@ class ExtensionInstaller extends LibraryInstaller
 
             require_once JPATH_LIBRARIES . '/cms.php';
             
-            // Add logger to standard out for error messages during install
-            require_once JPATH_LIBRARIES . '/joomla/log/log.php';
-            JLog::addLogger(array('logger' => 'echo'), JLog::WARNING, array('jerror'));
+            $this->_addLogger();
         }
 
         if(!($this->_application instanceof Application))
@@ -267,6 +265,51 @@ class ExtensionInstaller extends LibraryInstaller
         }
 
         return $element;
+    }
+
+    protected function _addLogger()
+    {
+        if ($loglevel = $this->_config->get('loglevel'))
+        {
+            require_once JPATH_LIBRARIES . '/joomla/log/log.php';
+
+            $priority = null;
+
+            switch ($loglevel)
+            {
+                case 'debug':
+                    $priority = JLog::DEBUG;
+                    break;
+                case 'info':
+                    $priority = JLog::INFO;
+                    break;
+                case 'notice':
+                    $priority = JLog::NOTICE;
+                    break;
+                case 'warning':
+                    $priority = JLog::WARNING;
+                    break;
+                case 'critical':
+                    $priority = JLog::CRITICAL;
+                    break;
+                case 'error':
+                    $priority = JLog::ERROR;
+                    break;
+                case 'alert':
+                    $priority = JLog::ALERT;
+                    break;
+                case 'emergency':
+                    $priority = JLog::EMERGENCY;
+                    break;
+                default:
+                    $priority = JLog::ALL;
+                    break;
+            }
+
+            if (!is_null($priority)) {
+                JLog::addLogger(array('logger' => 'echo'), $priority);
+            }
+        }
     }
 
     public function __destruct()
