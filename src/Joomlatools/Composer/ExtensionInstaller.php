@@ -14,7 +14,9 @@ use Composer\IO\IOInterface;
 use Composer\Package\PackageInterface;
 use Composer\Repository\InstalledRepositoryInterface;
 use Composer\Installer\LibraryInstaller;
-use \JLog as JLog;
+
+use Symfony\Component\Console\Output\OutputInterface;
+
 /**
  * Composer installer class
  *
@@ -24,6 +26,7 @@ use \JLog as JLog;
 class ExtensionInstaller extends LibraryInstaller
 {
     protected $_config      = null;
+    protected $_verbosity   = OutputInterface::VERBOSITY_NORMAL;
     protected $_application = null;
     protected $_credentials = array();
 
@@ -35,6 +38,14 @@ class ExtensionInstaller extends LibraryInstaller
         parent::__construct($io, $composer, $type);
 
         $this->_config = $composer->getConfig();
+
+        if ($io->isDebug()) {
+            $this->_verbosity = OutputInterface::VERBOSITY_DEBUG;
+        } elseif ($io->isVeryVerbose()) {
+            $this->_verbosity = OutputInterface::VERBOSITY_VERY_VERBOSE;
+        } elseif ($io->isVerbose()) {
+            $this->_verbosity = OutputInterface::VERBOSITY_VERBOSE;
+        }
 
         $this->_initialize();
     }
@@ -179,7 +190,7 @@ class ExtensionInstaller extends LibraryInstaller
         {
             $options = array(
                 'root_user' => $this->_credentials['username'],
-                'loglevel'  => $this->_config->get('loglevel')
+                'loglevel'  => $this->_verbosity
             );
 
             $this->_application = new Application($options);

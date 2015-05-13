@@ -85,20 +85,6 @@ If for some reason, you need to change the details of this mock user, you can ov
 }
 ```
 
-### Debugging
-
-You can output Joomla's logging calls by adding this to your composer.json file:
-
-```json
-{
-    "config": {
-        "loglevel": "debug"
-    }
-}
-```
-
-where `loglevel` can be any of: `debug`, `info`, `notice`, `warning`, `error`, `critical`, `alert`, `emergency` or `all`.
-
 ## Requirements
 
 * Composer

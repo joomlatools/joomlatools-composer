@@ -18,6 +18,7 @@ use \JRouter as JRouter;
 use \JVersion as JVersion;
 use \JLog as JLog;
 
+use Symfony\Component\Console\Output\OutputInterface;
 /**
  * Application extending Joomla CLI class.
  *
@@ -399,36 +400,20 @@ class Application extends JApplicationCli
     {
         require_once JPATH_LIBRARIES . '/joomla/log/log.php';
 
-        $priority = null;
+        if ($loglevel == OutputInterface::VERBOSITY_NORMAL) {
+            return;
+        }
 
         switch ($loglevel)
         {
-            case 'debug':
-                $priority = JLog::DEBUG;
-                break;
-            case 'info':
-                $priority = JLog::INFO;
-                break;
-            case 'notice':
-                $priority = JLog::NOTICE;
-                break;
-            case 'warning':
-                $priority = JLog::WARNING;
-                break;
-            case 'critical':
-                $priority = JLog::CRITICAL;
-                break;
-            case 'error':
-                $priority = JLog::ERROR;
-                break;
-            case 'alert':
-                $priority = JLog::ALERT;
-                break;
-            case 'emergency':
-                $priority = JLog::EMERGENCY;
-                break;
-            default:
+            case OutputInterface::VERBOSITY_DEBUG:
                 $priority = JLog::ALL;
+                break;
+            case OutputInterface::VERBOSITY_VERY_VERBOSE:
+                $priority = JLog::ALL & ~JLog::DEBUG;
+                break;
+            case OutputInterface::VERBOSITY_VERBOSE:
+                $priority = JLog::ALL & ~JLog::DEBUG & ~JLog::INFO & ~JLog::NOTICE;
                 break;
         }
 
