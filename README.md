@@ -85,6 +85,10 @@ If for some reason, you need to change the details of this mock user, you can ov
 }
 ```
 
+## Debugging
+
+Having trouble? You can increase Composer's verbosity setting (`-v|vv|vvv`) to gather more information. Increasing Composer's verbosity will also enable Joomla's log messages.
+
 ## Requirements
 
 * Composer
