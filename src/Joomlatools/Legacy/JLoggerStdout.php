@@ -9,7 +9,8 @@ class JLoggerStdout extends JLogger
         JLog::WARNING => 'WARNING',
         JLog::NOTICE => 'NOTICE',
         JLog::INFO => 'INFO',
-        JLog::DEBUG => 'DEBUG');
+        JLog::DEBUG => 'DEBUG'
+    );
 
     public function addEntry(JLogEntry $entry)
     {

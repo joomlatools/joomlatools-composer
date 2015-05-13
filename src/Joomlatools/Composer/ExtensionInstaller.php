@@ -310,9 +310,36 @@ class ExtensionInstaller extends LibraryInstaller
 
             if (!is_null($priority))
             {
-                require_once dirname(__DIR__) . '/Legacy/JLoggerStdout.php';
+                if(version_compare(JVERSION, '3.0.0', '>='))
+                {
+                    $callback = function($entry) {
+                        $priorities = array(
+                            JLog::EMERGENCY => 'EMERGENCY',
+                            JLog::ALERT => 'ALERT',
+                            JLog::CRITICAL => 'CRITICAL',
+                            JLog::ERROR => 'ERROR',
+                            JLog::WARNING => 'WARNING',
+                            JLog::NOTICE => 'NOTICE',
+                            JLog::INFO => 'INFO',
+                            JLog::DEBUG => 'DEBUG'
+                        );
 
-                JLog::addLogger(array('logger' => 'stdout'), $priority);
+                        $message = $priorities[$entry->priority] . ': ' . $entry->message . (empty($entry->category) ? '' : ' [' . $entry->category . ']') . "\n";
+
+                        fwrite(STDOUT, $message);
+                    };
+
+                    $options = array('logger' => 'callback', 'callback' => $callback);
+                }
+                else
+                {
+                    require_once dirname(__DIR__) . '/Legacy/JLoggerStdout.php';
+
+                    $options = array('logger' => 'stdout');
+                }
+
+
+                JLog::addLogger($options, $priority);
             }
         }
     }
