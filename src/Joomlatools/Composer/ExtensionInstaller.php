@@ -173,13 +173,14 @@ class ExtensionInstaller extends LibraryInstaller
             require_once JPATH_LIBRARIES . '/import.php';
 
             require_once JPATH_LIBRARIES . '/cms.php';
-            
-            $this->_addLogger();
         }
 
         if(!($this->_application instanceof Application))
         {
-            $options = array('root_user' => $this->_credentials['username']);
+            $options = array(
+                'root_user' => $this->_credentials['username'],
+                'loglevel'  => $this->_config->get('loglevel')
+            );
 
             $this->_application = new Application($options);
             $this->_application->authenticate($this->_credentials);
@@ -267,81 +268,6 @@ class ExtensionInstaller extends LibraryInstaller
         }
 
         return $element;
-    }
-
-    protected function _addLogger()
-    {
-        if ($loglevel = $this->_config->get('loglevel'))
-        {
-            require_once JPATH_LIBRARIES . '/joomla/log/log.php';
-
-            $priority = null;
-
-            switch ($loglevel)
-            {
-                case 'debug':
-                    $priority = JLog::DEBUG;
-                    break;
-                case 'info':
-                    $priority = JLog::INFO;
-                    break;
-                case 'notice':
-                    $priority = JLog::NOTICE;
-                    break;
-                case 'warning':
-                    $priority = JLog::WARNING;
-                    break;
-                case 'critical':
-                    $priority = JLog::CRITICAL;
-                    break;
-                case 'error':
-                    $priority = JLog::ERROR;
-                    break;
-                case 'alert':
-                    $priority = JLog::ALERT;
-                    break;
-                case 'emergency':
-                    $priority = JLog::EMERGENCY;
-                    break;
-                default:
-                    $priority = JLog::ALL;
-                    break;
-            }
-
-            if (!is_null($priority))
-            {
-                if(version_compare(JVERSION, '3.0.0', '>='))
-                {
-                    $callback = function($entry) {
-                        $priorities = array(
-                            JLog::EMERGENCY => 'EMERGENCY',
-                            JLog::ALERT => 'ALERT',
-                            JLog::CRITICAL => 'CRITICAL',
-                            JLog::ERROR => 'ERROR',
-                            JLog::WARNING => 'WARNING',
-                            JLog::NOTICE => 'NOTICE',
-                            JLog::INFO => 'INFO',
-                            JLog::DEBUG => 'DEBUG'
-                        );
-
-                        $message = $priorities[$entry->priority] . ': ' . $entry->message . (empty($entry->category) ? '' : ' [' . $entry->category . ']') . "\n";
-
-                        fwrite(STDOUT, $message);
-                    };
-
-                    $options = array('logger' => 'callback', 'callback' => $callback);
-                }
-                else
-                {
-                    require_once dirname(__DIR__) . '/Legacy/JLoggerStdout.php';
-
-                    $options = array('logger' => 'stdout');
-                }
-
-
-                JLog::addLogger($options, $priority);
-            }
-        }
     }
 
     public function __destruct()
