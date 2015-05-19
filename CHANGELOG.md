@@ -7,6 +7,14 @@ in 1.x versions.
 To get the diff for a specific change, go to https://github.com/joomlatools/joomla-composer/commit/xxx where xxx is the change hash.
 To view the diff between two versions, go to https://github.com/joomlatools/joomla-composer/compare/v1.0.0...v1.0.1
 
+* 1.0.4 (2015-05-19)
+
+ * Added - Enable Joomla logging (PR #4)
+
+* 1.0.3 (2015-05-02)
+
+ * Fixed - Ensure compatibility with both latest Composer (Composer version 1.0-dev (1cb427ff5c0b977468643a39436f3b0a356fc8eb) 2015-04-26) and previous versions. (PR #5)
+
 * 1.0.2 (2015-03-03)
 
  * Fixed - Fix call to undefined function Composer\Autoload\includeFile() error in Joomla 3.4
