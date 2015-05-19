@@ -433,7 +433,7 @@ class Application extends JApplicationCli
 
                 $message = $priorities[$entry->priority] . ': ' . $entry->message . (empty($entry->category) ? '' : ' [' . $entry->category . ']') . "\n";
 
-                fwrite(STDOUT, $message);
+                fwrite(STDERR, $message);
             };
 
             $options = array('logger' => 'callback', 'callback' => $callback);
@@ -441,9 +441,9 @@ class Application extends JApplicationCli
         else
         {
             // Deal with Joomla 3.4 which does not have a logger class that accepts callbacks
-            require_once dirname(__DIR__) . '/Legacy/JLoggerStdout.php';
+            require_once dirname(__DIR__) . '/Legacy/JLoggerStderr.php';
 
-            $options = array('logger' => 'stdout');
+            $options = array('logger' => 'stderr');
         }
 
 

@@ -8,14 +8,14 @@
  */
 
 /**
- * STDOUT Joomla Logger
+ * STDERR Joomla Logger
  *
- * This class adds legacy support for Joomla 2.5 logging to STDOUT.
+ * This class adds legacy support for Joomla 2.5 logging to STDERR.
  *
  * @author  Steven Rombauts <https://github.com/stevenrombauts>
  * @package Joomlatools\Composer
  */
-class JLoggerStdout extends JLogger
+class JLoggerStderr extends JLogger
 {
     protected $priorities = array(
         JLog::EMERGENCY => 'EMERGENCY',
@@ -32,6 +32,6 @@ class JLoggerStdout extends JLogger
     {
         $message = $this->priorities[$entry->priority] . ': ' . $entry->message . (empty($entry->category) ? '' : ' [' . $entry->category . ']') . "\n";
 
-        fwrite(STDOUT, $message);
+        fwrite(STDERR, $message);
     }
 }
