@@ -13,11 +13,12 @@ use \JApplicationCli as JApplicationCli;
 use \JDispatcher as JDispatcher;
 use \JFactory as JFactory;
 use \JInstaller as JInstaller;
-use \JPluginHelper as JPluginHelper;
 use \JSession as JSession;
 use \JRouter as JRouter;
 use \JVersion as JVersion;
+use \JLog as JLog;
 
+use Symfony\Component\Console\Output\OutputInterface;
 /**
  * Application extending Joomla CLI class.
  *
@@ -46,6 +47,10 @@ class Application extends JApplicationCli
     public function __construct($options = array(), JInputCli $input = null, JRegistry $config = null, JDispatcher $dispatcher = null)
     {
         $this->_options = $options;
+
+        if (isset($this->_options['loglevel'])) {
+            $this->_setupLogging($this->_options['loglevel']);
+        }
 
         parent::__construct($input, $config, $dispatcher);
 
@@ -110,11 +115,7 @@ class Application extends JApplicationCli
             $user->$key = $value;
         }
 
-        // If we're on Joomla 3, explicitely push the JUser object into the session
-        // otherwise getUser() always returns a new instance of JUser.
-        if(version_compare(JVERSION, '3.0.0', '>=')) {
-            JFactory::getSession()->set('user', $user);
-        }
+        JFactory::getSession()->set('user', $user);
     }
 
     /**
@@ -387,6 +388,66 @@ class Application extends JApplicationCli
         }
 
         return $router;
+    }
+
+    /**
+     * Enable logging to stdout of Joomla system messages.
+     *
+     * @param   int  $loglevel  The log level
+     * @return  void
+     */
+    protected function _setupLogging($loglevel)
+    {
+        require_once JPATH_LIBRARIES . '/joomla/log/log.php';
+
+        if ($loglevel == OutputInterface::VERBOSITY_NORMAL) {
+            return;
+        }
+
+        switch ($loglevel)
+        {
+            case OutputInterface::VERBOSITY_DEBUG:
+                $priority = JLog::ALL;
+                break;
+            case OutputInterface::VERBOSITY_VERY_VERBOSE:
+                $priority = JLog::ALL & ~JLog::DEBUG;
+                break;
+            case OutputInterface::VERBOSITY_VERBOSE:
+                $priority = JLog::ALL & ~JLog::DEBUG & ~JLog::INFO & ~JLog::NOTICE;
+                break;
+        }
+
+        if (version_compare(JVERSION, '3.0.0', '>='))
+        {
+            $callback = function ($entry) {
+                $priorities = array(
+                    JLog::EMERGENCY => 'EMERGENCY',
+                    JLog::ALERT => 'ALERT',
+                    JLog::CRITICAL => 'CRITICAL',
+                    JLog::ERROR => 'ERROR',
+                    JLog::WARNING => 'WARNING',
+                    JLog::NOTICE => 'NOTICE',
+                    JLog::INFO => 'INFO',
+                    JLog::DEBUG => 'DEBUG'
+                );
+
+                $message = $priorities[$entry->priority] . ': ' . $entry->message . (empty($entry->category) ? '' : ' [' . $entry->category . ']') . "\n";
+
+                fwrite(STDERR, $message);
+            };
+
+            $options = array('logger' => 'callback', 'callback' => $callback);
+        }
+        else
+        {
+            // Deal with Joomla 3.4 which does not have a logger class that accepts callbacks
+            require_once dirname(__DIR__) . '/Legacy/JLoggerStderr.php';
+
+            $options = array('logger' => 'stderr');
+        }
+
+
+        JLog::addLogger($options, $priority);
     }
 }
 
