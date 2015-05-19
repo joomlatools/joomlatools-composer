@@ -15,6 +15,8 @@ use Composer\Package\PackageInterface;
 use Composer\Repository\InstalledRepositoryInterface;
 use Composer\Installer\LibraryInstaller;
 
+use Symfony\Component\Console\Output\OutputInterface;
+
 /**
  * Composer installer class
  *
@@ -24,6 +26,7 @@ use Composer\Installer\LibraryInstaller;
 class ExtensionInstaller extends LibraryInstaller
 {
     protected $_config      = null;
+    protected $_verbosity   = OutputInterface::VERBOSITY_NORMAL;
     protected $_application = null;
     protected $_credentials = array();
 
@@ -36,6 +39,14 @@ class ExtensionInstaller extends LibraryInstaller
 
         $this->_config = $composer->getConfig();
 
+        if ($io->isDebug()) {
+            $this->_verbosity = OutputInterface::VERBOSITY_DEBUG;
+        } elseif ($io->isVeryVerbose()) {
+            $this->_verbosity = OutputInterface::VERBOSITY_VERY_VERBOSE;
+        } elseif ($io->isVerbose()) {
+            $this->_verbosity = OutputInterface::VERBOSITY_VERBOSE;
+        }
+
         $this->_initialize();
     }
 
@@ -46,18 +57,20 @@ class ExtensionInstaller extends LibraryInstaller
      */
     protected function _initialize()
     {
-        $config = $this->_config->get('joomla');
+        $credentials = $this->_config->get('joomla');
 
-        if(is_null($config) || !is_array($config)) {
-            $config = array();
+        if(is_null($credentials) || !is_array($credentials)) {
+            $credentials = array();
         }
 
-        $defaults = array('name'      => 'root',
+        $defaults = array(
+            'name'      => 'root',
             'username'  => 'root',
             'groups'    => array(8),
-            'email'     => 'root@localhost.home');
+            'email'     => 'root@localhost.home'
+        );
 
-        $this->_credentials = array_merge($defaults, $config);
+        $this->_credentials = array_merge($defaults, $credentials);
 
         $this->_bootstrap();
     }
@@ -175,7 +188,10 @@ class ExtensionInstaller extends LibraryInstaller
 
         if(!($this->_application instanceof Application))
         {
-            $options = array('root_user' => $this->_credentials['username']);
+            $options = array(
+                'root_user' => $this->_credentials['username'],
+                'loglevel'  => $this->_verbosity
+            );
 
             $this->_application = new Application($options);
             $this->_application->authenticate($this->_credentials);

@@ -1,6 +1,6 @@
 # Joomlatools Composer Installer
 
-This Composer plugin will install extensions into your Joomla setup. 
+This Composer plugin will install extensions into your Joomla setup.
 
 ## Usage
 
@@ -8,7 +8,7 @@ This Composer plugin will install extensions into your Joomla setup.
 
 The easiest way to get started is by defining a custom package in your `composer.json`file.  All you need is the package file for the extension you wish to install. (ie. the installer file you downloaded from the vendor's website)
 
-Create the `composer.json` file in the root directory of your Joomla installation and have it look something like this: 
+Create the `composer.json` file in the root directory of your Joomla installation and have it look something like this:
 
 ```json
 	{
@@ -29,13 +29,13 @@ Create the `composer.json` file in the root directory of your Joomla installatio
             	}
         	}
     	],
-    
+
     	"require": {
     		"vendor/extension": "1.0.0"
     	}
 	}
 ```
-	
+
 Using this JSON file, we have now defined our own custom package. Pay attention to the following settings:
 
 * The `type` has to be set to `joomlatools-installer`
@@ -47,9 +47,9 @@ For more information on creating these custom packages for projects which do not
 
 ### Creating a custom package
 
-To make use of all Composer's features, eg. upgrading to a newer version, you are better off creating a package using your extension's source code. 
+To make use of all Composer's features, eg. upgrading to a newer version, you are better off creating a package using your extension's source code.
 
-The package definition should contain the following basic information to make it installable into Joomla: 
+The package definition should contain the following basic information to make it installable into Joomla:
 
 ```json
 {
@@ -60,9 +60,9 @@ The package definition should contain the following basic information to make it
 }
 ```
 
-If you want to make your extension available directly from Github or any other VCS, you want to make sure that the file layout in your repo resembles your install package. 
+If you want to make your extension available directly from Github or any other VCS, you want to make sure that the file layout in your repo resembles your install package.
 
-You can now publish your extension on [Packagist](https://packagist.org/) or serve it yourself using your own [Satis repository](http://getcomposer.org/doc/articles/handling-private-packages-with-satis.md). 
+You can now publish your extension on [Packagist](https://packagist.org/) or serve it yourself using your own [Satis repository](http://getcomposer.org/doc/articles/handling-private-packages-with-satis.md).
 
 For more information on rolling your own package, please refer to the [Composer documentation](http://getcomposer.org/doc/02-libraries.md).
 
@@ -77,13 +77,17 @@ If for some reason, you need to change the details of this mock user, you can ov
 {
     "config": {
         "joomla": {
-            "username": "johndoe",
+            "username":  "johndoe",
             "name":		 "John Doe",
             "email": 	 "john@doe.com"
         }
     }
 }
 ```
+
+## Debugging
+
+Having trouble? You can increase Composer's verbosity setting (`-v|vv|vvv`) to gather more information. Increasing Composer's verbosity will also enable Joomla's log messages.
 
 ## Requirements
 
@@ -115,4 +119,3 @@ The `joomlatools/installer` plugin is free and open-source software licensed und
 
 [gitflow-model]: http://nvie.com/posts/a-successful-git-branching-model/
 [gplv3-license]: https://github.com/nooku/nooku-framework/blob/master/LICENSE.txt
-
