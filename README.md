@@ -17,7 +17,7 @@ Create the `composer.json` file in the root directory of your Joomla installatio
             	"type": "package",
             	"package": {
                 	"name": "vendor/extension",
-                	"type": "joomlatools-installer",
+                	"type": "joomla-installer",
                 	"version": "1.0.0",
                 	"dist": {
                     	"url": "file:////Users/johndoe/Downloads/com_extension.1.0.0.tar.gz",
@@ -54,7 +54,7 @@ The package definition should contain the following basic information to make it
 ```json
 {
     	"name": "vendor/my-extension",
-		"type": "joomlatools-installer",
+		"type": "joomla-installer",
     	"require": {
         	"joomlatools/installer": "*"
     	}

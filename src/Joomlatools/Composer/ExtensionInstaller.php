@@ -181,7 +181,8 @@ class ExtensionInstaller extends LibraryInstaller
 
             if ($this->_isJoomlaPlatform())
             {
-                define('JPATH_ROOT', JPATH_BASE);
+                define('JPATH_ROOT',  JPATH_BASE);
+                define('JPATH_CACHE', sys_get_temp_dir());
 
                 require_once JPATH_BASE . '/app/defines.php';
                 require_once JPATH_BASE . '/app/bootstrap.php';
