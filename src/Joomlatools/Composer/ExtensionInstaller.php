@@ -78,14 +78,6 @@ class ExtensionInstaller extends LibraryInstaller
     /**
      * {@inheritDoc}
      */
-    public function getInstallPath(PackageInterface $package)
-    {
-        return 'tmp/' . $package->getPrettyName();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public function install(InstalledRepositoryInterface $repo, PackageInterface $package)
     {
         parent::install($repo, $package);
