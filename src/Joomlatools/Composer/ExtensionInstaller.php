@@ -138,7 +138,7 @@ class ExtensionInstaller extends LibraryInstaller
      */
     public function supports($packageType)
     {
-        return $packageType === 'joomlatools-installer';
+        return in_array($packageType, array('joomlatools-installer', 'joomla-installer'));
     }
 
     /**

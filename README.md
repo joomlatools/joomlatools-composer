@@ -54,6 +54,7 @@ The package definition should contain the following basic information to make it
 ```json
 {
     	"name": "vendor/my-extension",
+		"type": "joomlatools-installer",
     	"require": {
         	"joomlatools/installer": "*"
     	}
