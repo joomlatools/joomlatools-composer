@@ -78,14 +78,6 @@ class ExtensionInstaller extends LibraryInstaller
     /**
      * {@inheritDoc}
      */
-    public function getInstallPath(PackageInterface $package)
-    {
-        return 'tmp/' . $package->getPrettyName();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public function install(InstalledRepositoryInterface $repo, PackageInterface $package)
     {
         parent::install($repo, $package);
@@ -138,7 +130,7 @@ class ExtensionInstaller extends LibraryInstaller
      */
     public function supports($packageType)
     {
-        return $packageType === 'joomlatools-installer';
+        return in_array($packageType, array('joomlatools-installer', 'joomla-installer'));
     }
 
     /**
@@ -178,11 +170,23 @@ class ExtensionInstaller extends LibraryInstaller
             define('DS', DIRECTORY_SEPARATOR);
 
             define('JPATH_BASE', realpath('.'));
-            require_once JPATH_BASE . '/includes/defines.php';
 
-            require_once JPATH_BASE . '/includes/framework.php';
+            if ($this->_isJoomlaPlatform())
+            {
+                define('JPATH_ROOT',  JPATH_BASE);
+                define('JPATH_CACHE', sys_get_temp_dir());
+                define('JPATH_WEB',   JPATH_BASE.'/web');
+
+                require_once JPATH_BASE . '/app/defines.php';
+                require_once JPATH_BASE . '/app/bootstrap.php';
+            }
+            else
+            {
+                require_once JPATH_BASE . '/includes/defines.php';
+                require_once JPATH_BASE . '/includes/framework.php';
+            }
+
             require_once JPATH_LIBRARIES . '/import.php';
-
             require_once JPATH_LIBRARIES . '/cms.php';
         }
 
@@ -279,6 +283,23 @@ class ExtensionInstaller extends LibraryInstaller
         }
 
         return $element;
+    }
+
+    protected function _isJoomlaPlatform()
+    {
+        $manifest = realpath('./composer.json');
+
+        if (file_exists($manifest))
+        {
+            $contents = file_get_contents($manifest);
+            $package  = json_decode($contents);
+
+            if ($package->name == 'joomlatools/joomla-platform') {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public function __destruct()
