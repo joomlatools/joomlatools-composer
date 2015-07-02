@@ -145,7 +145,10 @@ class ExtensionInstaller extends LibraryInstaller
             {
                 $extension = $this->_application->getExtension($element, $type);
 
-                if ($extension) {
+                if ($extension)
+                {
+                    $this->io->write('    <fg=cyan>Removing</fg=cyan> Joomla extension'.PHP_EOL);
+
                     $this->_application->uninstall($extension->id, $type);
                 }
             }
