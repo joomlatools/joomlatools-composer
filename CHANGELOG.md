@@ -7,6 +7,12 @@ in 1.x versions.
 To get the diff for a specific change, go to https://github.com/joomlatools/joomla-composer/commit/xxx where xxx is the change hash.
 To view the diff between two versions, go to https://github.com/joomlatools/joomla-composer/compare/v1.0.0...v1.0.1
 
+* 1.0.6 (2015-07-03)
+ * Fixed: Use `vendor` directory instead of `tmp` to store packages. (#6)
+ * Added: Support for joomla-platform. (#7)
+ * Added: Uninstall support. (#9)
+ * Fixed: Updated changelog.
+
 * 1.0.5 (2015-06-11)
  * Fixed: Restrict console-plugin-api version to ^1.0 (see [this issue](https://github.com/composer/composer/issues/4085))
 
