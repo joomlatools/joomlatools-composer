@@ -334,13 +334,16 @@ class ExtensionInstaller extends LibraryInstaller
                 }
                 break;
             case 'component':
-            default:
                 $element = strtolower((string) $manifest->name);
                 $element = preg_replace('/[^A-Z0-9_\.-]/i', '', $element);
 
                 if(substr($element, 0, 4) != 'com_') {
                     $element = 'com_'.$element;
                 }
+                break;
+            default:
+                $element = strtolower((string) $manifest->name);
+                $element = preg_replace('/[^A-Z0-9_\.-]/i', '', $element);
                 break;
         }
 
