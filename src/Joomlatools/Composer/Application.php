@@ -129,7 +129,7 @@ class Application extends JApplicationCli
     public function getExtension($element, $type = 'component')
     {
         $db = JFactory::getDbo();
-        $sql = "SELECT `extension_id`, `state` FROM `#__extensions`"
+        $sql = "SELECT `extension_id` AS `id`, `state` FROM `#__extensions`"
                 ." WHERE `element` = ".$db->quote($element)." AND `type` = ".$db->quote($type);
 
         $extension = $db->setQuery($sql)->loadObject();

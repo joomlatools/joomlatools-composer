@@ -145,7 +145,9 @@ class ExtensionInstaller extends LibraryInstaller
             {
                 $extension = $this->_application->getExtension($element, $type);
 
-                $this->_application->uninstall($extension->id, type);
+                if ($extension->id) {
+                    $this->_application->uninstall($extension->id, $type);
+                }
             }
         }
 
