@@ -78,14 +78,6 @@ class ExtensionInstaller extends LibraryInstaller
     /**
      * {@inheritDoc}
      */
-    public function getInstallPath(PackageInterface $package)
-    {
-        return 'tmp/' . $package->getPrettyName();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public function install(InstalledRepositoryInterface $repo, PackageInterface $package)
     {
         parent::install($repo, $package);
@@ -136,9 +128,40 @@ class ExtensionInstaller extends LibraryInstaller
     /**
      * {@inheritDoc}
      */
+    public function uninstall(InstalledRepositoryInterface $repo, PackageInterface $package)
+    {
+        if (!$repo->hasPackage($package)) {
+            throw new \InvalidArgumentException('Package is not installed: '.$package);
+        }
+
+        $manifest    = $this->_getManifest($package);
+
+        if($manifest)
+        {
+            $type    = (string) $manifest->attributes()->type;
+            $element = $this->_getElementFromManifest($manifest);
+
+            if (!empty($element))
+            {
+                $extension = $this->_application->getExtension($element, $type);
+
+                if ($extension) {
+                    $this->_application->uninstall($extension->id, $type);
+                }
+            }
+        }
+
+        parent::uninstall($repo, $package);
+
+        $this->io->write('    <fg=cyan>Removing</fg=cyan> Joomla extension'.PHP_EOL);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function supports($packageType)
     {
-        return $packageType === 'joomlatools-installer';
+        return in_array($packageType, array('joomlatools-installer', 'joomla-installer'));
     }
 
     /**
@@ -146,17 +169,20 @@ class ExtensionInstaller extends LibraryInstaller
      */
     public function isInstalled(InstalledRepositoryInterface $repo, PackageInterface $package)
     {
-        $installer = $this->_application->getInstaller();
-        $installer->setPath('source', $this->getInstallPath($package));
-
-        $manifest = $installer->getManifest();
+        $manifest = $this->_getManifest($package);
 
         if($manifest)
         {
             $type    = (string) $manifest->attributes()->type;
             $element = $this->_getElementFromManifest($manifest);
 
-            return !empty($element) ? $this->_application->hasExtension($element, $type) : false;
+            if (empty($element)) {
+                return false;
+            }
+
+            $extension = $this->_application->getExtension($element, $type);
+
+            return $extension !== false;
         }
 
         return false;
@@ -178,11 +204,23 @@ class ExtensionInstaller extends LibraryInstaller
             define('DS', DIRECTORY_SEPARATOR);
 
             define('JPATH_BASE', realpath('.'));
-            require_once JPATH_BASE . '/includes/defines.php';
 
-            require_once JPATH_BASE . '/includes/framework.php';
+            if ($this->_isJoomlaPlatform())
+            {
+                define('JPATH_ROOT',  JPATH_BASE);
+                define('JPATH_CACHE', sys_get_temp_dir());
+                define('JPATH_WEB',   JPATH_BASE.'/web');
+
+                require_once JPATH_BASE . '/app/defines.php';
+                require_once JPATH_BASE . '/app/bootstrap.php';
+            }
+            else
+            {
+                require_once JPATH_BASE . '/includes/defines.php';
+                require_once JPATH_BASE . '/includes/framework.php';
+            }
+
             require_once JPATH_LIBRARIES . '/import.php';
-
             require_once JPATH_LIBRARIES . '/cms.php';
         }
 
@@ -233,11 +271,38 @@ class ExtensionInstaller extends LibraryInstaller
         }
     }
 
+    /**
+     * Find the xml manifest of the package
+     *
+     * @param PackageInterface $package
+     *
+     * @return object  Manifest object
+     */
+    protected function _getManifest(PackageInterface $package)
+    {
+        $installer   = $this->_application->getInstaller();
+        $installPath = $this->getInstallPath($package);
+
+        if (!is_dir($installPath)) {
+            return false;
+        }
+
+        $installer->setPath('source', $installPath);
+
+        return $installer->getManifest();
+    }
+
+    /**
+     * Get the element's name from the XML manifest
+     *
+     * @param object  Manifest object
+     *
+     * @return string
+     */
     protected function _getElementFromManifest($manifest)
     {
         $element    = '';
         $type       = (string) $manifest->attributes()->type;
-        $prefix     = isset($this->_prefixes[$type]) ? $this->_prefixes[$type].'_' : 'com_';
 
         switch($type)
         {
@@ -268,7 +333,6 @@ class ExtensionInstaller extends LibraryInstaller
                 }
                 break;
             case 'component':
-            default:
                 $element = strtolower((string) $manifest->name);
                 $element = preg_replace('/[^A-Z0-9_\.-]/i', '', $element);
 
@@ -276,9 +340,30 @@ class ExtensionInstaller extends LibraryInstaller
                     $element = 'com_'.$element;
                 }
                 break;
+            default:
+                $element = strtolower((string) $manifest->name);
+                $element = preg_replace('/[^A-Z0-9_\.-]/i', '', $element);
+                break;
         }
 
         return $element;
+    }
+
+    protected function _isJoomlaPlatform()
+    {
+        $manifest = realpath('./composer.json');
+
+        if (file_exists($manifest))
+        {
+            $contents = file_get_contents($manifest);
+            $package  = json_decode($contents);
+
+            if ($package->name == 'joomlatools/joomla-platform') {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public function __destruct()
