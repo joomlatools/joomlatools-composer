@@ -139,8 +139,12 @@ class ExtensionInstaller extends LibraryInstaller
     public function isInstalled(InstalledRepositoryInterface $repo, PackageInterface $package)
     {
         $installer = $this->_application->getInstaller();
-        $installer->setPath('source', $this->getInstallPath($package));
-
+        $installPath = $this->getInstallPath($package);
+        if (!is_dir($installPath)) {
+            return false;
+        }
+        $installer->setPath('source', $installPath);
+        
         $manifest = $installer->getManifest();
 
         if($manifest)
