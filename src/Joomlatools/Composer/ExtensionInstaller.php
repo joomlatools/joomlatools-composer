@@ -134,7 +134,7 @@ class ExtensionInstaller extends LibraryInstaller
             throw new \InvalidArgumentException('Package is not installed: '.$package);
         }
 
-        $manifest = $this->_getManifest($package);
+        $manifest    = $this->_getManifest($package);
 
         if($manifest)
         {
@@ -145,16 +145,15 @@ class ExtensionInstaller extends LibraryInstaller
             {
                 $extension = $this->_application->getExtension($element, $type);
 
-                if ($extension)
-                {
-                    $this->io->write('    <fg=cyan>Removing</fg=cyan> Joomla extension'.PHP_EOL);
-
+                if ($extension) {
                     $this->_application->uninstall($extension->id, $type);
                 }
             }
         }
 
         parent::uninstall($repo, $package);
+
+        $this->io->write('    <fg=cyan>Removing</fg=cyan> Joomla extension'.PHP_EOL);
     }
 
     /**
