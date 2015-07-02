@@ -134,7 +134,7 @@ class ExtensionInstaller extends LibraryInstaller
             throw new \InvalidArgumentException('Package is not installed: '.$package);
         }
 
-        $manifest = $this->_getManifest($package);
+        $manifest    = $this->_getManifest($package);
 
         if($manifest)
         {
@@ -152,6 +152,8 @@ class ExtensionInstaller extends LibraryInstaller
         }
 
         parent::uninstall($repo, $package);
+
+        $this->io->write('    <fg=cyan>Removing</fg=cyan> Joomla extension'.PHP_EOL);
     }
 
     /**
@@ -331,13 +333,16 @@ class ExtensionInstaller extends LibraryInstaller
                 }
                 break;
             case 'component':
-            default:
                 $element = strtolower((string) $manifest->name);
                 $element = preg_replace('/[^A-Z0-9_\.-]/i', '', $element);
 
                 if(substr($element, 0, 4) != 'com_') {
                     $element = 'com_'.$element;
                 }
+                break;
+            default:
+                $element = strtolower((string) $manifest->name);
+                $element = preg_replace('/[^A-Z0-9_\.-]/i', '', $element);
                 break;
         }
 
