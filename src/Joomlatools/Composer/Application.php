@@ -119,14 +119,14 @@ class Application extends JApplicationCli
     }
 
     /**
-     * Checks if this Joomla installation has a certain element installed.
+     * Get the extension info from Joomla's #__extensions table
      *
      * @param string $element   The name of the element
      * @param string $type      The type of extension
      *
      * @return bool
      */
-    public function hasExtension($element, $type = 'component')
+    public function getExtension($element, $type = 'component')
     {
         $db = JFactory::getDbo();
         $sql = "SELECT `extension_id`, `state` FROM `#__extensions`"
@@ -134,7 +134,11 @@ class Application extends JApplicationCli
 
         $extension = $db->setQuery($sql)->loadObject();
 
-        return ($extension && $extension->state != -1);
+        if ($extension && $extension->state != -1); {
+            return $extension;
+        }
+
+        return false;
     }
 
     /**
@@ -163,6 +167,21 @@ class Application extends JApplicationCli
         $installer = $this->getInstaller();
 
         return $installer->update($path);
+    }
+
+    /**
+     * Uninstalls the given extension
+     *
+     * @param int    $id     ID of the extension row
+     * @param string $type   Type of extension (component, module, ..)
+     *
+     * @return bool
+     */
+    public function uninstall($id, $type)
+    {
+        $installer = $this->getInstaller();
+
+        return $installer->uninstall($type, $id);
     }
 
     /**

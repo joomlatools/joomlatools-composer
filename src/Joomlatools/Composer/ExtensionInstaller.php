@@ -128,6 +128,33 @@ class ExtensionInstaller extends LibraryInstaller
     /**
      * {@inheritDoc}
      */
+    public function uninstall(InstalledRepositoryInterface $repo, PackageInterface $package)
+    {
+        if (!$repo->hasPackage($package)) {
+            throw new \InvalidArgumentException('Package is not installed: '.$package);
+        }
+
+        $manifest = $this->_getManifest($package);
+
+        if($manifest)
+        {
+            $type    = (string) $manifest->attributes()->type;
+            $element = $this->_getElementFromManifest($manifest);
+
+            if (!empty($element))
+            {
+                $extension = $this->_application->getExtension($element, $type);
+
+                $this->_application->uninstall($extension->id, type);
+            }
+        }
+
+        parent::uninstall($repo, $package);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function supports($packageType)
     {
         return in_array($packageType, array('joomlatools-installer', 'joomla-installer'));
@@ -138,21 +165,20 @@ class ExtensionInstaller extends LibraryInstaller
      */
     public function isInstalled(InstalledRepositoryInterface $repo, PackageInterface $package)
     {
-        $installer = $this->_application->getInstaller();
-        $installPath = $this->getInstallPath($package);
-        if (!is_dir($installPath)) {
-            return false;
-        }
-        $installer->setPath('source', $installPath);
-        
-        $manifest = $installer->getManifest();
+        $manifest = $this->_getManifest($package);
 
         if($manifest)
         {
             $type    = (string) $manifest->attributes()->type;
             $element = $this->_getElementFromManifest($manifest);
 
-            return !empty($element) ? $this->_application->hasExtension($element, $type) : false;
+            if (empty($element)) {
+                return false;
+            }
+
+            $extension = $this->_application->getExtension($element, $type);
+
+            return $extension !== false;
         }
 
         return false;
@@ -241,11 +267,38 @@ class ExtensionInstaller extends LibraryInstaller
         }
     }
 
+    /**
+     * Find the xml manifest of the package
+     *
+     * @param PackageInterface $package
+     *
+     * @return object  Manifest object
+     */
+    protected function _getManifest(PackageInterface $package)
+    {
+        $installer   = $this->_application->getInstaller();
+        $installPath = $this->getInstallPath($package);
+
+        if (!is_dir($installPath)) {
+            return false;
+        }
+
+        $installer->setPath('source', $installPath);
+
+        return $installer->getManifest();
+    }
+
+    /**
+     * Get the element's name from the XML manifest
+     *
+     * @param object  Manifest object
+     *
+     * @return string
+     */
     protected function _getElementFromManifest($manifest)
     {
         $element    = '';
         $type       = (string) $manifest->attributes()->type;
-        $prefix     = isset($this->_prefixes[$type]) ? $this->_prefixes[$type].'_' : 'com_';
 
         switch($type)
         {
