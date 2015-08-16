@@ -228,7 +228,8 @@ class ExtensionInstaller extends LibraryInstaller
         {
             $options = array(
                 'root_user' => $this->_credentials['username'],
-                'loglevel'  => $this->_verbosity
+                'loglevel'  => $this->_verbosity,
+                'platform'  => $this->_isJoomlaPlatform()
             );
 
             $this->_application = new Application($options);
@@ -358,7 +359,7 @@ class ExtensionInstaller extends LibraryInstaller
             $contents = file_get_contents($manifest);
             $package  = json_decode($contents);
 
-            if ($package->name == 'joomlatools/joomla-platform') {
+            if (isset($package->name) && $package->name == 'joomlatools/joomla-platform') {
                 return true;
             }
         }

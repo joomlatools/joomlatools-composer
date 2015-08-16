@@ -29,6 +29,7 @@ class Application extends JApplicationCli
 {
     protected $_messageQueue = array();
     protected $_options      = array();
+    protected $_is_platform  = false;
 
     /**
      * Class constructor.
@@ -47,6 +48,10 @@ class Application extends JApplicationCli
     public function __construct($options = array(), JInputCli $input = null, JRegistry $config = null, JDispatcher $dispatcher = null)
     {
         $this->_options = $options;
+
+        if (isset($this->_options['platform'])) {
+            $this->_is_platform = $this->_options['platform'];
+        }
 
         if (isset($this->_options['loglevel'])) {
             $this->_setupLogging($this->_options['loglevel']);
@@ -436,7 +441,7 @@ class Application extends JApplicationCli
                 break;
         }
 
-        if (version_compare(JVERSION, '3.0.0', '>='))
+        if ($this->_is_platform === true || version_compare(JVERSION, '3.0.0', '>='))
         {
             $callback = function ($entry) {
                 $priorities = array(
@@ -459,7 +464,6 @@ class Application extends JApplicationCli
         }
         else
         {
-            // Deal with Joomla 3.4 which does not have a logger class that accepts callbacks
             require_once dirname(__DIR__) . '/Legacy/JLoggerStderr.php';
 
             $options = array('logger' => 'stderr');
