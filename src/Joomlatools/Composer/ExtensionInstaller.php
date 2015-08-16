@@ -228,7 +228,8 @@ class ExtensionInstaller extends LibraryInstaller
         {
             $options = array(
                 'root_user' => $this->_credentials['username'],
-                'loglevel'  => $this->_verbosity
+                'loglevel'  => $this->_verbosity,
+                'platform'  => $this->_isJoomlaPlatform()
             );
 
             $this->_application = new Application($options);
