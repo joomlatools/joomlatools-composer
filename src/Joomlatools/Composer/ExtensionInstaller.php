@@ -359,7 +359,7 @@ class ExtensionInstaller extends LibraryInstaller
             $contents = file_get_contents($manifest);
             $package  = json_decode($contents);
 
-            if ($package->name == 'joomlatools/joomla-platform') {
+            if (isset($package->name) && $package->name == 'joomlatools/joomla-platform') {
                 return true;
             }
         }
