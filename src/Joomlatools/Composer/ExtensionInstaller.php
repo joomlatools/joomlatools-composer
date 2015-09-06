@@ -302,7 +302,7 @@ class ExtensionInstaller extends LibraryInstaller
             {
                 $extension = $this->_application->getExtension($plugin, 'plugin', $group);
 
-                if ($extension !== false && $extension->id)
+                if (is_object($extension) && $extension->id > 0)
                 {
                     $sql = "UPDATE `#__extensions`"
                         ." SET `enabled` = 1"
