@@ -140,7 +140,8 @@ class ExtensionInstaller extends LibraryInstaller
             throw new \InvalidArgumentException('Package is not installed: '.$package);
         }
 
-        $manifest    = $this->_getManifest($package);
+        $installPath = $this->getInstallPath($package);
+        $manifest    = $this->_getManifest($installPath);
 
         if($manifest)
         {
@@ -175,7 +176,8 @@ class ExtensionInstaller extends LibraryInstaller
      */
     public function isInstalled(InstalledRepositoryInterface $repo, PackageInterface $package)
     {
-        $manifest = $this->_getManifest($package);
+        $installPath = $this->getInstallPath($package);
+        $manifest    = $this->_getManifest($installPath);
 
         if($manifest)
         {
@@ -276,7 +278,9 @@ class ExtensionInstaller extends LibraryInstaller
     {
         $db       = \JFactory::getDbo();
         $plugins  = array();
-        $manifest = $this->_getManifest($package);
+
+        $installPath = $this->getInstallPath($package);
+        $manifest    = $this->_getManifest($installPath);
 
         if($manifest)
         {
@@ -286,8 +290,17 @@ class ExtensionInstaller extends LibraryInstaller
             {
                 foreach($manifest->files->children() as $file)
                 {
-                    if ((string) $file->attributes()->type == 'plugin') {
-                        $plugins[(string) $file->attributes()->id] = (string) $file->attributes()->group;
+                    if ((string) $file->attributes()->type == 'plugin')
+                    {
+                        $pluginManifest = $this->_getManifest(realpath($installPath . '/' . (string) $file));
+
+                        if ($pluginManifest)
+                        {
+                            $name  = $this->_getElementFromManifest($pluginManifest);
+                            $group = (string) $pluginManifest->attributes()->group;
+
+                            $plugins[$name] = $group;
+                        }
                     }
                 }
             }
@@ -337,19 +350,17 @@ class ExtensionInstaller extends LibraryInstaller
     /**
      * Find the xml manifest of the package
      *
-     * @param PackageInterface $package
+     * @param string Install path of package
      *
      * @return object  Manifest object
      */
-    protected function _getManifest(PackageInterface $package)
+    protected function _getManifest($installPath)
     {
-        $installer   = $this->_application->getInstaller();
-        $installPath = $this->getInstallPath($package);
-
         if (!is_dir($installPath)) {
             return false;
         }
 
+        $installer = $this->_application->getInstaller();
         $installer->setPath('source', $installPath);
 
         return $installer->getManifest();
