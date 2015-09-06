@@ -128,14 +128,19 @@ class Application extends JApplicationCli
      *
      * @param string $element   The name of the element
      * @param string $type      The type of extension
+     * @param string $group     Only for plugins
      *
      * @return bool
      */
-    public function getExtension($element, $type = 'component')
+    public function getExtension($element, $type = 'component', $group = null)
     {
         $db = JFactory::getDbo();
         $sql = "SELECT `extension_id` AS `id`, `state` FROM `#__extensions`"
                 ." WHERE `element` = ".$db->quote($element)." AND `type` = ".$db->quote($type);
+
+        if ($type == 'plugin' && !empty($group)) {
+            $sql .= ' AND `folder` =' . $db->quote($group);
+        }
 
         $extension = $db->setQuery($sql)->loadObject();
 

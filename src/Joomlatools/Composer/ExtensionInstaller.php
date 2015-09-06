@@ -271,12 +271,11 @@ class ExtensionInstaller extends LibraryInstaller
      * Enable all plugins that were installed with this package.
      *
      * @param PackageInterface $package
-     * @return array    Array of plugins that were enabled
      */
     protected function _enablePlugins(PackageInterface $package)
     {
         $db       = \JFactory::getDbo();
-        $elements = array();
+        $plugins  = array();
         $manifest = $this->_getManifest($package);
 
         if($manifest)
@@ -287,16 +286,16 @@ class ExtensionInstaller extends LibraryInstaller
             {
                 foreach($manifest->files->children() as $file)
                 {
-                    if ((string) $file->attributes()->type == 'plugin'){
-                        $elements[] = (string) $file->attributes()->id;
+                    if ((string) $file->attributes()->type == 'plugin') {
+                        $plugins[(string) $file->attributes()->id] = (string) $file->attributes()->group;
                     }
                 }
             }
-            else $elements[] = $this->_getElementFromManifest($manifest);
+            else $plugins[] = $this->_getElementFromManifest($manifest);
 
-            foreach ($elements as $element)
+            foreach ($plugins as $plugin => $group)
             {
-                $extension = $this->_application->getExtension($element, 'plugin');
+                $extension = $this->_application->getExtension($plugin, 'plugin', $group);
 
                 if ($extension->id)
                 {
@@ -308,8 +307,6 @@ class ExtensionInstaller extends LibraryInstaller
                 }
             }
         }
-
-        return $elements;
     }
 
     /**
