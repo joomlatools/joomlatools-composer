@@ -103,7 +103,7 @@ class ExtensionInstaller extends LibraryInstaller
             throw new \RuntimeException($error);
         }
 
-        $this->_enablePlugins($package);
+        $this->_enablePlugin($package);
     }
 
     /**
@@ -273,47 +273,23 @@ class ExtensionInstaller extends LibraryInstaller
      * Enable all plugins that were installed with this package.
      *
      * @param PackageInterface $package
+     * @param string           $subdirectory Subdirectory in package install path to look for plugin manifests
      */
-    protected function _enablePlugins(PackageInterface $package)
+    protected function _enablePlugin(PackageInterface $package, $subdirectory = '')
     {
-        $db       = \JFactory::getDbo();
-        $plugins  = array();
-
-        $installPath = $this->getInstallPath($package);
-        $manifest    = $this->_getManifest($installPath);
+        $path     = realpath($this->getInstallPath($package) . '/' . $subdirectory);
+        $manifest = $this->_getManifest($path);
 
         if($manifest)
         {
             $type = (string) $manifest->attributes()->type;
 
-            if ($type == 'package')
+            if ($type == 'plugin')
             {
-                foreach($manifest->files->children() as $file)
-                {
-                    if ((string) $file->attributes()->type == 'plugin')
-                    {
-                        $pluginManifest = $this->_getManifest(realpath($installPath . '/' . (string) $file));
+                $name  = $this->_getElementFromManifest($manifest);
+                $group = (string) $manifest->attributes()->group;
 
-                        if ($pluginManifest)
-                        {
-                            $name  = $this->_getElementFromManifest($pluginManifest);
-                            $group = (string) $pluginManifest->attributes()->group;
-
-                            $plugins[$name] = $group;
-                        }
-                    }
-                }
-            }
-            elseif ($type == 'plugin')
-            {
-                $name = $this->_getElementFromManifest($manifest);
-
-                $plugins[$name] = (string) $manifest->attributes()->group;
-            }
-
-            foreach ($plugins as $plugin => $group)
-            {
-                $extension = $this->_application->getExtension($plugin, 'plugin', $group);
+                $extension = $this->_application->getExtension($name, 'plugin', $group);
 
                 if (is_object($extension) && $extension->id > 0)
                 {
@@ -321,7 +297,16 @@ class ExtensionInstaller extends LibraryInstaller
                         ." SET `enabled` = 1"
                         ." WHERE `extension_id` = ".$extension->id;
 
-                    $db->setQuery($sql)->execute();
+                    \JFactory::getDbo()->setQuery($sql)->execute();
+                }
+            }
+            elseif ($type == 'package')
+            {
+                foreach($manifest->files->children() as $file)
+                {
+                    if ((string) $file->attributes()->type == 'plugin') {
+                        $this->_enablePlugin($package, (string) $file);
+                    }
                 }
             }
         }
