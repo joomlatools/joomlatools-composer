@@ -39,6 +39,10 @@ class ExtensionInstaller extends LibraryInstaller
 
         $this->_config = $composer->getConfig();
 
+        if (!$this->_isJoomla() && !$this->_isJoomlaPlatform()) {
+            throw new \RuntimeException('Working directory is not a valid Joomla installation');
+        }
+
         if ($io->isDebug()) {
             $this->_verbosity = OutputInterface::VERBOSITY_DEBUG;
         } elseif ($io->isVeryVerbose()) {
@@ -98,6 +102,8 @@ class ExtensionInstaller extends LibraryInstaller
 
             throw new \RuntimeException($error);
         }
+
+        $this->_enablePlugin($package);
     }
 
     /**
@@ -134,7 +140,8 @@ class ExtensionInstaller extends LibraryInstaller
             throw new \InvalidArgumentException('Package is not installed: '.$package);
         }
 
-        $manifest    = $this->_getManifest($package);
+        $installPath = $this->getInstallPath($package);
+        $manifest    = $this->_getManifest($installPath);
 
         if($manifest)
         {
@@ -169,7 +176,8 @@ class ExtensionInstaller extends LibraryInstaller
      */
     public function isInstalled(InstalledRepositoryInterface $repo, PackageInterface $package)
     {
-        $manifest = $this->_getManifest($package);
+        $installPath = $this->getInstallPath($package);
+        $manifest    = $this->_getManifest($installPath);
 
         if($manifest)
         {
@@ -203,19 +211,23 @@ class ExtensionInstaller extends LibraryInstaller
             define('_JEXEC', 1);
             define('DS', DIRECTORY_SEPARATOR);
 
-            define('JPATH_BASE', realpath('.'));
+            $base = realpath('.');
 
             if ($this->_isJoomlaPlatform())
             {
-                define('JPATH_ROOT',  JPATH_BASE);
-                define('JPATH_CACHE', sys_get_temp_dir());
-                define('JPATH_WEB',   JPATH_BASE.'/web');
+                define('JPATH_WEB'   , $base.'/web');
+                define('JPATH_ROOT'  , $base);
+                define('JPATH_BASE'  , JPATH_ROOT . '/app/administrator');
+                define('JPATH_CACHE' , JPATH_ROOT . '/cache/site');
+                define('JPATH_THEMES', __DIR__.'/templates');
 
-                require_once JPATH_BASE . '/app/defines.php';
-                require_once JPATH_BASE . '/app/bootstrap.php';
+                require_once JPATH_ROOT . '/app/defines.php';
+                require_once JPATH_ROOT . '/app/bootstrap.php';
             }
             else
             {
+                define('JPATH_BASE', $base);
+
                 require_once JPATH_BASE . '/includes/defines.php';
                 require_once JPATH_BASE . '/includes/framework.php';
             }
@@ -228,7 +240,8 @@ class ExtensionInstaller extends LibraryInstaller
         {
             $options = array(
                 'root_user' => $this->_credentials['username'],
-                'loglevel'  => $this->_verbosity
+                'loglevel'  => $this->_verbosity,
+                'platform'  => $this->_isJoomlaPlatform()
             );
 
             $this->_application = new Application($options);
@@ -256,9 +269,57 @@ class ExtensionInstaller extends LibraryInstaller
         return $descriptions;
     }
 
+    /**
+     * Enable all plugins that were installed with this package.
+     *
+     * @param PackageInterface $package
+     * @param string           $subdirectory Subdirectory in package install path to look for plugin manifests
+     */
+    protected function _enablePlugin(PackageInterface $package, $subdirectory = '')
+    {
+        $path     = realpath($this->getInstallPath($package) . '/' . $subdirectory);
+        $manifest = $this->_getManifest($path);
+
+        if($manifest)
+        {
+            $type = (string) $manifest->attributes()->type;
+
+            if ($type == 'plugin')
+            {
+                $name  = $this->_getElementFromManifest($manifest);
+                $group = (string) $manifest->attributes()->group;
+
+                $extension = $this->_application->getExtension($name, 'plugin', $group);
+
+                if (is_object($extension) && $extension->id > 0)
+                {
+                    $sql = "UPDATE `#__extensions`"
+                        ." SET `enabled` = 1"
+                        ." WHERE `extension_id` = ".$extension->id;
+
+                    \JFactory::getDbo()->setQuery($sql)->execute();
+                }
+            }
+            elseif ($type == 'package')
+            {
+                foreach($manifest->files->children() as $file)
+                {
+                    if ((string) $file->attributes()->type == 'plugin') {
+                        $this->_enablePlugin($package, (string) $file);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Make sure to load the ComExtmanDatabaseRowExtension class
+     * if we are installing a Joomlatools extension
+     *
+     * @param PackageInterface $target
+     */
     protected function _setupExtmanSupport(PackageInterface $target)
     {
-        // If we are installing a Joomlatools extension, make sure to load the ComExtmanDatabaseRowExtension class
         $name = strtolower($target->getPrettyName());
         $parts = explode('/', $name);
         if($parts[0] == 'joomlatools' && $parts[1] != 'extman')
@@ -274,19 +335,17 @@ class ExtensionInstaller extends LibraryInstaller
     /**
      * Find the xml manifest of the package
      *
-     * @param PackageInterface $package
+     * @param string Install path of package
      *
      * @return object  Manifest object
      */
-    protected function _getManifest(PackageInterface $package)
+    protected function _getManifest($installPath)
     {
-        $installer   = $this->_application->getInstaller();
-        $installPath = $this->getInstallPath($package);
-
         if (!is_dir($installPath)) {
             return false;
         }
 
+        $installer = $this->_application->getInstaller();
         $installer->setPath('source', $installPath);
 
         return $installer->getManifest();
@@ -349,6 +408,32 @@ class ExtensionInstaller extends LibraryInstaller
         return $element;
     }
 
+    /**
+     * Validate if the current working directory has a valid Joomla installation
+     *
+     * @return bool
+     */
+    protected function _isJoomla()
+    {
+        $directories = array('./libraries/cms', './libraries/joomla', './index.php', './administrator/index.php');
+
+        foreach ($directories as $directory)
+        {
+            $path = realpath($directory);
+
+            if (!file_exists($path)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Check if the working directory has joomla-platform installed
+     *
+     * @return bool
+     */
     protected function _isJoomlaPlatform()
     {
         $manifest = realpath('./composer.json');
@@ -358,7 +443,7 @@ class ExtensionInstaller extends LibraryInstaller
             $contents = file_get_contents($manifest);
             $package  = json_decode($contents);
 
-            if ($package->name == 'joomlatools/joomla-platform') {
+            if (isset($package->name) && $package->name == 'joomlatools/joomla-platform') {
                 return true;
             }
         }
