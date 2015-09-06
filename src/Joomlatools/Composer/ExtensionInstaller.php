@@ -291,13 +291,18 @@ class ExtensionInstaller extends LibraryInstaller
                     }
                 }
             }
-            else $plugins[] = $this->_getElementFromManifest($manifest);
+            elseif ($type == 'plugin')
+            {
+                $name = $this->_getElementFromManifest($manifest);
+
+                $plugins[$name] = (string) $manifest->attributes()->group;
+            }
 
             foreach ($plugins as $plugin => $group)
             {
                 $extension = $this->_application->getExtension($plugin, 'plugin', $group);
 
-                if ($extension->id)
+                if ($extension !== false && $extension->id)
                 {
                     $sql = "UPDATE `#__extensions`"
                         ." SET `enabled` = 1"
