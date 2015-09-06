@@ -203,19 +203,23 @@ class ExtensionInstaller extends LibraryInstaller
             define('_JEXEC', 1);
             define('DS', DIRECTORY_SEPARATOR);
 
-            define('JPATH_BASE', realpath('.'));
+            $base = realpath('.');
 
             if ($this->_isJoomlaPlatform())
             {
-                define('JPATH_ROOT',  JPATH_BASE);
-                define('JPATH_CACHE', sys_get_temp_dir());
-                define('JPATH_WEB',   JPATH_BASE.'/web');
+                define('JPATH_WEB'   , $base.'/web');
+                define('JPATH_ROOT'  , $base);
+                define('JPATH_BASE'  , JPATH_ROOT . '/app/administrator');
+                define('JPATH_CACHE' , JPATH_ROOT . '/cache/site');
+                define('JPATH_THEMES', __DIR__.'/templates');
 
-                require_once JPATH_BASE . '/app/defines.php';
-                require_once JPATH_BASE . '/app/bootstrap.php';
+                require_once JPATH_ROOT . '/app/defines.php';
+                require_once JPATH_ROOT . '/app/bootstrap.php';
             }
             else
             {
+                define('JPATH_BASE', $base);
+
                 require_once JPATH_BASE . '/includes/defines.php';
                 require_once JPATH_BASE . '/includes/framework.php';
             }
