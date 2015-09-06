@@ -39,6 +39,10 @@ class ExtensionInstaller extends LibraryInstaller
 
         $this->_config = $composer->getConfig();
 
+        if (!$this->_isJoomla() && !$this->_isJoomlaPlatform()) {
+            throw new \RuntimeException('Working directory is not a valid Joomla installation');
+        }
+
         if ($io->isDebug()) {
             $this->_verbosity = OutputInterface::VERBOSITY_DEBUG;
         } elseif ($io->isVeryVerbose()) {
@@ -354,6 +358,32 @@ class ExtensionInstaller extends LibraryInstaller
         return $element;
     }
 
+    /**
+     * Validate if the current working directory has a valid Joomla installation
+     *
+     * @return bool
+     */
+    protected function _isJoomla()
+    {
+        $directories = array('./libraries/cms', './libraries/joomla', './index.php', './administrator/index.php');
+
+        foreach ($directories as $directory)
+        {
+            $path = realpath($directory);
+
+            if (!file_exists($path)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Check if the working directory has joomla-platform installed
+     *
+     * @return bool
+     */
     protected function _isJoomlaPlatform()
     {
         $manifest = realpath('./composer.json');
