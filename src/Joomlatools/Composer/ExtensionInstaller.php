@@ -102,6 +102,8 @@ class ExtensionInstaller extends LibraryInstaller
 
             throw new \RuntimeException($error);
         }
+
+        $this->_enablePlugins($package);
     }
 
     /**
@@ -265,9 +267,59 @@ class ExtensionInstaller extends LibraryInstaller
         return $descriptions;
     }
 
+    /**
+     * Enable all plugins that were installed with this package.
+     *
+     * @param PackageInterface $package
+     * @return array    Array of plugins that were enabled
+     */
+    protected function _enablePlugins(PackageInterface $package)
+    {
+        $db       = \JFactory::getDbo();
+        $elements = array();
+        $manifest = $this->_getManifest($package);
+
+        if($manifest)
+        {
+            $type = (string) $manifest->attributes()->type;
+
+            if ($type == 'package')
+            {
+                foreach($manifest->files->children() as $file)
+                {
+                    if ((string) $file->attributes()->type == 'plugin'){
+                        $elements[] = (string) $file->attributes()->id;
+                    }
+                }
+            }
+            else $elements[] = $this->_getElementFromManifest($manifest);
+
+            foreach ($elements as $element)
+            {
+                $extension = $this->_application->getExtension($element, 'plugin');
+
+                if ($extension->id)
+                {
+                    $sql = "UPDATE `#__extensions`"
+                        ." SET `enabled` = 1"
+                        ." WHERE `extension_id` = ".$extension->id;
+
+                    $db->setQuery($sql)->execute();
+                }
+            }
+        }
+
+        return $elements;
+    }
+
+    /**
+     * Make sure to load the ComExtmanDatabaseRowExtension class
+     * if we are installing a Joomlatools extension
+     *
+     * @param PackageInterface $target
+     */
     protected function _setupExtmanSupport(PackageInterface $target)
     {
-        // If we are installing a Joomlatools extension, make sure to load the ComExtmanDatabaseRowExtension class
         $name = strtolower($target->getPrettyName());
         $parts = explode('/', $name);
         if($parts[0] == 'joomlatools' && $parts[1] != 'extman')
