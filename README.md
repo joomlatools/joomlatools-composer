@@ -101,7 +101,7 @@ The `joomlatools/installer` plugin is an open source, community-driven project. 
 
 ## Contributors
 
-See the list of [contributors](https://github.com/joomlatools/joomla-console/contributors).
+See the list of [contributors](https://github.com/joomlatools/joomlatools-console/contributors).
 
 ## License 
 

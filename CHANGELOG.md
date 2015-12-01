@@ -4,8 +4,8 @@ CHANGELOG
 This changelog references the relevant changes (bug and security fixes) done
 in 1.x versions.
 
-To get the diff for a specific change, go to https://github.com/joomlatools/joomla-composer/commit/xxx where xxx is the change hash.
-To view the diff between two versions, go to https://github.com/joomlatools/joomla-composer/compare/v1.0.0...v1.0.1
+To get the diff for a specific change, go to https://github.com/joomlatools/joomlatools-composer/commit/xxx where xxx is the change hash.
+To view the diff between two versions, go to https://github.com/joomlatools/joomlatools-composer/compare/v1.0.0...v1.0.1
 
 * 1.0.8 (2015-12-01)
  * Improved: Rename repository and package [#17](https://github.com/joomlatools/joomlatools-composer/issues/17)
@@ -35,7 +35,7 @@ To view the diff between two versions, go to https://github.com/joomlatools/joom
  * Fixed: Fix call to undefined function Composer\Autoload\includeFile() error in Joomla 3.4
 
 * 1.0.1 (2014-01-12)
- * Fixed:  Joomla 3.2 compatibility ([pull request #2](https://github.com/joomlatools/joomla-composer/pull/2) by [ienev](https://github.com/ienev))
+ * Fixed:  Joomla 3.2 compatibility ([pull request #2](https://github.com/joomlatools/joomlatools-composer/pull/2) by [ienev](https://github.com/ienev))
  * Fixed: Fix Joomla 3.x debug plugin crashing after execution.
 
 * 1.0.0 (2013-11-05)
