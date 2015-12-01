@@ -208,7 +208,6 @@ class ExtensionInstaller extends LibraryInstaller
             $_SERVER['HTTP_HOST']   = 'localhost';
             $_SERVER['HTTP_USER_AGENT'] = 'Composer';
 
-            define('_JEXEC', 1);
             define('DS', DIRECTORY_SEPARATOR);
 
             $base = realpath('.');
@@ -226,6 +225,7 @@ class ExtensionInstaller extends LibraryInstaller
             }
             else
             {
+                define('_JEXEC', 1);
                 define('JPATH_BASE', $base);
 
                 require_once JPATH_BASE . '/includes/defines.php';
