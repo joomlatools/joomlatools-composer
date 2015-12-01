@@ -1,10 +1,10 @@
 <?php
 /**
- * Joomlatools Composer plugin - https://github.com/joomlatools/joomla-composer
+ * Joomlatools Composer plugin - https://github.com/joomlatools/joomlatools-composer
  *
  * @copyright	Copyright (C) 2011 - 2013 Johan Janssens and Timble CVBA. (http://www.timble.net)
  * @license		GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
- * @link		http://github.com/joomlatools/joomla-composer for the canonical source repository
+ * @link		http://github.com/joomlatools/joomlatools-composer for the canonical source repository
  */
 
 namespace Joomlatools\Composer;
@@ -39,7 +39,7 @@ class ExtensionInstaller extends LibraryInstaller
 
         $this->_config = $composer->getConfig();
 
-        if (!$this->_isJoomla() && !$this->_isJoomlaPlatform()) {
+        if (!$this->_isJoomla() && !$this->_isJoomlatoolsPlatform()) {
             throw new \RuntimeException('Working directory is not a valid Joomla installation');
         }
 
@@ -168,7 +168,7 @@ class ExtensionInstaller extends LibraryInstaller
      */
     public function supports($packageType)
     {
-        return in_array($packageType, array('joomlatools-installer', 'joomla-installer'));
+        return in_array($packageType, array('joomlatools-composer', 'joomlatools-installer', 'joomla-installer'));
     }
 
     /**
@@ -208,12 +208,11 @@ class ExtensionInstaller extends LibraryInstaller
             $_SERVER['HTTP_HOST']   = 'localhost';
             $_SERVER['HTTP_USER_AGENT'] = 'Composer';
 
-            define('_JEXEC', 1);
             define('DS', DIRECTORY_SEPARATOR);
 
             $base = realpath('.');
 
-            if ($this->_isJoomlaPlatform())
+            if ($this->_isJoomlatoolsPlatform())
             {
                 define('JPATH_WEB'   , $base.'/web');
                 define('JPATH_ROOT'  , $base);
@@ -226,6 +225,7 @@ class ExtensionInstaller extends LibraryInstaller
             }
             else
             {
+                define('_JEXEC', 1);
                 define('JPATH_BASE', $base);
 
                 require_once JPATH_BASE . '/includes/defines.php';
@@ -241,7 +241,7 @@ class ExtensionInstaller extends LibraryInstaller
             $options = array(
                 'root_user' => $this->_credentials['username'],
                 'loglevel'  => $this->_verbosity,
-                'platform'  => $this->_isJoomlaPlatform()
+                'platform'  => $this->_isJoomlatoolsPlatform()
             );
 
             $this->_application = new Application($options);
@@ -430,11 +430,11 @@ class ExtensionInstaller extends LibraryInstaller
     }
 
     /**
-     * Check if the working directory has joomla-platform installed
+     * Check if the working directory has Joomlatools Platform installed
      *
      * @return bool
      */
-    protected function _isJoomlaPlatform()
+    protected function _isJoomlatoolsPlatform()
     {
         $manifest = realpath('./composer.json');
 
@@ -443,7 +443,7 @@ class ExtensionInstaller extends LibraryInstaller
             $contents = file_get_contents($manifest);
             $package  = json_decode($contents);
 
-            if (isset($package->name) && $package->name == 'joomlatools/joomla-platform') {
+            if (isset($package->name) && in_array($package->name, array('joomlatools/platform', 'joomlatools/joomla-platform'))) {
                 return true;
             }
         }
