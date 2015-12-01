@@ -1,10 +1,10 @@
 <?php
 /**
- * Joomlatools Composer plugin - https://github.com/joomlatools/joomla-composer
+ * Joomlatools Composer plugin - https://github.com/joomlatools/joomlatools-composer
  *
  * @copyright	Copyright (C) 2011 - 2013 Johan Janssens and Timble CVBA. (http://www.timble.net)
  * @license		GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
- * @link		http://github.com/joomlatools/joomla-composer for the canonical source repository
+ * @link		http://github.com/joomlatools/joomlatools-composer for the canonical source repository
  */
 
 /**

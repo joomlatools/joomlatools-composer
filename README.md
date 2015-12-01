@@ -6,7 +6,7 @@ This Composer plugin will install extensions into your Joomla setup.
 
 ### Defining a package
 
-The easiest way to get started is by defining a custom package in your `composer.json`file.  All you need is the package file for the extension you wish to install. (ie. the installer file you downloaded from the vendor's website)
+The easiest way to get started is by defining a custom package in your `composer.json` file.  All you need is the package file for the extension you wish to install. (ie. the installer file you downloaded from the vendor's website)
 
 Create the `composer.json` file in the root directory of your Joomla installation and have it look something like this:
 
@@ -17,14 +17,14 @@ Create the `composer.json` file in the root directory of your Joomla installatio
             	"type": "package",
             	"package": {
                 	"name": "vendor/extension",
-                	"type": "joomla-installer",
+                	"type": "joomlatools-composer",
                 	"version": "1.0.0",
                 	"dist": {
                     	"url": "file:////Users/johndoe/Downloads/com_extension.1.0.0.tar.gz",
                     	"type": "tar"
                 	},
                 	"require": {
-                    	"joomlatools/installer": "*"
+                    	"joomlatools/composer": "*"
                 	}
             	}
         	}
@@ -38,10 +38,10 @@ Create the `composer.json` file in the root directory of your Joomla installatio
 
 Using this JSON file, we have now defined our own custom package. Pay attention to the following settings:
 
-* The `type` has to be set to `joomlatools-installer`
+* The `type` has to be set to `joomlatools-composer`
 * Make sure the `url` directive points to the location of the install package.
 
-Executing `composer install` will now fetch the `joomlatools/installer` plugin and use it to install the package into your Joomla installation.
+Executing `composer install` will now fetch the `joomlatools/composer` plugin and use it to install the package into your Joomla installation.
 
 For more information on creating these custom packages for projects which do not support Composer, see the [Composer docs](http://getcomposer.org/doc/05-repositories.md#package-2).
 
@@ -54,9 +54,9 @@ The package definition should contain the following basic information to make it
 ```json
 {
     	"name": "vendor/my-extension",
-		"type": "joomla-installer",
+		"type": "joomlatools-composer",
     	"require": {
-        	"joomlatools/installer": "*"
+        	"joomlatools/composer": "*"
     	}
 }
 ```
@@ -112,11 +112,11 @@ feature branch for testing before merging it into `develop`.
 
 ## Authors
 
-See the list of [contributors](https://github.com/joomlatools/joomla-composer/contributors).
+See the list of [contributors](https://github.com/joomlatools/joomlatools-composer/contributors).
 
 ## License
 
-The `joomlatools/installer` plugin is free and open-source software licensed under the [GPLv3 license](gplv3-license).
+The `joomlatools/composer` plugin is free and open-source software licensed under the [GPLv3 license](gplv3-license).
 
 [gitflow-model]: http://nvie.com/posts/a-successful-git-branching-model/
 [gplv3-license]: https://github.com/nooku/nooku-framework/blob/master/LICENSE.txt
