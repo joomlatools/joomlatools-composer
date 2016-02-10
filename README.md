@@ -114,8 +114,8 @@ Keep track of development and community news.
 
 * Follow [@joomlatoolsdev on Twitter](https://twitter.com/joomlatoolsdev)
 * Join [joomlatools/dev on Gitter](http://gitter.im/joomlatools/dev)
-* Read the [Joomlatools Developer Blog](http://developer.joomlatools.com/blog/)
-* Subscribe to the [Joomlatools Developer Newsletter](http://developer.joomlatools.com/newsletter)
+* Read the [Joomlatools Developer Blog](http://www.joomlatools.com/developer/blog/)
+* Subscribe to the [Joomlatools Developer Newsletter](http://www.joomlatools.com/developer/newsletter/)
 
 [gitflow-model]: http://nvie.com/posts/a-successful-git-branching-model/
 [gplv3-license]: https://github.com/nooku/nooku-framework/blob/master/LICENSE.txt
