@@ -221,14 +221,34 @@ class ExtensionInstaller extends LibraryInstaller
 
             if ($isPlatform)
             {
-                if (!file_exists('./vendor/autoload.php'))
-                {
-                    $manager      = $this->composer->getInstallationManager();
-                    $repo         = $this->composer->getRepositoryManager()->getLocalRepository();
+                $dependencies   = array('vlucas/phpdotenv', 'joomla/string', 'joomla/registry', 'joomla/application');
+                $installManager = $this->composer->getInstallationManager();
+                $repoManager    = $this->composer->getRepositoryManager();
+                $repo           = $this->composer->getRepositoryManager()->getLocalRepository();
+                $rootPackage    = $this->composer->getPackage();
 
-                    $generator = $this->composer->getAutoloadGenerator();
-                    $generator->dump($this->composer->getConfig(), $repo, $this->composer->getPackage(), $manager, 'composer');
+                foreach ($dependencies as $dependency)
+                {
+                    foreach ($rootPackage->getRequires() as $requirement)
+                    {
+                        if ($requirement->getTarget() == $dependency)
+                        {
+                            $package = $repoManager->findPackage($requirement->getTarget(), $requirement->getConstraint());
+
+                            if ($package->getName() == $dependency)
+                            {
+                                if (!$installManager->isPackageInstalled($repo, $package))
+                                {
+                                    $installer = $installManager->getInstaller($package->getType());
+                                    $installer->install($repo, $package);
+                                }
+                            }
+                        }
+                    }
                 }
+
+                $generator = $this->composer->getAutoloadGenerator();
+                $generator->dump($this->composer->getConfig(), $repo, $this->composer->getPackage(), $installManager, 'composer');
             }
 
             $_SERVER['HTTP_HOST']   = 'localhost';
