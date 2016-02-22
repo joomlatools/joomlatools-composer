@@ -152,7 +152,7 @@ class ExtensionInstaller
             throw new \RuntimeException($error);
         }
 
-        $this->_enablePlugin($package);
+        $this->_enablePlugin($package, $installPath);
     }
 
     public function update(PackageInterface $package, $installPath)
@@ -206,31 +206,6 @@ class ExtensionInstaller
     public function supports($packageType)
     {
         return in_array($packageType, array('joomlatools-composer', 'joomlatools-installer', 'joomla-installer'));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function isInstalled(InstalledRepositoryInterface $repo, PackageInterface $package)
-    {
-        $installPath = $this->getInstallPath($package);
-        $manifest    = $this->_getManifest($installPath);
-
-        if($manifest)
-        {
-            $type    = (string) $manifest->attributes()->type;
-            $element = $this->_getElementFromManifest($manifest);
-
-            if (empty($element)) {
-                return false;
-            }
-
-            $extension = $this->getApplication()->getExtension($element, $type);
-
-            return $extension !== false;
-        }
-
-        return false;
     }
 
     /**
@@ -313,9 +288,9 @@ class ExtensionInstaller
      * @param PackageInterface $package
      * @param string           $subdirectory Subdirectory in package install path to look for plugin manifests
      */
-    protected function _enablePlugin(PackageInterface $package, $subdirectory = '')
+    protected function _enablePlugin(PackageInterface $package, $installPath, $subdirectory = '')
     {
-        $path     = realpath($this->getInstallPath($package) . '/' . $subdirectory);
+        $path     = realpath($installPath . '/' . $subdirectory);
         $manifest = $this->_getManifest($path);
 
         if($manifest)
@@ -343,7 +318,7 @@ class ExtensionInstaller
                 foreach($manifest->files->children() as $file)
                 {
                     if ((string) $file->attributes()->type == 'plugin') {
-                        $this->_enablePlugin($package, (string) $file);
+                        $this->_enablePlugin($package, $installPath, (string) $file);
                     }
                 }
             }
