@@ -30,7 +30,7 @@ class ComposerInstaller extends LibraryInstaller
     {
         parent::install($repo, $package);
 
-        $this->io->write(sprintf("\tQueuing <fg=cyan>%s</fg=cyan> for installation", $package->getName()));
+        $this->io->write(sprintf("    Queuing <fg=cyan>%s</fg=cyan> for installation", $package->getName()));
 
         ExtensionInstaller::getInstance()->addPackage($package, 'install', $this->getInstallPath($package));
     }
@@ -42,7 +42,7 @@ class ComposerInstaller extends LibraryInstaller
     {
         parent::update($repo, $initial, $target);
 
-        $this->io->write(sprintf("\tQueuing <fg=cyan>%s</fg=cyan> for upgrading", $target->getName()));
+        $this->io->write(sprintf("    Queuing <fg=cyan>%s</fg=cyan> for upgrading", $target->getName()));
 
         ExtensionInstaller::getInstance()->addPackage($target, 'update', $this->getInstallPath($target));
     }
@@ -56,7 +56,7 @@ class ComposerInstaller extends LibraryInstaller
             throw new \InvalidArgumentException('Package is not installed: '.$package);
         }
 
-        $this->io->write(sprintf("\tQueuing <fg=cyan>%s</fg=cyan> for removal", $package->getName()));
+        $this->io->write(sprintf("    Queuing <fg=cyan>%s</fg=cyan> for removal", $package->getName()));
 
         ExtensionInstaller::getInstance()->addPackage($package, 'uninstall', $this->getInstallPath($package));
 

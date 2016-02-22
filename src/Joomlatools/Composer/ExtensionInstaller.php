@@ -137,7 +137,7 @@ class ExtensionInstaller
     {
         $application = Util::isJoomlatoolsPlatform() ? 'Joomlatools Platform' : 'Joomla';
 
-        $this->_io->write(printf("- Installing the %s extension <info>%s</info> (<comment>%s</comment>)", $application, $package->getName(), $package->getFullPrettyVersion()));
+        $this->_io->write(sprintf("    - Installing the %s extension <info>%s</info> <comment>%s</comment>", $application, $package->getName(), $package->getFullPrettyVersion()));
 
         if(!$this->getApplication()->install($installPath))
         {
@@ -159,7 +159,7 @@ class ExtensionInstaller
     {
         $application = Util::isJoomlatoolsPlatform() ? 'Joomlatools Platform' : 'Joomla';
 
-        $this->_io->write(printf("- Updating the %s extension <info>%s</info> (<comment>%s</comment>)", $application, $package->getName(), $package->getFullPrettyVersion()));
+        $this->_io->write(sprintf("    - Updating the %s extension <info>%s</info> to <comment>%s</comment>", $application, $package->getName(), $package->getFullPrettyVersion()));
 
         if(!$this->getApplication()->update($installPath))
         {
@@ -242,6 +242,8 @@ class ExtensionInstaller
     {
         if(!defined('_JEXEC'))
         {
+            define('_JEXEC', 1);
+
             $_SERVER['HTTP_HOST']   = 'localhost';
             $_SERVER['HTTP_USER_AGENT'] = 'Composer';
 
@@ -262,7 +264,6 @@ class ExtensionInstaller
             }
             else
             {
-                define('_JEXEC', 1);
                 define('JPATH_BASE', $base);
 
                 require_once JPATH_BASE . '/includes/defines.php';
