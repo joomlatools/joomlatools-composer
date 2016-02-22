@@ -332,6 +332,10 @@ class ExtensionInstaller extends LibraryInstaller
      */
     protected function _setupExtmanSupport(PackageInterface $target)
     {
+        if(!defined('_JEXEC')) {
+            $this->_bootstrap();
+        }
+
         $name = strtolower($target->getPrettyName());
         $parts = explode('/', $name);
         if($parts[0] == 'joomlatools' && $parts[1] != 'extman')
