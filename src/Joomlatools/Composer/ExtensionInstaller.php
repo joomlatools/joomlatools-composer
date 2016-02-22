@@ -45,7 +45,7 @@ class ExtensionInstaller
 
         $this->_config = $composer->getConfig();
 
-        if (!Util::_isJoomla() && !Util::_isJoomlatoolsPlatform()) {
+        if (!Util::isJoomla() && !Util::isJoomlatoolsPlatform()) {
             throw new \RuntimeException('Working directory is not a valid Joomla installation');
         }
 
@@ -249,7 +249,7 @@ class ExtensionInstaller
 
             $base = realpath('.');
 
-            if (Util::_isJoomlatoolsPlatform())
+            if (Util::isJoomlatoolsPlatform())
             {
                 define('JPATH_WEB'   , $base.'/web');
                 define('JPATH_ROOT'  , $base);
@@ -278,7 +278,7 @@ class ExtensionInstaller
             $options = array(
                 'root_user' => $this->_credentials['username'],
                 'loglevel'  => $this->_verbosity,
-                'platform'  => Util::_isJoomlatoolsPlatform()
+                'platform'  => Util::isJoomlatoolsPlatform()
             );
 
             $this->_application = new Application($options);
