@@ -2,29 +2,35 @@
 /**
  * Joomlatools Composer plugin - https://github.com/joomlatools/joomlatools-composer
  *
- * @copyright	Copyright (C) 2011 - 2013 Johan Janssens and Timble CVBA. (http://www.timble.net)
+ * @copyright	Copyright (C) 2011 - 2016 Johan Janssens and Timble CVBA. (http://www.timble.net)
  * @license		GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link		http://github.com/joomlatools/joomlatools-composer for the canonical source repository
  */
 
 namespace Joomlatools\Composer;
 
+use Joomlatools\Joomla\Util;
+
 use Composer\Composer;
 use Composer\IO\IOInterface;
 use Composer\Package\PackageInterface;
 use Composer\Repository\InstalledRepositoryInterface;
-use Composer\Installer\LibraryInstaller;
 
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Composer installer class
+ * Joomla extension installer class
  *
  * @author  Steven Rombauts <https://github.com/stevenrombauts>
  * @package Joomlatools\Composer
  */
-class ExtensionInstaller extends LibraryInstaller
+class ExtensionInstaller
 {
+    private static $__instance   = null;
+    private static $__extensions = array();
+
+    protected $_io = null;
+
     protected $_config      = null;
     protected $_verbosity   = OutputInterface::VERBOSITY_NORMAL;
     protected $_application = null;
@@ -33,13 +39,13 @@ class ExtensionInstaller extends LibraryInstaller
     /**
      * {@inheritDoc}
      */
-    public function __construct(IOInterface $io, Composer $composer, $type = 'library')
+    public function __construct(IOInterface $io, Composer $composer)
     {
-        parent::__construct($io, $composer, $type);
+        $this->_io = $io;
 
         $this->_config = $composer->getConfig();
 
-        if (!$this->_isJoomla() && !$this->_isJoomlatoolsPlatform()) {
+        if (!Util::_isJoomla() && !Util::_isJoomlatoolsPlatform()) {
             throw new \RuntimeException('Working directory is not a valid Joomla installation');
         }
 
@@ -52,6 +58,20 @@ class ExtensionInstaller extends LibraryInstaller
         }
 
         $this->_initialize();
+    }
+
+    /**
+     * Get instance of this class
+     *
+     * @return ExtensionInstaller
+     */
+    public static function getInstance(IOInterface $io = null, Composer $composer = null)
+    {
+        if (!self::$__instance) {
+            self::$__instance = new ExtensionInstaller($io, $composer);
+        }
+
+        return self::$__instance;
     }
 
     /**
@@ -77,6 +97,28 @@ class ExtensionInstaller extends LibraryInstaller
         $this->_credentials = array_merge($defaults, $credentials);
     }
 
+    public function execute()
+    {
+        foreach (self::$__extensions as $type => $packages)
+        {
+            foreach ($packages as $installPath => $package)
+            {
+                if (method_exists($this, $type)) {
+                    call_user_func_array(array($this, $type), array($package, $installPath));
+                }
+            }
+        }
+    }
+
+    public function addPackage(PackageInterface $package, $action = 'install', $installPath)
+    {
+        if (!isset(self::$__extensions[$action])) {
+            self::$__extensions[$action] = array();
+        }
+
+        self::$__extensions[$action][$installPath] = $package;
+    }
+
     /**
      * Get the application object.
      * If it 's not initialised yet, bootstrap the application.
@@ -91,18 +133,13 @@ class ExtensionInstaller extends LibraryInstaller
         return $this->_application;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function install(InstalledRepositoryInterface $repo, PackageInterface $package)
+    public function install(PackageInterface $package, $installPath)
     {
-        parent::install($repo, $package);
+        $application = Util::isJoomlatoolsPlatform() ? 'Joomlatools Platform' : 'Joomla';
 
-        $this->_setupExtmanSupport($package);
+        $this->_io->write(printf("- Installing the %s extension <info>%s</info> (<comment>%s</comment>)", $application, $package->getName(), $package->getFullPrettyVersion()));
 
-        $this->io->write('    <fg=cyan>Installing</fg=cyan> into Joomla'.PHP_EOL);
-
-        if(!$this->getApplication()->install($this->getInstallPath($package)))
+        if(!$this->getApplication()->install($installPath))
         {
             // Get all error messages that were stored in the message queue
             $descriptions = $this->_getApplicationMessages();
@@ -118,23 +155,18 @@ class ExtensionInstaller extends LibraryInstaller
         $this->_enablePlugin($package);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function update(InstalledRepositoryInterface $repo, PackageInterface $initial, PackageInterface $target)
+    public function update(PackageInterface $package, $installPath)
     {
-        parent::update($repo, $initial, $target);
+        $application = Util::isJoomlatoolsPlatform() ? 'Joomlatools Platform' : 'Joomla';
 
-        $this->_setupExtmanSupport($target);
+        $this->_io->write(printf("- Updating the %s extension <info>%s</info> (<comment>%s</comment>)", $application, $package->getName(), $package->getFullPrettyVersion()));
 
-        $this->io->write('    <fg=cyan>Updating</fg=cyan> Joomla extension'.PHP_EOL);
-
-        if(!$this->getApplication()->update($this->getInstallPath($target)))
+        if(!$this->getApplication()->update($installPath))
         {
             // Get all error messages that were stored in the message queue
             $descriptions = $this->_getApplicationMessages();
 
-            $error = 'Error while updating '.$target->getPrettyName();
+            $error = 'Error while updating '.$package->getPrettyName();
             if(count($descriptions)) {
                 $error .= ':'.PHP_EOL.implode(PHP_EOL, $descriptions);
             }
@@ -146,13 +178,8 @@ class ExtensionInstaller extends LibraryInstaller
     /**
      * {@inheritDoc}
      */
-    public function uninstall(InstalledRepositoryInterface $repo, PackageInterface $package)
+    public function uninstall(PackageInterface $package, $installPath)
     {
-        if (!$repo->hasPackage($package)) {
-            throw new \InvalidArgumentException('Package is not installed: '.$package);
-        }
-
-        $installPath = $this->getInstallPath($package);
         $manifest    = $this->_getManifest($installPath);
 
         if($manifest)
@@ -170,9 +197,7 @@ class ExtensionInstaller extends LibraryInstaller
             }
         }
 
-        parent::uninstall($repo, $package);
-
-        $this->io->write('    <fg=cyan>Removing</fg=cyan> Joomla extension'.PHP_EOL);
+        $this->_io->write('    <fg=cyan>Removing</fg=cyan> Joomla extension'.PHP_EOL);
     }
 
     /**
@@ -224,7 +249,7 @@ class ExtensionInstaller extends LibraryInstaller
 
             $base = realpath('.');
 
-            if ($this->_isJoomlatoolsPlatform())
+            if (Util::_isJoomlatoolsPlatform())
             {
                 define('JPATH_WEB'   , $base.'/web');
                 define('JPATH_ROOT'  , $base);
@@ -253,7 +278,7 @@ class ExtensionInstaller extends LibraryInstaller
             $options = array(
                 'root_user' => $this->_credentials['username'],
                 'loglevel'  => $this->_verbosity,
-                'platform'  => $this->_isJoomlatoolsPlatform()
+                'platform'  => Util::_isJoomlatoolsPlatform()
             );
 
             $this->_application = new Application($options);
@@ -320,30 +345,6 @@ class ExtensionInstaller extends LibraryInstaller
                         $this->_enablePlugin($package, (string) $file);
                     }
                 }
-            }
-        }
-    }
-
-    /**
-     * Make sure to load the ComExtmanDatabaseRowExtension class
-     * if we are installing a Joomlatools extension
-     *
-     * @param PackageInterface $target
-     */
-    protected function _setupExtmanSupport(PackageInterface $target)
-    {
-        if(!defined('_JEXEC')) {
-            $this->_bootstrap();
-        }
-
-        $name = strtolower($target->getPrettyName());
-        $parts = explode('/', $name);
-        if($parts[0] == 'joomlatools' && $parts[1] != 'extman')
-        {
-            \JPluginHelper::importPlugin('system', 'koowa');
-
-            if(class_exists('Koowa') && !class_exists('ComExtmanDatabaseRowExtension')) {
-                \KObjectManager::getInstance()->getObject('com://admin/extman.database.row.extension');
             }
         }
     }
