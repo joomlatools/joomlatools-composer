@@ -217,40 +217,6 @@ class ExtensionInstaller extends LibraryInstaller
     {
         if(!defined('_JEXEC'))
         {
-            $isPlatform = $this->_isJoomlatoolsPlatform();
-
-            if ($isPlatform)
-            {
-                $dependencies   = array('vlucas/phpdotenv', 'joomla/string', 'joomla/registry', 'joomla/application');
-                $installManager = $this->composer->getInstallationManager();
-                $repoManager    = $this->composer->getRepositoryManager();
-                $repo           = $this->composer->getRepositoryManager()->getLocalRepository();
-                $rootPackage    = $this->composer->getPackage();
-
-                foreach ($dependencies as $dependency)
-                {
-                    foreach ($rootPackage->getRequires() as $requirement)
-                    {
-                        if ($requirement->getTarget() == $dependency)
-                        {
-                            $package = $repoManager->findPackage($requirement->getTarget(), $requirement->getConstraint());
-
-                            if ($package->getName() == $dependency)
-                            {
-                                if (!$installManager->isPackageInstalled($repo, $package))
-                                {
-                                    $installer = $installManager->getInstaller($package->getType());
-                                    $installer->install($repo, $package);
-                                }
-                            }
-                        }
-                    }
-                }
-
-                $generator = $this->composer->getAutoloadGenerator();
-                $generator->dump($this->composer->getConfig(), $repo, $this->composer->getPackage(), $installManager, 'composer');
-            }
-
             $_SERVER['HTTP_HOST']   = 'localhost';
             $_SERVER['HTTP_USER_AGENT'] = 'Composer';
 
