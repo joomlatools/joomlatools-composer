@@ -75,8 +75,20 @@ class ExtensionInstaller extends LibraryInstaller
         );
 
         $this->_credentials = array_merge($defaults, $credentials);
+    }
 
-        $this->_bootstrap();
+    /**
+     * Get the application object.
+     * If it 's not initialised yet, bootstrap the application.
+     */
+    public function getApplication()
+    {
+        if (!$this->_application)
+        {
+            $this->_bootstrap();
+        }
+
+        return $this->_application;
     }
 
     /**
@@ -90,7 +102,7 @@ class ExtensionInstaller extends LibraryInstaller
 
         $this->io->write('    <fg=cyan>Installing</fg=cyan> into Joomla'.PHP_EOL);
 
-        if(!$this->_application->install($this->getInstallPath($package)))
+        if(!$this->getApplication()->install($this->getInstallPath($package)))
         {
             // Get all error messages that were stored in the message queue
             $descriptions = $this->_getApplicationMessages();
@@ -117,7 +129,7 @@ class ExtensionInstaller extends LibraryInstaller
 
         $this->io->write('    <fg=cyan>Updating</fg=cyan> Joomla extension'.PHP_EOL);
 
-        if(!$this->_application->update($this->getInstallPath($target)))
+        if(!$this->getApplication()->update($this->getInstallPath($target)))
         {
             // Get all error messages that were stored in the message queue
             $descriptions = $this->_getApplicationMessages();
@@ -150,10 +162,10 @@ class ExtensionInstaller extends LibraryInstaller
 
             if (!empty($element))
             {
-                $extension = $this->_application->getExtension($element, $type);
+                $extension = $this->getApplication()->getExtension($element, $type);
 
                 if ($extension) {
-                    $this->_application->uninstall($extension->id, $type);
+                    $this->getApplication()->uninstall($extension->id, $type);
                 }
             }
         }
@@ -188,7 +200,7 @@ class ExtensionInstaller extends LibraryInstaller
                 return false;
             }
 
-            $extension = $this->_application->getExtension($element, $type);
+            $extension = $this->getApplication()->getExtension($element, $type);
 
             return $extension !== false;
         }
@@ -245,10 +257,10 @@ class ExtensionInstaller extends LibraryInstaller
             );
 
             $this->_application = new Application($options);
-            $this->_application->authenticate($this->_credentials);
+            $this->getApplication()->authenticate($this->_credentials);
         }
     }
-
+    
     /**
      * Fetches the enqueued flash messages from the Joomla application object.
      *
@@ -256,7 +268,7 @@ class ExtensionInstaller extends LibraryInstaller
      */
     protected function _getApplicationMessages()
     {
-        $messages       = $this->_application->getMessageQueue();
+        $messages       = $this->getApplication()->getMessageQueue();
         $descriptions   = array();
 
         foreach($messages as $message)
@@ -289,7 +301,7 @@ class ExtensionInstaller extends LibraryInstaller
                 $name  = $this->_getElementFromManifest($manifest);
                 $group = (string) $manifest->attributes()->group;
 
-                $extension = $this->_application->getExtension($name, 'plugin', $group);
+                $extension = $this->getApplication()->getExtension($name, 'plugin', $group);
 
                 if (is_object($extension) && $extension->id > 0)
                 {
@@ -345,7 +357,7 @@ class ExtensionInstaller extends LibraryInstaller
             return false;
         }
 
-        $installer = $this->_application->getInstaller();
+        $installer = $this->getApplication()->getInstaller();
         $installer->setPath('source', $installPath);
 
         return $installer->getManifest();
