@@ -217,6 +217,20 @@ class ExtensionInstaller extends LibraryInstaller
     {
         if(!defined('_JEXEC'))
         {
+            $isPlatform = $this->_isJoomlatoolsPlatform();
+
+            if ($isPlatform)
+            {
+                if (!file_exists('./vendor/autoload.php'))
+                {
+                    $manager      = $this->composer->getInstallationManager();
+                    $repo         = $this->composer->getRepositoryManager()->getLocalRepository();
+
+                    $generator = $this->composer->getAutoloadGenerator();
+                    $generator->dump($this->composer->getConfig(), $repo, $this->composer->getPackage(), $manager, 'composer');
+                }
+            }
+
             $_SERVER['HTTP_HOST']   = 'localhost';
             $_SERVER['HTTP_USER_AGENT'] = 'Composer';
 
