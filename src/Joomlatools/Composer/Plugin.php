@@ -24,6 +24,11 @@ use Composer\Script\ScriptEvents;
  */
 class Plugin implements PluginInterface, EventSubscriberInterface
 {
+    /** @var Composer $composer */
+    protected $composer;
+    /** @var IOInterface $io */
+    protected $io;
+
     /**
      * Apply plugin modifications to composer
      *
@@ -32,22 +37,24 @@ class Plugin implements PluginInterface, EventSubscriberInterface
      */
     public function activate(Composer $composer, IOInterface $io)
     {
-        $installer = new ComposerInstaller($io, $composer);
+        $this->composer = $composer;
+        $this->io = $io;
 
-        ExtensionInstaller::getInstance($io, $composer);
+        $installer = new ComposerInstaller($this->io, $this->composer);
 
         $composer->getInstallationManager()->addInstaller($installer);
-    }
-
-    public function postAutoloadDump(Event $event)
-    {
-        ExtensionInstaller::getInstance()->execute();
     }
 
     public static function getSubscribedEvents()
     {
         return array(
-            ScriptEvents::POST_AUTOLOAD_DUMP => 'postAutoloadDump',
+            ScriptEvents::POST_AUTOLOAD_DUMP => 'postAutoloadDump'
         );
+    }
+
+    public function postAutoloadDump(Event $event)
+    {
+        $extensionInstaller = new ExtensionInstaller($this->io, $this->composer);
+        $extensionInstaller->execute();
     }
 }

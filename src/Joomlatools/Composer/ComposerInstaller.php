@@ -32,7 +32,7 @@ class ComposerInstaller extends LibraryInstaller
 
         $this->io->write(sprintf("    Queuing <fg=cyan>%s</fg=cyan> for installation", $package->getName()));
 
-        ExtensionInstaller::getInstance()->addPackage($package, 'install', $this->getInstallPath($package));
+        TaskQueue::getInstance()->enqueue(array('install', $package, $this->getInstallPath($package)));
     }
 
     /**
@@ -44,7 +44,7 @@ class ComposerInstaller extends LibraryInstaller
 
         $this->io->write(sprintf("    Queuing <fg=cyan>%s</fg=cyan> for upgrading", $target->getName()));
 
-        ExtensionInstaller::getInstance()->addPackage($target, 'update', $this->getInstallPath($target));
+        TaskQueue::getInstance()->enqueue(array('update', $target, $this->getInstallPath($target)));
     }
 
     /**
@@ -58,7 +58,7 @@ class ComposerInstaller extends LibraryInstaller
 
         $this->io->write(sprintf("    Queuing <fg=cyan>%s</fg=cyan> for removal", $package->getName()));
 
-        ExtensionInstaller::getInstance()->addPackage($package, 'uninstall', $this->getInstallPath($package));
+        TaskQueue::getInstance()->enqueue(array('uninstall', $package, $this->getInstallPath($package)));
 
         parent::uninstall($repo, $package);
     }

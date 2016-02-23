@@ -7,7 +7,7 @@
  * @link		http://github.com/joomlatools/joomlatools-composer for the canonical source repository
  */
 
-namespace Joomlatools\Composer;
+namespace Joomlatools\Joomla;
 
 use \JApplicationCli as JApplicationCli;
 use \JDispatcher as JDispatcher;

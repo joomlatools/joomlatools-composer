@@ -9,12 +9,12 @@
 
 namespace Joomlatools\Composer;
 
+use Joomlatools\Joomla\Application;
 use Joomlatools\Joomla\Util;
 
 use Composer\Composer;
 use Composer\IO\IOInterface;
 use Composer\Package\PackageInterface;
-use Composer\Repository\InstalledRepositoryInterface;
 
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -26,7 +26,6 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class ExtensionInstaller
 {
-    private static $__instance   = null;
     private static $__extensions = array();
 
     protected $_io = null;
@@ -41,8 +40,7 @@ class ExtensionInstaller
      */
     public function __construct(IOInterface $io, Composer $composer)
     {
-        $this->_io = $io;
-
+        $this->_io     = $io;
         $this->_config = $composer->getConfig();
 
         if (!Util::isJoomla() && !Util::isJoomlatoolsPlatform()) {
@@ -58,20 +56,6 @@ class ExtensionInstaller
         }
 
         $this->_initialize();
-    }
-
-    /**
-     * Get instance of this class
-     *
-     * @return ExtensionInstaller
-     */
-    public static function getInstance(IOInterface $io = null, Composer $composer = null)
-    {
-        if (!self::$__instance) {
-            self::$__instance = new ExtensionInstaller($io, $composer);
-        }
-
-        return self::$__instance;
     }
 
     /**
@@ -99,24 +83,14 @@ class ExtensionInstaller
 
     public function execute()
     {
-        foreach (self::$__extensions as $type => $packages)
+        foreach (Taskqueue::getInstance() as $task)
         {
-            foreach ($packages as $installPath => $package)
-            {
-                if (method_exists($this, $type)) {
-                    call_user_func_array(array($this, $type), array($package, $installPath));
-                }
+            list($action, $package, $installPath) = $task;
+
+            if (method_exists($this, $action)) {
+                call_user_func_array(array($this, $action), array($package, $installPath));
             }
         }
-    }
-
-    public function addPackage(PackageInterface $package, $action = 'install', $installPath)
-    {
-        if (!isset(self::$__extensions[$action])) {
-            self::$__extensions[$action] = array();
-        }
-
-        self::$__extensions[$action][$installPath] = $package;
     }
 
     /**
