@@ -17,6 +17,8 @@ namespace Joomlatools\Joomla;
  */
 class Util
 {
+    private static $__manifests = array();
+
     /**
      * Validate if the current working directory has a valid Joomla installation
      *
@@ -58,5 +60,133 @@ class Util
         }
 
         return false;
+    }
+
+    /**
+     * Find the XML manifest of the installation package
+     *
+     * @param string $installPath Install path of package
+     *
+     * @return string Full path to manifest file
+     */
+    public static function getPackageManifest($installPath)
+    {
+        if (!array_key_exists($installPath, self::$__manifests))
+        {
+            self::$__manifests[$installPath] = false;
+
+            $directories = new \RecursiveDirectoryIterator($installPath);
+            $iterator    = new \RecursiveIteratorIterator($directories);
+
+            $iterator->setMaxDepth(1);
+
+            $files = new \RegexIterator($iterator, '/.*\.xml$/', \RegexIterator::GET_MATCH);
+            $manifests = array();
+            foreach($files as $file) {
+                $manifests = array_unique(array_merge($manifests, $file));
+            }
+
+            if (count($manifests))
+            {
+                // Sort the results by number of subdirectories (root first, then subdirectories)
+                usort($manifests, function ($a, $b) {
+                    $partsA = explode(DIRECTORY_SEPARATOR, $a);
+                    $partsB = explode(DIRECTORY_SEPARATOR, $b);
+
+                    return count($partsA) - count($partsB);
+                });
+
+                foreach ($manifests as $manifest)
+                {
+                    $xml = simplexml_load_file($manifest);
+
+                    if (!($xml instanceof \SimpleXMLElement)) {
+                        continue;
+                    }
+
+                    if ($xml->getName() == 'extension') {
+                        self::$__manifests[$installPath] = $manifest;
+                    }
+
+                    unset($xml);
+                }
+            }
+        }
+
+        return self::$__manifests[$installPath];
+    }
+
+    /**
+     * Get the element name from the XML manifest
+     *
+     * @param string $manifest Path to the installation package
+     *
+     * @return string|bool   Extension name or FALSE on failure
+     */
+    public static function getNameFromManifest($installPath)
+    {
+        $manifest = self::getPackageManifest($installPath);
+
+        if ($manifest === false) {
+            return false;
+        }
+
+        $xml = simplexml_load_file($manifest);
+
+        if (!($xml instanceof \SimpleXMLElement)) {
+            return false;
+        }
+
+        $element = false;
+        $type    = (string) $xml->attributes()->type;
+
+        switch($type)
+        {
+            case 'component':
+                $name    = strtolower((string) $xml->name);
+                $element = preg_replace('/[^A-Z0-9_\.-]/i', '', $name);
+
+                if (substr($element, 0, 4) != 'com_') {
+                    $element = 'com_'.$element;
+                }
+                break;
+            case 'module':
+            case 'plugin':
+                if(count($xml->files->children()))
+                {
+                    foreach($xml->files->children() as $file)
+                    {
+                        if ((string) $file->attributes()->$type)
+                        {
+                            $element = (string) $file->attributes()->$type;
+                            break;
+                        }
+                    }
+                }
+                break;
+            case 'file':
+            case 'library':
+                $filename = basename($manifest);
+                $element  = substr($filename, 0, -strlen('.xml'));
+                break;
+            case 'package':
+                $element = preg_replace('/[^A-Z0-9_\.-]/i', '', $xml->packagename);
+
+                if (substr($element, 0, 4) != 'pkg_') {
+                    $element = 'pkg_'.$element;
+                }
+                break;
+            case 'language':
+                $element = $xml->get('tag');
+                break;
+            case 'template':
+                $name    = preg_replace('/[^A-Z0-9_ \.-]/i', '', $xml->name);
+                $element = strtolower(str_replace(' ', '_', $name));
+                break;
+            default:
+                break;
+        }
+
+        return $element;
     }
 }

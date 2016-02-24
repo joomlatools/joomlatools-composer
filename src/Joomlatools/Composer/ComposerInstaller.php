@@ -14,6 +14,9 @@ use Composer\Repository\InstalledRepositoryInterface;
 use Composer\Installer\LibraryInstaller;
 use Composer\IO\IOInterface;
 
+use Joomlatools\Joomla\Bootstrapper;
+use Joomlatools\Joomla\Util;
+
 /**
  * Composer installer class
  *
@@ -75,22 +78,25 @@ class ComposerInstaller extends LibraryInstaller
      */
     public function isInstalled(InstalledRepositoryInterface $repo, PackageInterface $package)
     {
-        return false;
-
-
         $installPath = $this->getInstallPath($package);
-        $manifest    = $this->_getManifest($installPath);
+        $manifest    = Util::getPackageManifest($installPath);
 
-        if($manifest)
+        if ($manifest === false) {
+            return false;
+        }
+
+        $xml = simplexml_load_file($manifest);
+
+        if($xml instanceof \SimpleXMLElement)
         {
-            $type    = (string) $manifest->attributes()->type;
-            $element = $this->_getElementFromManifest($manifest);
+            $type    = (string) $xml->attributes()->type;
+            $element = Util::getNameFromManifest($installPath);
 
             if (empty($element)) {
                 return false;
             }
 
-            $extension = $this->getApplication()->getExtension($element, $type);
+            $extension = Bootstrapper::getInstance()->getApplication()->getExtension($element, $type);
 
             return $extension !== false;
         }
@@ -99,51 +105,30 @@ class ComposerInstaller extends LibraryInstaller
     }
 
     /**
-     * Find the xml manifest of the package
+     * Get the element name from the XML manifest
      *
-     * @param string Install path of package
-     *
-     * @return object  Manifest object
-     */
-    protected function _getManifest($installPath)
-    {
-        if (!is_dir($installPath)) {
-            return false;
-        }
-
-        $installer = $this->getApplication()->getInstaller();
-        $installer->setPath('source', $installPath);
-
-        return $installer->getManifest();
-    }
-
-    /**
-     * Get the element's name from the XML manifest
-     *
-     * @param object  Manifest object
+     * @param string $path Path to the installation package
      *
      * @return string
      */
-    protected function _getElementFromManifest($manifest)
+    protected function _getPackageName($path)
     {
-        $element    = '';
-        $type       = (string) $manifest->attributes()->type;
+        $element = '';
+
+        $manifest = Util::getPackageManifest($path);
+        $type    = (string) $manifest->attributes()->type;
 
         switch($type)
         {
-            case 'module':
-                if(count($manifest->files->children()))
-                {
-                    foreach($manifest->files->children() as $file)
-                    {
-                        if((string) $file->attributes()->module)
-                        {
-                            $element = (string) $file->attributes()->module;
-                            break;
-                        }
-                    }
+            case 'component':
+                $name    = strtolower((string) $manifest->name);
+                $element = preg_replace('/[^A-Z0-9_\.-]/i', '', $name);
+
+                if (substr($element, 0, 4) != 'com_') {
+                    $element = 'com_'.$element;
                 }
                 break;
+            case 'module':
             case 'plugin':
                 if(count($manifest->files->children()))
                 {
@@ -157,17 +142,25 @@ class ComposerInstaller extends LibraryInstaller
                     }
                 }
                 break;
-            case 'component':
-                $element = strtolower((string) $manifest->name);
-                $element = preg_replace('/[^A-Z0-9_\.-]/i', '', $element);
+            case 'file':
+            case 'library':
+                $element = substr($path, 0, -strlen('.xml'));
+                break;
+            case 'package':
+                $element = preg_replace('/[^A-Z0-9_\.-]/i', '', $manifest->packagename);
 
-                if(substr($element, 0, 4) != 'com_') {
-                    $element = 'com_'.$element;
+                if (substr($element, 0, 4) != 'pkg_') {
+                    $element = 'pkg_'.$element;
                 }
                 break;
+            case 'language':
+                $element = $manifest->get('tag');
+                break;
+            case 'template':
+                $name    = preg_replace('/[^A-Z0-9_ \.-]/i', '', $manifest->name);
+                $element = strtolower(str_replace(' ', '_', $name));
+                break;
             default:
-                $element = strtolower((string) $manifest->name);
-                $element = preg_replace('/[^A-Z0-9_\.-]/i', '', $element);
                 break;
         }
 

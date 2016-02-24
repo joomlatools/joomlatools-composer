@@ -90,12 +90,15 @@ class ExtensionInstaller
      */
     public function uninstall(PackageInterface $package, $installPath)
     {
-        $manifest    = $this->_getManifest($installPath);
+        $platformString = Util::isJoomlatoolsPlatform() ? 'Joomlatools Platform' : 'Joomla';
+        $file           = Util::getPackageManifest($installPath);
 
-        if($manifest)
+        if($file !== false)
         {
+            $manifest = simplexml_load_file($file);
+
             $type    = (string) $manifest->attributes()->type;
-            $element = $this->_getElementFromManifest($manifest);
+            $element = Util::getNameFromManifest($installPath);
 
             if (!empty($element))
             {
@@ -106,9 +109,11 @@ class ExtensionInstaller
                     $application->uninstall($extension->id, $type);
                 }
             }
-        }
 
-        $this->_io->write('    <fg=cyan>Removing</fg=cyan> Joomla extension'.PHP_EOL);
+            $this->_io->write(sprintf("    - Uninstalling the %s extension <info>%s</info>", $platformString, $package->getName()));
+        }
+        else $this->_io->write(sprintf("    [<error>ERROR</error>] Can not uninstall the %s extension <info>%s</info>: XML manifest not found.", $platformString, $package->getName()));
+
     }
 
     /**
@@ -147,16 +152,17 @@ class ExtensionInstaller
      */
     protected function _enablePlugin(PackageInterface $package, $installPath, $subdirectory = '')
     {
-        $path     = realpath($installPath . '/' . $subdirectory);
-        $manifest = $this->_getManifest($path);
+        $path = realpath($installPath . '/' . $subdirectory);
+        $file = Util::getPackageManifest($path);
 
-        if($manifest)
+        if($file !== false)
         {
-            $type = (string) $manifest->attributes()->type;
+            $manifest = simplexml_load_file($file);
+            $type     = (string) $manifest->attributes()->type;
 
             if ($type == 'plugin')
             {
-                $name  = $this->_getElementFromManifest($manifest);
+                $name  = Util::getNameFromManifest($installPath);
                 $group = (string) $manifest->attributes()->group;
 
                 $extension = Bootstrapper::getInstance()->getApplication()->getExtension($name, 'plugin', $group);
@@ -180,81 +186,5 @@ class ExtensionInstaller
                 }
             }
         }
-    }
-
-    /**
-     * Find the xml manifest of the package
-     *
-     * @param string Install path of package
-     *
-     * @return object  Manifest object
-     */
-    protected function _getManifest($installPath)
-    {
-        if (!is_dir($installPath)) {
-            return false;
-        }
-
-        $installer = Bootstrapper::getInstance()->getApplication()->getInstaller();
-        $installer->setPath('source', $installPath);
-
-        return $installer->getManifest();
-    }
-
-    /**
-     * Get the element's name from the XML manifest
-     *
-     * @param object  Manifest object
-     *
-     * @return string
-     */
-    protected function _getElementFromManifest($manifest)
-    {
-        $element    = '';
-        $type       = (string) $manifest->attributes()->type;
-
-        switch($type)
-        {
-            case 'module':
-                if(count($manifest->files->children()))
-                {
-                    foreach($manifest->files->children() as $file)
-                    {
-                        if((string) $file->attributes()->module)
-                        {
-                            $element = (string) $file->attributes()->module;
-                            break;
-                        }
-                    }
-                }
-                break;
-            case 'plugin':
-                if(count($manifest->files->children()))
-                {
-                    foreach($manifest->files->children() as $file)
-                    {
-                        if ((string) $file->attributes()->$type)
-                        {
-                            $element = (string) $file->attributes()->$type;
-                            break;
-                        }
-                    }
-                }
-                break;
-            case 'component':
-                $element = strtolower((string) $manifest->name);
-                $element = preg_replace('/[^A-Z0-9_\.-]/i', '', $element);
-
-                if(substr($element, 0, 4) != 'com_') {
-                    $element = 'com_'.$element;
-                }
-                break;
-            default:
-                $element = strtolower((string) $manifest->name);
-                $element = preg_replace('/[^A-Z0-9_\.-]/i', '', $element);
-                break;
-        }
-
-        return $element;
     }
 }
