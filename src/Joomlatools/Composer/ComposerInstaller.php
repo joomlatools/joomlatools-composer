@@ -78,6 +78,12 @@ class ComposerInstaller extends LibraryInstaller
      */
     public function isInstalled(InstalledRepositoryInterface $repo, PackageInterface $package)
     {
+        $application = Bootstrapper::getInstance()->getApplication();
+
+        if ($application === false) {
+            return false;
+        }
+
         $installPath = $this->getInstallPath($package);
         $manifest    = Util::getPackageManifest($installPath);
 
@@ -96,7 +102,7 @@ class ComposerInstaller extends LibraryInstaller
                 return false;
             }
 
-            $extension = Bootstrapper::getInstance()->getApplication()->getExtension($element, $type);
+            $extension = $application->getExtension($element, $type);
 
             return $extension !== false;
         }

@@ -67,7 +67,7 @@ class Bootstrapper
     public function setCredentials(array $credentials)
     {
         if (!($this->_io instanceof IOInterface)) {
-            throw new RuntimeException('Bootstrapper instance requires IOInterface instance. Please call setIO() first.');
+            throw new \RuntimeException('Bootstrapper instance requires IOInterface instance. Please call setIO() first.');
         }
 
         if ($this->_bootstrapped)
@@ -96,7 +96,7 @@ class Bootstrapper
     public function getApplication()
     {
         if (!($this->_io instanceof IOInterface)) {
-            throw new RuntimeException('Bootstrapper instance requires IOInterface instance. Please call setIO() first.');
+            throw new \RuntimeException('Bootstrapper instance requires IOInterface instance. Please call setIO() first.');
         }
 
         if (!$this->_bootstrapped) {
@@ -116,11 +116,19 @@ class Bootstrapper
                 $this->_application = new Application($options);
                 $this->_application->authenticate($this->_credentials);
             }
-            catch (Exception $ex)
+            catch (\Exception $ex)
             {
                 $this->_io->write("<error>Failed to initialize the Joomla application</error>");
 
-                throw $ex;
+                if ($this->_io->isVerbose()) {
+                    $this->_io->write($ex->getMessage());
+                }
+
+                if ($this->_io->isDebug()) {
+                    throw $ex;
+                }
+
+                $this->_application = false;
             }
         }
 

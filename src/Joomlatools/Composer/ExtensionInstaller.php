@@ -33,6 +33,16 @@ class ExtensionInstaller
 
     public function execute()
     {
+        $application = Bootstrapper::getInstance()->getApplication();
+
+        if ($application === false)
+        {
+            $platformStr = Util::isJoomlatoolsPlatform() ? 'Joomlatools Platform' : 'Joomla';
+            $this->_io->write(sprintf("    [<error>ERROR</error>] Failed to initialize the %s application! %s extensions will not be installed or removed. Is the application properly configured?", $platformStr, $platformStr));
+
+            return;
+        }
+
         foreach (Taskqueue::getInstance() as $task)
         {
             list($action, $package, $installPath) = $task;
@@ -45,9 +55,9 @@ class ExtensionInstaller
 
     public function install(PackageInterface $package, $installPath)
     {
-        $application = Util::isJoomlatoolsPlatform() ? 'Joomlatools Platform' : 'Joomla';
+        $platformStr = Util::isJoomlatoolsPlatform() ? 'Joomlatools Platform' : 'Joomla';
 
-        $this->_io->write(sprintf("    - Installing the %s extension <info>%s</info> <comment>%s</comment>", $application, $package->getName(), $package->getFullPrettyVersion()));
+        $this->_io->write(sprintf("    - Installing the %s extension <info>%s</info> <comment>%s</comment>", $platformStr, $package->getName(), $package->getFullPrettyVersion()));
 
         if(!Bootstrapper::getInstance()->getApplication()->install($installPath))
         {
@@ -67,9 +77,9 @@ class ExtensionInstaller
 
     public function update(PackageInterface $package, $installPath)
     {
-        $application = Util::isJoomlatoolsPlatform() ? 'Joomlatools Platform' : 'Joomla';
+        $platformStr = Util::isJoomlatoolsPlatform() ? 'Joomlatools Platform' : 'Joomla';
 
-        $this->_io->write(sprintf("    - Updating the %s extension <info>%s</info> to <comment>%s</comment>", $application, $package->getName(), $package->getFullPrettyVersion()));
+        $this->_io->write(sprintf("    - Updating the %s extension <info>%s</info> to <comment>%s</comment>", $platformStr, $package->getName(), $package->getFullPrettyVersion()));
 
         if(!Bootstrapper::getInstance()->getApplication()->update($installPath))
         {
