@@ -9,9 +9,10 @@
 
 namespace Joomlatools\Composer;
 
-use Composer\IO\IOInterface;
+use Joomlatools\Joomla\Bootstrapper;
 use Joomlatools\Joomla\Util;
 
+use Composer\IO\IOInterface;
 use Composer\Package\PackageInterface;
 
 /**
@@ -48,7 +49,7 @@ class ExtensionInstaller
 
         $this->_io->write(sprintf("    - Installing the %s extension <info>%s</info> <comment>%s</comment>", $application, $package->getName(), $package->getFullPrettyVersion()));
 
-        if(!$this->getApplication()->install($installPath))
+        if(!Bootstrapper::getInstance()->getApplication()->install($installPath))
         {
             // Get all error messages that were stored in the message queue
             $descriptions = $this->_getApplicationMessages();
@@ -70,7 +71,7 @@ class ExtensionInstaller
 
         $this->_io->write(sprintf("    - Updating the %s extension <info>%s</info> to <comment>%s</comment>", $application, $package->getName(), $package->getFullPrettyVersion()));
 
-        if(!$this->getApplication()->update($installPath))
+        if(!Bootstrapper::getInstance()->getApplication()->update($installPath))
         {
             // Get all error messages that were stored in the message queue
             $descriptions = $this->_getApplicationMessages();
@@ -98,10 +99,11 @@ class ExtensionInstaller
 
             if (!empty($element))
             {
-                $extension = $this->getApplication()->getExtension($element, $type);
+                $application = Bootstrapper::getInstance()->getApplication();
+                $extension   = $application->getExtension($element, $type);
 
                 if ($extension) {
-                    $this->getApplication()->uninstall($extension->id, $type);
+                    $application->uninstall($extension->id, $type);
                 }
             }
         }
@@ -124,7 +126,7 @@ class ExtensionInstaller
      */
     protected function _getApplicationMessages()
     {
-        $messages       = $this->getApplication()->getMessageQueue();
+        $messages       = Bootstrapper::getInstance()->getApplication()->getMessageQueue();
         $descriptions   = array();
 
         foreach($messages as $message)
@@ -157,7 +159,7 @@ class ExtensionInstaller
                 $name  = $this->_getElementFromManifest($manifest);
                 $group = (string) $manifest->attributes()->group;
 
-                $extension = $this->getApplication()->getExtension($name, 'plugin', $group);
+                $extension = Bootstrapper::getInstance()->getApplication()->getExtension($name, 'plugin', $group);
 
                 if (is_object($extension) && $extension->id > 0)
                 {
@@ -193,7 +195,7 @@ class ExtensionInstaller
             return false;
         }
 
-        $installer = $this->getApplication()->getInstaller();
+        $installer = Bootstrapper::getInstance()->getApplication()->getInstaller();
         $installer->setPath('source', $installPath);
 
         return $installer->getManifest();
