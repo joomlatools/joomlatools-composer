@@ -9,6 +9,8 @@
 
 namespace Joomlatools\Composer;
 
+use Joomlatools\Joomla\Bootstrapper;
+
 use Composer\Composer;
 use Composer\EventDispatcher\EventSubscriberInterface;
 use Composer\IO\IOInterface;
@@ -25,9 +27,9 @@ use Composer\Script\ScriptEvents;
 class Plugin implements PluginInterface, EventSubscriberInterface
 {
     /** @var Composer $composer */
-    protected $composer;
+    protected $_composer;
     /** @var IOInterface $io */
-    protected $io;
+    protected $_io;
 
     /**
      * Apply plugin modifications to composer
@@ -37,11 +39,14 @@ class Plugin implements PluginInterface, EventSubscriberInterface
      */
     public function activate(Composer $composer, IOInterface $io)
     {
-        $this->composer = $composer;
-        $this->io = $io;
+        if (!Util::isJoomla() && !Util::isJoomlatoolsPlatform()) {
+            throw new \RuntimeException('Working directory is not a valid Joomla installation');
+        }
 
-        $installer = new ComposerInstaller($this->io, $this->composer);
+        $this->_composer = $composer;
+        $this->_io = $io;
 
+        $installer = new ComposerInstaller($this->_io, $this->_composer);
         $composer->getInstallationManager()->addInstaller($installer);
     }
 
@@ -54,7 +59,17 @@ class Plugin implements PluginInterface, EventSubscriberInterface
 
     public function postAutoloadDump(Event $event)
     {
-        $extensionInstaller = new ExtensionInstaller($this->io, $this->composer);
+        $credentials = $this->_composer->getConfig->get('joomla');
+
+        if(is_null($credentials) || !is_array($credentials)) {
+            $credentials = array();
+        }
+
+        $bootstrapper = Bootstrapper::getInstance();
+        $bootstrapper->setIO($this->_io);
+        $bootstrapper->setCredentials($credentials);
+
+        $extensionInstaller = new ExtensionInstaller($this->_io);
         $extensionInstaller->execute();
     }
 }

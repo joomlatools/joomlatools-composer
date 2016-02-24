@@ -31,7 +31,7 @@ class TaskQueue extends SplQueue
      *
      * @return TaskQueue $instance
      */
-    public static function getInstance(IOInterface $io = null, Composer $composer = null)
+    public static function getInstance()
     {
         if (!self::$__instance) {
             self::$__instance = new TaskQueue();

@@ -12,8 +12,7 @@ namespace Joomlatools\Composer;
 use Composer\Package\PackageInterface;
 use Composer\Repository\InstalledRepositoryInterface;
 use Composer\Installer\LibraryInstaller;
-
-use Symfony\Component\Console\Output\OutputInterface;
+use Composer\IO\IOInterface;
 
 /**
  * Composer installer class
@@ -30,7 +29,7 @@ class ComposerInstaller extends LibraryInstaller
     {
         parent::install($repo, $package);
 
-        $this->io->write(sprintf("    Queuing <fg=cyan>%s</fg=cyan> for installation", $package->getName()));
+        $this->io->write(sprintf("    Queuing <fg=cyan>%s</fg=cyan> for installation", $package->getName()), true, IOInterface::VERBOSE);
 
         TaskQueue::getInstance()->enqueue(array('install', $package, $this->getInstallPath($package)));
     }
@@ -42,7 +41,7 @@ class ComposerInstaller extends LibraryInstaller
     {
         parent::update($repo, $initial, $target);
 
-        $this->io->write(sprintf("    Queuing <fg=cyan>%s</fg=cyan> for upgrading", $target->getName()));
+        $this->io->write(sprintf("    Queuing <fg=cyan>%s</fg=cyan> for upgrading", $target->getName()), true, IOInterface::VERBOSE);
 
         TaskQueue::getInstance()->enqueue(array('update', $target, $this->getInstallPath($target)));
     }
@@ -56,7 +55,7 @@ class ComposerInstaller extends LibraryInstaller
             throw new \InvalidArgumentException('Package is not installed: '.$package);
         }
 
-        $this->io->write(sprintf("    Queuing <fg=cyan>%s</fg=cyan> for removal", $package->getName()));
+        $this->io->write(sprintf("    Queuing <fg=cyan>%s</fg=cyan> for removal", $package->getName()), true, IOInterface::VERBOSE);
 
         TaskQueue::getInstance()->enqueue(array('uninstall', $package, $this->getInstallPath($package)));
 
