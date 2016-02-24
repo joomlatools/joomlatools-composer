@@ -60,7 +60,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
 
     public function postAutoloadDump(Event $event)
     {
-        $credentials = $this->_composer->getConfig->get('joomla');
+        $credentials = $this->_composer->getConfig()->get('joomla');
 
         if(is_null($credentials) || !is_array($credentials)) {
             $credentials = array();
