@@ -45,10 +45,10 @@ class ExtensionInstaller
 
         foreach (Taskqueue::getInstance() as $task)
         {
-            list($action, $package, $installPath, $extraArgument) = $task;
+            list($action, $package, $installPath) = $task;
 
             if (method_exists($this, $action)) {
-                call_user_func_array(array($this, $action), array($package, $installPath, $extraArgument));
+                call_user_func_array(array($this, $action), array($package, $installPath));
             }
         }
     }
