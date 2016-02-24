@@ -117,6 +117,19 @@ class Util
     }
 
     /**
+     * Set or overwrite the XML manifest path for the given install package.
+     *
+     * @param $package  Install path of package
+     * @param $filename Full path to XML manifest
+     *
+     * @return void
+     */
+    public static function setPackageManifest($package, $filename)
+    {
+        self::$__manifests[$package] = $filename;
+    }
+
+    /**
      * Get the element name from the XML manifest
      *
      * @param string $manifest Path to the installation package

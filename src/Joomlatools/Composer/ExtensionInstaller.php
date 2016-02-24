@@ -45,10 +45,10 @@ class ExtensionInstaller
 
         foreach (Taskqueue::getInstance() as $task)
         {
-            list($action, $package, $installPath) = $task;
+            list($action, $package, $installPath, $extraArgument) = $task;
 
             if (method_exists($this, $action)) {
-                call_user_func_array(array($this, $action), array($package, $installPath));
+                call_user_func_array(array($this, $action), array($package, $installPath, $extraArgument));
             }
         }
     }
@@ -103,8 +103,10 @@ class ExtensionInstaller
         $platformString = Util::isJoomlatoolsPlatform() ? 'Joomlatools Platform' : 'Joomla';
         $file           = Util::getPackageManifest($installPath);
 
-        if($file !== false)
+        if($file !== false && file_exists($file))
         {
+            $this->_io->write(sprintf("    - Uninstalling the %s extension <info>%s</info>", $platformString, $package->getName()));
+
             $manifest = simplexml_load_file($file);
 
             $type    = (string) $manifest->attributes()->type;
@@ -119,11 +121,8 @@ class ExtensionInstaller
                     $application->uninstall($extension->id, $type);
                 }
             }
-
-            $this->_io->write(sprintf("    - Uninstalling the %s extension <info>%s</info>", $platformString, $package->getName()));
         }
         else $this->_io->write(sprintf("    [<error>ERROR</error>] Can not uninstall the %s extension <info>%s</info>: XML manifest not found.", $platformString, $package->getName()));
-
     }
 
     /**

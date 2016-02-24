@@ -62,7 +62,19 @@ class ComposerInstaller extends LibraryInstaller
 
         TaskQueue::getInstance()->enqueue(array('uninstall', $package, $this->getInstallPath($package)));
 
-        parent::uninstall($repo, $package);
+        // Find the manifest and set it aside so we can query it when actually uninstalling the extension
+        $installPath = $this->getInstallPath($package);
+        $manifest    = Util::getPackageManifest($installPath);
+        $prefix      = str_replace(DIRECTORY_SEPARATOR, '-', $package->getName());
+        $tmpFile     = tempnam(sys_get_temp_dir(), $prefix);
+
+        if (copy($manifest, $tmpFile))
+        {
+            Util::setPackageManifest($installPath, $tmpFile);
+
+            parent::uninstall($repo, $package);
+        }
+        else $this->io->write(sprintf("    [<error>ERROR</error>] Could not copy %s to %s. Skipping uninstall of <info>%s</info>.", $manifest, $tmpFile, $package->getName()), true, IOInterface::VERBOSE);
     }
 
     /**
