@@ -9,6 +9,8 @@
 
 namespace Joomlatools\Joomla;
 
+use Composer\IO\IOInterface;
+
 use \JApplicationCli as JApplicationCli;
 use \JDispatcher as JDispatcher;
 use \JFactory as JFactory;
@@ -18,7 +20,6 @@ use \JRouter as JRouter;
 use \JVersion as JVersion;
 use \JLog as JLog;
 
-use Symfony\Component\Console\Output\OutputInterface;
 /**
  * Application extending Joomla CLI class.
  *
@@ -429,19 +430,19 @@ class Application extends JApplicationCli
     {
         require_once JPATH_LIBRARIES . '/joomla/log/log.php';
 
-        if ($loglevel == OutputInterface::VERBOSITY_NORMAL) {
+        if ($loglevel == IOInterface::NORMAL) {
             return;
         }
 
         switch ($loglevel)
         {
-            case OutputInterface::VERBOSITY_DEBUG:
+            case IOInterface::DEBUG:
                 $priority = JLog::ALL;
                 break;
-            case OutputInterface::VERBOSITY_VERY_VERBOSE:
+            case IOInterface::VERY_VERBOSE:
                 $priority = JLog::ALL & ~JLog::DEBUG;
                 break;
-            case OutputInterface::VERBOSITY_VERBOSE:
+            case IOInterface::VERBOSE:
                 $priority = JLog::ALL & ~JLog::DEBUG & ~JLog::INFO & ~JLog::NOTICE;
                 break;
         }
@@ -469,7 +470,7 @@ class Application extends JApplicationCli
         }
         else
         {
-            require_once dirname(__DIR__) . '/Legacy/JLoggerStderr.php';
+            require_once dirname(__DIR__) . '/Joomla/Legacy/JLoggerStderr.php';
 
             $options = array('logger' => 'stderr');
         }
