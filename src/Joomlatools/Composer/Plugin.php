@@ -10,7 +10,7 @@
 namespace Joomlatools\Composer;
 
 use Joomlatools\Joomla\Bootstrapper;
-use Joomlatools\Composer\Util;
+use Joomlatools\Joomla\Util;
 
 use Composer\Composer;
 use Composer\EventDispatcher\EventSubscriberInterface;
