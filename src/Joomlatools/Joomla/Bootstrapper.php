@@ -72,7 +72,7 @@ class Bootstrapper
 
         if ($this->_bootstrapped)
         {
-            $this->io->write('Application has already been bootstrapped. Can not set new credentials.', true, IOInterface::VERY_VERBOSE);
+            $this->_io->write('Application has already been bootstrapped. Can not set new credentials.', true, IOInterface::VERY_VERBOSE);
             return;
         }
 

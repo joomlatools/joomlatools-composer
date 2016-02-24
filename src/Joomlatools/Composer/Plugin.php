@@ -47,6 +47,16 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         $this->_composer = $composer;
         $this->_io = $io;
 
+        $credentials = $this->_composer->getConfig()->get('joomla');
+
+        if(is_null($credentials) || !is_array($credentials)) {
+            $credentials = array();
+        }
+
+        $bootstrapper = Bootstrapper::getInstance();
+        $bootstrapper->setIO($this->_io);
+        $bootstrapper->setCredentials($credentials);
+
         $installer = new ComposerInstaller($this->_io, $this->_composer);
         $composer->getInstallationManager()->addInstaller($installer);
     }
@@ -60,16 +70,6 @@ class Plugin implements PluginInterface, EventSubscriberInterface
 
     public function postAutoloadDump(Event $event)
     {
-        $credentials = $this->_composer->getConfig()->get('joomla');
-
-        if(is_null($credentials) || !is_array($credentials)) {
-            $credentials = array();
-        }
-
-        $bootstrapper = Bootstrapper::getInstance();
-        $bootstrapper->setIO($this->_io);
-        $bootstrapper->setCredentials($credentials);
-
         $extensionInstaller = new ExtensionInstaller($this->_io);
         $extensionInstaller->execute();
     }
