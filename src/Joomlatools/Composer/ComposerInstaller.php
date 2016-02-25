@@ -32,7 +32,7 @@ class ComposerInstaller extends LibraryInstaller
     {
         parent::install($repo, $package);
 
-        $this->io->write(sprintf("    Queuing <fg=cyan>%s</fg=cyan> for installation", $package->getName()), true, IOInterface::VERBOSE);
+        $this->io->write(sprintf("  Queuing <comment>%s</comment> for installation", $package->getName()), true, IOInterface::VERBOSE);
 
         TaskQueue::getInstance()->enqueue(array('install', $package, $this->getInstallPath($package)));
     }
@@ -44,7 +44,7 @@ class ComposerInstaller extends LibraryInstaller
     {
         parent::update($repo, $initial, $target);
 
-        $this->io->write(sprintf("    Queuing <fg=cyan>%s</fg=cyan> for upgrading", $target->getName()), true, IOInterface::VERBOSE);
+        $this->io->write(sprintf("  - Queuing <comment>%s</comment> for upgrading", $target->getName()), true, IOInterface::VERBOSE);
 
         TaskQueue::getInstance()->enqueue(array('update', $target, $this->getInstallPath($target)));
     }
@@ -58,7 +58,7 @@ class ComposerInstaller extends LibraryInstaller
             throw new \InvalidArgumentException('Package is not installed: '.$package);
         }
 
-        $this->io->write(sprintf("    Queuing <fg=cyan>%s</fg=cyan> for removal", $package->getName()), true, IOInterface::VERBOSE);
+        $this->io->write(sprintf("  - Queuing <comment>%s</comment> for removal", $package->getName()), true, IOInterface::VERBOSE);
 
         TaskQueue::getInstance()->enqueue(array('uninstall', $package, $this->getInstallPath($package)));
 
@@ -74,7 +74,7 @@ class ComposerInstaller extends LibraryInstaller
 
             parent::uninstall($repo, $package);
         }
-        else $this->io->write(sprintf("    [<error>ERROR</error>] Could not copy %s to %s. Skipping uninstall of <info>%s</info>.", $manifest, $tmpFile, $package->getName()), true, IOInterface::VERBOSE);
+        else $this->io->write(sprintf("    [<error>ERROR</error>] Could not copy manifest %s to %s. Skipping uninstall of <info>%s</info>.", $manifest, $tmpFile, $package->getName()), true, IOInterface::VERBOSE);
     }
 
     /**
@@ -92,7 +92,10 @@ class ComposerInstaller extends LibraryInstaller
     {
         $application = Bootstrapper::getInstance()->getApplication();
 
-        if ($application === false) {
+        if ($application === false)
+        {
+            $this->io->write(sprintf("<comment>Warning:</comment> Can not instantiate application to check if %s is installed", $package->getName()), true, IOInterface::VERBOSE);
+
             return false;
         }
 
@@ -120,68 +123,5 @@ class ComposerInstaller extends LibraryInstaller
         }
 
         return false;
-    }
-
-    /**
-     * Get the element name from the XML manifest
-     *
-     * @param string $path Path to the installation package
-     *
-     * @return string
-     */
-    protected function _getPackageName($path)
-    {
-        $element = '';
-
-        $manifest = Util::getPackageManifest($path);
-        $type    = (string) $manifest->attributes()->type;
-
-        switch($type)
-        {
-            case 'component':
-                $name    = strtolower((string) $manifest->name);
-                $element = preg_replace('/[^A-Z0-9_\.-]/i', '', $name);
-
-                if (substr($element, 0, 4) != 'com_') {
-                    $element = 'com_'.$element;
-                }
-                break;
-            case 'module':
-            case 'plugin':
-                if(count($manifest->files->children()))
-                {
-                    foreach($manifest->files->children() as $file)
-                    {
-                        if ((string) $file->attributes()->$type)
-                        {
-                            $element = (string) $file->attributes()->$type;
-                            break;
-                        }
-                    }
-                }
-                break;
-            case 'file':
-            case 'library':
-                $element = substr($path, 0, -strlen('.xml'));
-                break;
-            case 'package':
-                $element = preg_replace('/[^A-Z0-9_\.-]/i', '', $manifest->packagename);
-
-                if (substr($element, 0, 4) != 'pkg_') {
-                    $element = 'pkg_'.$element;
-                }
-                break;
-            case 'language':
-                $element = $manifest->get('tag');
-                break;
-            case 'template':
-                $name    = preg_replace('/[^A-Z0-9_ \.-]/i', '', $manifest->name);
-                $element = strtolower(str_replace(' ', '_', $name));
-                break;
-            default:
-                break;
-        }
-
-        return $element;
     }
 }

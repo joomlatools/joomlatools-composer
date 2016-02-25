@@ -38,7 +38,7 @@ class ExtensionInstaller
         if ($application === false)
         {
             $platformStr = Util::isJoomlatoolsPlatform() ? 'Joomlatools Platform' : 'Joomla';
-            $this->_io->write(sprintf("    [<error>ERROR</error>] Failed to initialize the %s application! %s extensions will not be installed or removed. Is the application properly configured?", $platformStr, $platformStr));
+            $this->_io->write(sprintf("  [<error>ERROR</error>] Failed to initialize the %s application! %s extensions will not be installed or removed. Is the application properly configured?", $platformStr, $platformStr));
 
             return;
         }
@@ -57,7 +57,7 @@ class ExtensionInstaller
     {
         $platformStr = Util::isJoomlatoolsPlatform() ? 'Joomlatools Platform' : 'Joomla';
 
-        $this->_io->write(sprintf("    - Installing the %s extension <info>%s</info> <comment>%s</comment>", $platformStr, $package->getName(), $package->getFullPrettyVersion()));
+        $this->_io->write(sprintf("  - Installing the %s extension <info>%s</info> <comment>%s</comment>", $platformStr, $package->getName(), $package->getFullPrettyVersion()));
 
         if(!Bootstrapper::getInstance()->getApplication()->install($installPath))
         {
@@ -79,7 +79,7 @@ class ExtensionInstaller
     {
         $platformStr = Util::isJoomlatoolsPlatform() ? 'Joomlatools Platform' : 'Joomla';
 
-        $this->_io->write(sprintf("    - Updating the %s extension <info>%s</info> to <comment>%s</comment>", $platformStr, $package->getName(), $package->getFullPrettyVersion()));
+        $this->_io->write(sprintf("  - Updating the %s extension <info>%s</info> to <comment>%s</comment>", $platformStr, $package->getName(), $package->getFullPrettyVersion()));
 
         if(!Bootstrapper::getInstance()->getApplication()->update($installPath))
         {
@@ -105,7 +105,7 @@ class ExtensionInstaller
 
         if($file !== false && file_exists($file))
         {
-            $this->_io->write(sprintf("    - Uninstalling the %s extension <info>%s</info>", $platformString, $package->getName()));
+            $this->_io->write(sprintf("  - Uninstalling the %s extension <info>%s</info>", $platformString, $package->getName()));
 
             $manifest = simplexml_load_file($file);
 
@@ -122,7 +122,7 @@ class ExtensionInstaller
                 }
             }
         }
-        else $this->_io->write(sprintf("    [<error>ERROR</error>] Can not uninstall the %s extension <info>%s</info>: XML manifest not found.", $platformString, $package->getName()));
+        else $this->_io->write(sprintf("  [<error>ERROR</error>] Can not uninstall the %s extension <info>%s</info>: XML manifest not found.", $platformString, $package->getName()));
     }
 
     /**
