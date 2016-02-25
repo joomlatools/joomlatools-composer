@@ -146,8 +146,6 @@ class Bootstrapper
             return;
         }
 
-        define('_JEXEC', 1);
-
         $_SERVER['HTTP_HOST']   = 'localhost';
         $_SERVER['HTTP_USER_AGENT'] = 'Composer';
 
@@ -163,11 +161,23 @@ class Bootstrapper
             define('JPATH_CACHE' , JPATH_ROOT . '/cache/site');
             define('JPATH_THEMES', __DIR__.'/templates');
 
+            // Joomlatools Platform <= v1.0.2 defined the _JEXEC constant
+            // in the web/index.php and web/administrator/index.php files.
+            // In later versions it was moved to app/defines.php.
+            // If app/defines.php does not contain the define() call, set it manually.
+            // Reading the JVersion file is impossible either as we would need to
+            // define JPATH_PLATFORM twice (throwing more errors).
+            $string = file_get_contents(JPATH_ROOT.'/app/defines.php');
+            if (strpos($string, "define('_JEXEC', 1)") === false) {
+                define('_JEXEC', 1);
+            }
+
             require_once JPATH_ROOT . '/app/defines.php';
             require_once JPATH_ROOT . '/app/bootstrap.php';
         }
         else
         {
+            define('_JEXEC', 1);
             define('JPATH_BASE', $base);
 
             require_once JPATH_BASE . '/includes/defines.php';
