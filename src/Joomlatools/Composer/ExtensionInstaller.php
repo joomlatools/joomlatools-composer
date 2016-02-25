@@ -2,95 +2,64 @@
 /**
  * Joomlatools Composer plugin - https://github.com/joomlatools/joomlatools-composer
  *
- * @copyright	Copyright (C) 2011 - 2013 Johan Janssens and Timble CVBA. (http://www.timble.net)
+ * @copyright	Copyright (C) 2011 - 2016 Johan Janssens and Timble CVBA. (http://www.timble.net)
  * @license		GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link		http://github.com/joomlatools/joomlatools-composer for the canonical source repository
  */
 
 namespace Joomlatools\Composer;
 
-use Composer\Composer;
+use Joomlatools\Joomla\Bootstrapper;
+use Joomlatools\Joomla\Util;
+
 use Composer\IO\IOInterface;
 use Composer\Package\PackageInterface;
-use Composer\Repository\InstalledRepositoryInterface;
-use Composer\Installer\LibraryInstaller;
-
-use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Composer installer class
+ * Joomla extension installer class
  *
  * @author  Steven Rombauts <https://github.com/stevenrombauts>
  * @package Joomlatools\Composer
  */
-class ExtensionInstaller extends LibraryInstaller
+class ExtensionInstaller
 {
-    protected $_config      = null;
-    protected $_verbosity   = OutputInterface::VERBOSITY_NORMAL;
-    protected $_application = null;
-    protected $_credentials = array();
+    /** @var IOInterface $io */
+    protected $_io = null;
 
-    /**
-     * {@inheritDoc}
-     */
-    public function __construct(IOInterface $io, Composer $composer, $type = 'library')
+    public function __construct(IOInterface $io)
     {
-        parent::__construct($io, $composer, $type);
-
-        $this->_config = $composer->getConfig();
-
-        if (!$this->_isJoomla() && !$this->_isJoomlatoolsPlatform()) {
-            throw new \RuntimeException('Working directory is not a valid Joomla installation');
-        }
-
-        if ($io->isDebug()) {
-            $this->_verbosity = OutputInterface::VERBOSITY_DEBUG;
-        } elseif ($io->isVeryVerbose()) {
-            $this->_verbosity = OutputInterface::VERBOSITY_VERY_VERBOSE;
-        } elseif ($io->isVerbose()) {
-            $this->_verbosity = OutputInterface::VERBOSITY_VERBOSE;
-        }
-
-        $this->_initialize();
+        $this->_io = $io;
     }
 
-    /**
-     * Initializes extension installer.
-     *
-     * @return void
-     */
-    protected function _initialize()
+    public function execute()
     {
-        $credentials = $this->_config->get('joomla');
+        $application = Bootstrapper::getInstance()->getApplication();
 
-        if(is_null($credentials) || !is_array($credentials)) {
-            $credentials = array();
+        if ($application === false)
+        {
+            $platformStr = Util::isJoomlatoolsPlatform() ? 'Joomlatools Platform' : 'Joomla';
+            $this->_io->write(sprintf('[<error>ERROR</error>] Failed to initialize the %1$s application! %1$s extensions will not be installed or removed. Is the application properly configured?', $platformStr));
+
+            return;
         }
 
-        $defaults = array(
-            'name'      => 'root',
-            'username'  => 'root',
-            'groups'    => array(8),
-            'email'     => 'root@localhost.home'
-        );
+        foreach (Taskqueue::getInstance() as $task)
+        {
+            list($action, $package, $installPath) = $task;
 
-        $this->_credentials = array_merge($defaults, $credentials);
-
-        $this->_bootstrap();
+            if (method_exists($this, $action)) {
+                call_user_func_array(array($this, $action), array($package, $installPath));
+            }
+        }
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function install(InstalledRepositoryInterface $repo, PackageInterface $package)
+    public function install(PackageInterface $package, $installPath)
     {
-        parent::install($repo, $package);
+        $platformStr = Util::isJoomlatoolsPlatform() ? 'Joomlatools Platform' : 'Joomla';
 
-        $this->_setupExtmanSupport($package);
+        $this->_io->write(sprintf("Installing the %s extension <info>%s</info> <comment>%s</comment>", $platformStr, $package->getName(), $package->getFullPrettyVersion()));
 
-        $this->io->write('    <fg=cyan>Installing</fg=cyan> into Joomla'.PHP_EOL);
-
-        if(!$this->_application->install($this->getInstallPath($package)))
+        if(!Bootstrapper::getInstance()->getApplication()->install($installPath))
         {
             // Get all error messages that were stored in the message queue
             $descriptions = $this->_getApplicationMessages();
@@ -103,26 +72,21 @@ class ExtensionInstaller extends LibraryInstaller
             throw new \RuntimeException($error);
         }
 
-        $this->_enablePlugin($package);
+        $this->_enablePlugin($package, $installPath);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function update(InstalledRepositoryInterface $repo, PackageInterface $initial, PackageInterface $target)
+    public function update(PackageInterface $package, $installPath)
     {
-        parent::update($repo, $initial, $target);
+        $platformStr = Util::isJoomlatoolsPlatform() ? 'Joomlatools Platform' : 'Joomla';
 
-        $this->_setupExtmanSupport($target);
+        $this->_io->write(sprintf("Updating the %s extension <info>%s</info> to <comment>%s</comment>", $platformStr, $package->getName(), $package->getFullPrettyVersion()));
 
-        $this->io->write('    <fg=cyan>Updating</fg=cyan> Joomla extension'.PHP_EOL);
-
-        if(!$this->_application->update($this->getInstallPath($target)))
+        if(!Bootstrapper::getInstance()->getApplication()->update($installPath))
         {
             // Get all error messages that were stored in the message queue
             $descriptions = $this->_getApplicationMessages();
 
-            $error = 'Error while updating '.$target->getPrettyName();
+            $error = 'Error while updating '.$package->getPrettyName();
             if(count($descriptions)) {
                 $error .= ':'.PHP_EOL.implode(PHP_EOL, $descriptions);
             }
@@ -134,33 +98,31 @@ class ExtensionInstaller extends LibraryInstaller
     /**
      * {@inheritDoc}
      */
-    public function uninstall(InstalledRepositoryInterface $repo, PackageInterface $package)
+    public function uninstall(PackageInterface $package, $installPath)
     {
-        if (!$repo->hasPackage($package)) {
-            throw new \InvalidArgumentException('Package is not installed: '.$package);
-        }
+        $platformString = Util::isJoomlatoolsPlatform() ? 'Joomlatools Platform' : 'Joomla';
+        $file           = Util::getPackageManifest($installPath);
 
-        $installPath = $this->getInstallPath($package);
-        $manifest    = $this->_getManifest($installPath);
-
-        if($manifest)
+        if($file !== false && file_exists($file))
         {
+            $this->_io->write(sprintf("Uninstalling the %s extension <info>%s</info>", $platformString, $package->getName()));
+
+            $manifest = simplexml_load_file($file);
+
             $type    = (string) $manifest->attributes()->type;
-            $element = $this->_getElementFromManifest($manifest);
+            $element = Util::getNameFromManifest($installPath);
 
             if (!empty($element))
             {
-                $extension = $this->_application->getExtension($element, $type);
+                $application = Bootstrapper::getInstance()->getApplication();
+                $extension   = $application->getExtension($element, $type);
 
                 if ($extension) {
-                    $this->_application->uninstall($extension->id, $type);
+                    $application->uninstall($extension->id, $type);
                 }
             }
         }
-
-        parent::uninstall($repo, $package);
-
-        $this->io->write('    <fg=cyan>Removing</fg=cyan> Joomla extension'.PHP_EOL);
+        else $this->_io->write(sprintf("[<error>WARNING</error>] Can not uninstall the %s extension <info>%s</info>: XML manifest not found.", $platformString, $package->getName()));
     }
 
     /**
@@ -170,85 +132,7 @@ class ExtensionInstaller extends LibraryInstaller
     {
         return in_array($packageType, array('joomlatools-composer', 'joomlatools-installer', 'joomla-installer'));
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function isInstalled(InstalledRepositoryInterface $repo, PackageInterface $package)
-    {
-        $installPath = $this->getInstallPath($package);
-        $manifest    = $this->_getManifest($installPath);
-
-        if($manifest)
-        {
-            $type    = (string) $manifest->attributes()->type;
-            $element = $this->_getElementFromManifest($manifest);
-
-            if (empty($element)) {
-                return false;
-            }
-
-            $extension = $this->_application->getExtension($element, $type);
-
-            return $extension !== false;
-        }
-
-        return false;
-    }
-
-    /**
-     * Bootstraps the Joomla application
-     *
-     * @return void
-     */
-    protected function _bootstrap()
-    {
-        if(!defined('_JEXEC'))
-        {
-            $_SERVER['HTTP_HOST']   = 'localhost';
-            $_SERVER['HTTP_USER_AGENT'] = 'Composer';
-
-            define('DS', DIRECTORY_SEPARATOR);
-
-            $base = realpath('.');
-
-            if ($this->_isJoomlatoolsPlatform())
-            {
-                define('JPATH_WEB'   , $base.'/web');
-                define('JPATH_ROOT'  , $base);
-                define('JPATH_BASE'  , JPATH_ROOT . '/app/administrator');
-                define('JPATH_CACHE' , JPATH_ROOT . '/cache/site');
-                define('JPATH_THEMES', __DIR__.'/templates');
-
-                require_once JPATH_ROOT . '/app/defines.php';
-                require_once JPATH_ROOT . '/app/bootstrap.php';
-            }
-            else
-            {
-                define('_JEXEC', 1);
-                define('JPATH_BASE', $base);
-
-                require_once JPATH_BASE . '/includes/defines.php';
-                require_once JPATH_BASE . '/includes/framework.php';
-            }
-
-            require_once JPATH_LIBRARIES . '/import.php';
-            require_once JPATH_LIBRARIES . '/cms.php';
-        }
-
-        if(!($this->_application instanceof Application))
-        {
-            $options = array(
-                'root_user' => $this->_credentials['username'],
-                'loglevel'  => $this->_verbosity,
-                'platform'  => $this->_isJoomlatoolsPlatform()
-            );
-
-            $this->_application = new Application($options);
-            $this->_application->authenticate($this->_credentials);
-        }
-    }
-
+    
     /**
      * Fetches the enqueued flash messages from the Joomla application object.
      *
@@ -256,7 +140,7 @@ class ExtensionInstaller extends LibraryInstaller
      */
     protected function _getApplicationMessages()
     {
-        $messages       = $this->_application->getMessageQueue();
+        $messages       = Bootstrapper::getInstance()->getApplication()->getMessageQueue();
         $descriptions   = array();
 
         foreach($messages as $message)
@@ -275,21 +159,22 @@ class ExtensionInstaller extends LibraryInstaller
      * @param PackageInterface $package
      * @param string           $subdirectory Subdirectory in package install path to look for plugin manifests
      */
-    protected function _enablePlugin(PackageInterface $package, $subdirectory = '')
+    protected function _enablePlugin(PackageInterface $package, $installPath, $subdirectory = '')
     {
-        $path     = realpath($this->getInstallPath($package) . '/' . $subdirectory);
-        $manifest = $this->_getManifest($path);
+        $path = realpath($installPath . '/' . $subdirectory);
+        $file = Util::getPackageManifest($path);
 
-        if($manifest)
+        if($file !== false)
         {
-            $type = (string) $manifest->attributes()->type;
+            $manifest = simplexml_load_file($file);
+            $type     = (string) $manifest->attributes()->type;
 
             if ($type == 'plugin')
             {
-                $name  = $this->_getElementFromManifest($manifest);
+                $name  = Util::getNameFromManifest($installPath);
                 $group = (string) $manifest->attributes()->group;
 
-                $extension = $this->_application->getExtension($name, 'plugin', $group);
+                $extension = Bootstrapper::getInstance()->getApplication()->getExtension($name, 'plugin', $group);
 
                 if (is_object($extension) && $extension->id > 0)
                 {
@@ -305,164 +190,10 @@ class ExtensionInstaller extends LibraryInstaller
                 foreach($manifest->files->children() as $file)
                 {
                     if ((string) $file->attributes()->type == 'plugin') {
-                        $this->_enablePlugin($package, (string) $file);
+                        $this->_enablePlugin($package, $installPath, (string) $file);
                     }
                 }
             }
-        }
-    }
-
-    /**
-     * Make sure to load the ComExtmanDatabaseRowExtension class
-     * if we are installing a Joomlatools extension
-     *
-     * @param PackageInterface $target
-     */
-    protected function _setupExtmanSupport(PackageInterface $target)
-    {
-        $name = strtolower($target->getPrettyName());
-        $parts = explode('/', $name);
-        if($parts[0] == 'joomlatools' && $parts[1] != 'extman')
-        {
-            \JPluginHelper::importPlugin('system', 'koowa');
-
-            if(class_exists('Koowa') && !class_exists('ComExtmanDatabaseRowExtension')) {
-                \KObjectManager::getInstance()->getObject('com://admin/extman.database.row.extension');
-            }
-        }
-    }
-
-    /**
-     * Find the xml manifest of the package
-     *
-     * @param string Install path of package
-     *
-     * @return object  Manifest object
-     */
-    protected function _getManifest($installPath)
-    {
-        if (!is_dir($installPath)) {
-            return false;
-        }
-
-        $installer = $this->_application->getInstaller();
-        $installer->setPath('source', $installPath);
-
-        return $installer->getManifest();
-    }
-
-    /**
-     * Get the element's name from the XML manifest
-     *
-     * @param object  Manifest object
-     *
-     * @return string
-     */
-    protected function _getElementFromManifest($manifest)
-    {
-        $element    = '';
-        $type       = (string) $manifest->attributes()->type;
-
-        switch($type)
-        {
-            case 'module':
-                if(count($manifest->files->children()))
-                {
-                    foreach($manifest->files->children() as $file)
-                    {
-                        if((string) $file->attributes()->module)
-                        {
-                            $element = (string) $file->attributes()->module;
-                            break;
-                        }
-                    }
-                }
-                break;
-            case 'plugin':
-                if(count($manifest->files->children()))
-                {
-                    foreach($manifest->files->children() as $file)
-                    {
-                        if ((string) $file->attributes()->$type)
-                        {
-                            $element = (string) $file->attributes()->$type;
-                            break;
-                        }
-                    }
-                }
-                break;
-            case 'component':
-                $element = strtolower((string) $manifest->name);
-                $element = preg_replace('/[^A-Z0-9_\.-]/i', '', $element);
-
-                if(substr($element, 0, 4) != 'com_') {
-                    $element = 'com_'.$element;
-                }
-                break;
-            default:
-                $element = strtolower((string) $manifest->name);
-                $element = preg_replace('/[^A-Z0-9_\.-]/i', '', $element);
-                break;
-        }
-
-        return $element;
-    }
-
-    /**
-     * Validate if the current working directory has a valid Joomla installation
-     *
-     * @return bool
-     */
-    protected function _isJoomla()
-    {
-        $directories = array('./libraries/cms', './libraries/joomla', './index.php', './administrator/index.php');
-
-        foreach ($directories as $directory)
-        {
-            $path = realpath($directory);
-
-            if (!file_exists($path)) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    /**
-     * Check if the working directory has Joomlatools Platform installed
-     *
-     * @return bool
-     */
-    protected function _isJoomlatoolsPlatform()
-    {
-        $manifest = realpath('./composer.json');
-
-        if (file_exists($manifest))
-        {
-            $contents = file_get_contents($manifest);
-            $package  = json_decode($contents);
-
-            if (isset($package->name) && in_array($package->name, array('joomlatools/platform', 'joomlatools/joomla-platform'))) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    public function __destruct()
-    {
-        if(!defined('_JEXEC')) {
-            return;
-        }
-
-        // Clean-up to prevent PHP calling the session object's __destruct() method;
-        // which will burp out Fatal Errors all over the place because the MySQLI connection
-        // has already closed at that point.
-        $session = \JFactory::$session;
-        if(!is_null($session) && is_a($session, 'JSession')) {
-            $session->close();
         }
     }
 }
