@@ -32,7 +32,9 @@ class ComposerInstaller extends LibraryInstaller
     {
         parent::install($repo, $package);
 
-        $this->io->write(sprintf("  Queuing <comment>%s</comment> for installation", $package->getName()), true, IOInterface::VERBOSE);
+        $platformStr = Util::isJoomlatoolsPlatform() ? 'Joomlatools Platform' : 'Joomla';
+
+        $this->io->write(sprintf("  - Queuing <comment>%s</comment> for installation in %s", $package->getName(), $platformStr), true, IOInterface::VERBOSE);
 
         TaskQueue::getInstance()->enqueue(array('install', $package, $this->getInstallPath($package)));
     }
@@ -44,7 +46,9 @@ class ComposerInstaller extends LibraryInstaller
     {
         parent::update($repo, $initial, $target);
 
-        $this->io->write(sprintf("  - Queuing <comment>%s</comment> for upgrading", $target->getName()), true, IOInterface::VERBOSE);
+        $platformStr = Util::isJoomlatoolsPlatform() ? 'Joomlatools Platform' : 'Joomla';
+
+        $this->io->write(sprintf("  - Queuing <comment>%s</comment> for upgrading in %s", $target->getName(), $platformStr), true, IOInterface::VERBOSE);
 
         TaskQueue::getInstance()->enqueue(array('update', $target, $this->getInstallPath($target)));
     }
@@ -58,7 +62,9 @@ class ComposerInstaller extends LibraryInstaller
             throw new \InvalidArgumentException('Package is not installed: '.$package);
         }
 
-        $this->io->write(sprintf("  - Queuing <comment>%s</comment> for removal", $package->getName()), true, IOInterface::VERBOSE);
+        $platformStr = Util::isJoomlatoolsPlatform() ? 'Joomlatools Platform' : 'Joomla';
+
+        $this->io->write(sprintf("  - Queuing <comment>%s</comment> for removal from %s", $package->getName(), $platformStr), true, IOInterface::VERBOSE);
 
         TaskQueue::getInstance()->enqueue(array('uninstall', $package, $this->getInstallPath($package)));
 
@@ -119,9 +125,13 @@ class ComposerInstaller extends LibraryInstaller
 
             $extension = $application->getExtension($element, $type);
 
-            return $extension !== false;
+            if (!is_object($extension)) {
+                return false;
+            }
+
+            return isset($extension->id) && $extension->id > 0;
         }
 
-        return false;
+        return parent::isInstalled($repo);
     }
 }
