@@ -9,7 +9,7 @@
 
 namespace Joomlatools\Joomla;
 
-use Composer\IO\IOInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 
 use \JApplicationCli as JApplicationCli;
 use \JDispatcher as JDispatcher;
@@ -430,19 +430,19 @@ class Application extends JApplicationCli
     {
         require_once JPATH_LIBRARIES . '/joomla/log/log.php';
 
-        if ($loglevel == IOInterface::NORMAL) {
+        if ($loglevel == OutputInterface::VERBOSITY_NORMAL) {
             return;
         }
 
         switch ($loglevel)
         {
-            case IOInterface::DEBUG:
+            case OutputInterface::VERBOSITY_DEBUG:
                 $priority = JLog::ALL;
                 break;
-            case IOInterface::VERY_VERBOSE:
+            case OutputInterface::VERBOSITY_VERY_VERBOSE:
                 $priority = JLog::ALL & ~JLog::DEBUG;
                 break;
-            case IOInterface::VERBOSE:
+            case OutputInterface::VERBOSITY_VERBOSE:
                 $priority = JLog::ALL & ~JLog::DEBUG & ~JLog::INFO & ~JLog::NOTICE;
                 break;
         }
