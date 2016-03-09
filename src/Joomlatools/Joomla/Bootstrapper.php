@@ -10,6 +10,7 @@
 namespace Joomlatools\Joomla;
 
 use Composer\IO\IOInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 /**
  * Joomla bootstrapper class
  *
@@ -28,7 +29,7 @@ class Bootstrapper
     /** @var bool $_bootstrapped */
     protected $_bootstrapped = false;
 
-    protected $_verbosity   = IOInterface::NORMAL;
+    protected $_verbosity   = OutputInterface::VERBOSITY_NORMAL;
     protected $_credentials = array();
 
     /**
@@ -49,18 +50,21 @@ class Bootstrapper
     {
         if ($this->_bootstrapped)
         {
-            $io->write('Application has already been bootstrapped. Can not set different IOInterface.', true, IOInterface::VERY_VERBOSE);
+            if ($this->_io->isVeryVerbose()) {
+                $io->write('Application has already been bootstrapped. Can not set different IOInterface.', true);
+            }
+
             return;
         }
 
         $this->_io = $io;
 
         if ($io->isDebug()) {
-            $this->_verbosity = IOInterface::DEBUG;
+            $this->_verbosity = OutputInterface::VERBOSITY_DEBUG;
         } elseif ($io->isVeryVerbose()) {
-            $this->_verbosity = IOInterface::VERY_VERBOSE;
+            $this->_verbosity = OutputInterface::VERBOSITY_VERY_VERBOSE;
         } elseif ($io->isVerbose()) {
-            $this->_verbosity = IOInterface::VERBOSE;
+            $this->_verbosity = OutputInterface::VERBOSITY_VERBOSE;
         }
     }
 
@@ -72,7 +76,10 @@ class Bootstrapper
 
         if ($this->_bootstrapped)
         {
-            $this->_io->write('Application has already been bootstrapped. Can not set new credentials.', true, IOInterface::VERY_VERBOSE);
+            if ($this->_io->isVeryVerbose()) {
+                $this->_io->write('Application has already been bootstrapped. Can not set new credentials.', true);
+            }
+
             return;
         }
 

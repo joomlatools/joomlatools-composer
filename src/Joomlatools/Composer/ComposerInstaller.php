@@ -12,7 +12,6 @@ namespace Joomlatools\Composer;
 use Composer\Package\PackageInterface;
 use Composer\Repository\InstalledRepositoryInterface;
 use Composer\Installer\LibraryInstaller;
-use Composer\IO\IOInterface;
 
 use Joomlatools\Joomla\Bootstrapper;
 use Joomlatools\Joomla\Util;
@@ -34,7 +33,9 @@ class ComposerInstaller extends LibraryInstaller
 
         $platformStr = Util::isJoomlatoolsPlatform() ? 'Joomlatools Platform' : 'Joomla';
 
-        $this->io->write(sprintf("  - Queuing <comment>%s</comment> for installation in %s", $package->getName(), $platformStr), true, IOInterface::VERBOSE);
+        if ($this->io->isVerbose()) {
+            $this->io->write(sprintf("  - Queuing <comment>%s</comment> for installation in %s", $package->getName(), $platformStr), true);
+        }
 
         TaskQueue::getInstance()->enqueue(array('install', $package, $this->getInstallPath($package)));
     }
@@ -48,7 +49,9 @@ class ComposerInstaller extends LibraryInstaller
 
         $platformStr = Util::isJoomlatoolsPlatform() ? 'Joomlatools Platform' : 'Joomla';
 
-        $this->io->write(sprintf("  - Queuing <comment>%s</comment> for upgrading in %s", $target->getName(), $platformStr), true, IOInterface::VERBOSE);
+        if ($this->io->isVerbose()) {
+            $this->io->write(sprintf("  - Queuing <comment>%s</comment> for upgrading in %s", $target->getName(), $platformStr), true);
+        }
 
         TaskQueue::getInstance()->enqueue(array('update', $target, $this->getInstallPath($target)));
     }
@@ -64,7 +67,9 @@ class ComposerInstaller extends LibraryInstaller
 
         $platformStr = Util::isJoomlatoolsPlatform() ? 'Joomlatools Platform' : 'Joomla';
 
-        $this->io->write(sprintf("  - Queuing <comment>%s</comment> for removal from %s", $package->getName(), $platformStr), true, IOInterface::VERBOSE);
+        if ($this->io->isVerbose()) {
+            $this->io->write(sprintf("  - Queuing <comment>%s</comment> for removal from %s", $package->getName(), $platformStr), true);
+        }
 
         TaskQueue::getInstance()->enqueue(array('uninstall', $package, $this->getInstallPath($package)));
 
@@ -80,7 +85,12 @@ class ComposerInstaller extends LibraryInstaller
 
             parent::uninstall($repo, $package);
         }
-        else $this->io->write(sprintf("    [<error>ERROR</error>] Could not copy manifest %s to %s. Skipping uninstall of <info>%s</info>.", $manifest, $tmpFile, $package->getName()), true, IOInterface::VERBOSE);
+        else
+        {
+            if ($this->io->isVerbose()) {
+                $this->io->write(sprintf("    [<error>ERROR</error>] Could not copy manifest %s to %s. Skipping uninstall of <info>%s</info>.", $manifest, $tmpFile, $package->getName()), true);
+            }
+        }
     }
 
     /**
@@ -100,7 +110,9 @@ class ComposerInstaller extends LibraryInstaller
 
         if ($application === false)
         {
-            $this->io->write(sprintf("<comment>Warning:</comment> Can not instantiate application to check if %s is installed", $package->getName()), true, IOInterface::VERBOSE);
+            if ($this->io->isVerbose()) {
+                $this->io->write(sprintf("<comment>Warning:</comment> Can not instantiate application to check if %s is installed", $package->getName()), true);
+            }
 
             return false;
         }
