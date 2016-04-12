@@ -117,6 +117,8 @@ class ComposerInstaller extends LibraryInstaller
             return false;
         }
 
-        return $application->isInstalled($package);
+        $installPath = $this->getInstallPath($package);
+        
+        return $application->isInstalled($installPath);
     }
 }

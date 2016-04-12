@@ -127,19 +127,18 @@ class Application extends JApplicationCli
     }
 
     /**
-     * Check if the given Composer package is installed or not.
+     * Check if the Composer package located at the given path is installed or not.
      * 
-     * This method will look for the package manifest in the vendor/
+     * This method will look for the package manifest at the given
      * directory. It will extract the extension name from the manifest
      * and see if that element is installed in the database.
      * 
-     * @param PackageInterface $package
+     * @param string $installPath Path to Composer package
      * @return bool
      */
-    public function isInstalled(PackageInterface $package)
+    public function isInstalled($installPath)
     {
-        $installPath = $this->getInstallPath($package);
-        $manifest    = Util::getPackageManifest($installPath);
+        $manifest = Util::getPackageManifest($installPath);
 
         if ($manifest === false) {
             return false;
