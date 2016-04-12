@@ -58,10 +58,10 @@ class ExtensionInstaller
         $application = Bootstrapper::getInstance()->getApplication();
         $platformStr = Util::isJoomlatoolsPlatform() ? 'Joomlatools Platform' : 'Joomla';
 
-        if ($application->isInstalled($package))
+        if ($application->isInstalled($installPath))
         {
             if ($this->_io->isVerbose()) {
-                $this->_io->write(sprintf("  - Extension <comment>%s</comment> is already installed, updating instead", $package->getName()), true);
+                $this->_io->write(sprintf("Extension <comment>%s</comment> is already installed, updating instead", $package->getName()), true);
             }
 
             $this->update($package, $installPath);
