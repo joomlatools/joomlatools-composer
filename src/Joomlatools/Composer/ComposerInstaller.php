@@ -117,33 +117,6 @@ class ComposerInstaller extends LibraryInstaller
             return false;
         }
 
-        $installPath = $this->getInstallPath($package);
-        $manifest    = Util::getPackageManifest($installPath);
-
-        if ($manifest === false) {
-            return false;
-        }
-
-        $xml = simplexml_load_file($manifest);
-
-        if($xml instanceof \SimpleXMLElement)
-        {
-            $type    = (string) $xml->attributes()->type;
-            $element = Util::getNameFromManifest($installPath);
-
-            if (empty($element)) {
-                return false;
-            }
-
-            $extension = $application->getExtension($element, $type);
-
-            if (!is_object($extension)) {
-                return false;
-            }
-
-            return isset($extension->id) && $extension->id > 0;
-        }
-
-        return parent::isInstalled($repo);
+        return $application->isInstalled($package);
     }
 }

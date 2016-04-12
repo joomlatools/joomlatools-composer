@@ -55,11 +55,23 @@ class ExtensionInstaller
 
     public function install(PackageInterface $package, $installPath)
     {
+        $application = Bootstrapper::getInstance()->getApplication();
         $platformStr = Util::isJoomlatoolsPlatform() ? 'Joomlatools Platform' : 'Joomla';
+
+        if ($application->isInstalled($package))
+        {
+            if ($this->_io->isVerbose()) {
+                $this->_io->write(sprintf("  - Extension <comment>%s</comment> is already installed, updating instead", $package->getName()), true);
+            }
+
+            $this->update($package, $installPath);
+
+            return;
+        }
 
         $this->_io->write(sprintf("Installing the %s extension <info>%s</info> <comment>%s</comment>", $platformStr, $package->getName(), $package->getFullPrettyVersion()));
 
-        if(!Bootstrapper::getInstance()->getApplication()->install($installPath))
+        if(!$application->install($installPath))
         {
             // Get all error messages that were stored in the message queue
             $descriptions = $this->_getApplicationMessages();
