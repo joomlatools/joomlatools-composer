@@ -376,6 +376,15 @@ class Application extends JApplicationCli
     {
         return false;
     }
+    
+    /**
+     * Does nothing
+     * 
+     * This method is a stub; Some extensions use JFactory::getApplication()->redirect() inside their installscripts (such as NoNumberInstallerHelper)
+     */
+    public function redirect()
+    {
+    }
 
     /**
      * Flush the media version to refresh versionable assets
