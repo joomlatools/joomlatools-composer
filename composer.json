@@ -13,10 +13,10 @@
         }
     ],
     "autoload": {
-        "psr-0": {"Joomlatools\\Composer\\": "src/"}
+        "psr-0": {"Joomlatools\\": "src/"}
     },
     "extra": {
-        "class": "Joomlatools\\Composer\\ExtensionInstallerPlugin"
+        "class": "Joomlatools\\Composer\\Plugin"
     },
     "require": {
         "composer-plugin-api": "^1.0"

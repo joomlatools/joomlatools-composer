@@ -2,12 +2,14 @@
 /**
  * Joomlatools Composer plugin - https://github.com/joomlatools/joomlatools-composer
  *
- * @copyright	Copyright (C) 2011 - 2013 Johan Janssens and Timble CVBA. (http://www.timble.net)
+ * @copyright	Copyright (C) 2011 - 2016 Johan Janssens and Timble CVBA. (http://www.timble.net)
  * @license		GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link		http://github.com/joomlatools/joomlatools-composer for the canonical source repository
  */
 
-namespace Joomlatools\Composer;
+namespace Joomlatools\Joomla;
+
+use Symfony\Component\Console\Output\OutputInterface;
 
 use \JApplicationCli as JApplicationCli;
 use \JDispatcher as JDispatcher;
@@ -18,7 +20,6 @@ use \JRouter as JRouter;
 use \JVersion as JVersion;
 use \JLog as JLog;
 
-use Symfony\Component\Console\Output\OutputInterface;
 /**
  * Application extending Joomla CLI class.
  *
@@ -375,6 +376,15 @@ class Application extends JApplicationCli
     {
         return false;
     }
+    
+    /**
+     * Does nothing
+     * 
+     * This method is a stub; Some extensions use JFactory::getApplication()->redirect() inside their installscripts (such as NoNumberInstallerHelper)
+     */
+    public function redirect()
+    {
+    }
 
     /**
      * Flush the media version to refresh versionable assets
@@ -469,13 +479,25 @@ class Application extends JApplicationCli
         }
         else
         {
-            require_once dirname(__DIR__) . '/Legacy/JLoggerStderr.php';
+            require_once dirname(__DIR__) . '/Joomla/Legacy/JLoggerStderr.php';
 
             $options = array('logger' => 'stderr');
         }
 
 
         JLog::addLogger($options, $priority);
+    }
+
+    public function __destruct()
+    {
+        // Clean-up to prevent PHP calling the session object's __destruct() method;
+        // which will burp out Fatal Errors all over the place because the MySQLI connection
+        // has already closed at that point.
+        $session = \JFactory::$session;
+
+        if(!is_null($session) && is_a($session, 'JSession')) {
+            $session->close();
+        }
     }
 }
 
