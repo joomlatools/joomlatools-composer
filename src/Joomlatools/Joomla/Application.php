@@ -87,6 +87,9 @@ class Application extends JApplicationCli
 
         jimport('joomla.application.module.helper');
 
+        jimport('joomla.filesystem.folder');
+        jimport('joomla.filesystem.file');
+
         // Tell JFactory where to find the current application object
         JFactory::$application = $this;
 

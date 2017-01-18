@@ -19,6 +19,11 @@ class Util
 {
     private static $__manifests = array();
 
+    public static function getPlatformName()
+    {
+        return static::isJoomlatoolsPlatform() ? 'Joomlatools Platform' : 'Joomla';
+    }
+
     /**
      * Validate if the current working directory has a valid Joomla installation
      *
@@ -60,6 +65,13 @@ class Util
         }
 
         return false;
+    }
+
+    public static function isReusableComponent(\Composer\Package\PackageInterface $package)
+    {
+        $extra = $package->getExtra();
+
+        return (is_array($extra) && isset($extra['joomlatools-component']));
     }
 
     /**

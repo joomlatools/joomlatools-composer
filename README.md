@@ -17,7 +17,7 @@ Create the `composer.json` file in the root directory of your Joomla installatio
             	"type": "package",
             	"package": {
                 	"name": "vendor/extension",
-                	"type": "joomlatools-composer",
+                	"type": "joomlatools-extension",
                 	"version": "1.0.0",
                 	"dist": {
                     	"url": "file:////Users/johndoe/Downloads/com_extension.1.0.0.tar.gz",
@@ -38,7 +38,7 @@ Create the `composer.json` file in the root directory of your Joomla installatio
 
 Using this JSON file, we have now defined our own custom package. Pay attention to the following settings:
 
-* The `type` has to be set to `joomlatools-composer`
+* The `type` has to be set to `joomlatools-extension`
 * Make sure the `url` directive points to the location of the install package.
 
 Executing `composer install` will now fetch the `joomlatools/composer` plugin and use it to install the package into your Joomla installation.
@@ -54,7 +54,7 @@ The package definition should contain the following basic information to make it
 ```json
 {
     	"name": "vendor/my-extension",
-		"type": "joomlatools-composer",
+		"type": "joomlatools-extension",
     	"require": {
         	"joomlatools/composer": "*"
     	}
@@ -93,19 +93,19 @@ Having trouble? You can increase Composer's verbosity setting (`-v|vv|vvv`) to g
 ## Requirements
 
 * Composer
-* Joomla version 2.5 and up.
+* Joomla version 3.6+
 
 ## Contributing
 
-The `joomlatools/installer` plugin is an open source, community-driven project. Contributions are welcome from everyone. We have [contributing guidelines](CONTRIBUTING.md) to help you get started.
+The `joomlatools/composer` plugin is an open source, community-driven project. Contributions are welcome from everyone. We have [contributing guidelines](CONTRIBUTING.md) to help you get started.
 
 ## Contributors
 
-See the list of [contributors](https://github.com/joomlatools/joomlatools-console/contributors).
+See the list of [contributors](https://github.com/joomlatools/joomlatools-composer/contributors).
 
 ## License 
 
-The `joomlatools/installer` plugin is free and open-source software licensed under the [GPLv3 license](LICENSE.txt).
+The `joomlatools/composer` plugin is free and open-source software licensed under the [GPLv3 license](LICENSE.txt).
 
 ## Community
 =======
