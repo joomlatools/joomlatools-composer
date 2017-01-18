@@ -63,6 +63,26 @@ The package definition should contain the following basic information to make it
 
 If you want to make your extension available directly from Github or any other VCS, you want to make sure that the file layout in your repo resembles your install package.
 
+If you want to move the main Joomla installer manifest to the repository root before running the installation, provide the following information in your `composer.json`file:
+
+```json
+{
+	"extra": {
+    	"manifest": "path/to/manifest/joomlatools.xml"
+	}
+}
+```
+
+If the package is for a Joomlatools Framework reusable component, provide the following information in your `composer.json`file:
+
+```json
+{
+	"extra": {
+    	"joomlatools-component": "component-name"
+	}
+}
+```
+
 You can now publish your extension on [Packagist](https://packagist.org/) or serve it yourself using your own [Satis repository](http://getcomposer.org/doc/articles/handling-private-packages-with-satis.md).
 
 For more information on rolling your own package, please refer to the [Composer documentation](http://getcomposer.org/doc/02-libraries.md).
@@ -117,5 +137,4 @@ Keep track of development and community news.
 * Read the [Joomlatools Developer Blog](https://www.joomlatools.com/developer/blog/)
 * Subscribe to the [Joomlatools Developer Newsletter](https://www.joomlatools.com/developer/newsletter/)
 
-[gitflow-model]: http://nvie.com/posts/a-successful-git-branching-model/
 [gplv3-license]: https://github.com/nooku/nooku-framework/blob/master/LICENSE.txt
