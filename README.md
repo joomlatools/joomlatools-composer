@@ -128,7 +128,6 @@ See the list of [contributors](https://github.com/joomlatools/joomlatools-compos
 The `joomlatools/composer` plugin is free and open-source software licensed under the [GPLv3 license](LICENSE.txt).
 
 ## Community
-=======
 
 Keep track of development and community news.
 
