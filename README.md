@@ -11,7 +11,7 @@ The easiest way to get started is by defining a custom package in your `composer
 Create the `composer.json` file in the root directory of your Joomla installation and have it look something like this:
 
 ```json
-	{
+{
     	"repositories": [
         	{
             	"type": "package",
@@ -33,7 +33,7 @@ Create the `composer.json` file in the root directory of your Joomla installatio
     	"require": {
     		"vendor/extension": "1.0.0"
     	}
-	}
+}
 ```
 
 Using this JSON file, we have now defined our own custom package. Pay attention to the following settings:
