@@ -7,6 +7,9 @@ in 1.x versions.
 To get the diff for a specific change, go to https://github.com/joomlatools/joomlatools-composer/commit/xxx where xxx is the change hash.
 To view the diff between two versions, go to https://github.com/joomlatools/joomlatools-composer/compare/v1.0.0...v1.0.1
 
+* 1.1.1 (2017-05-02)
+ * Fixed Joomla 3.7 compatibility [#30](https://github.com/joomlatools/joomlatools-composer/issues/30)
+
 * 1.1.0 (2017-01-18)
  * Added `joomlatools-extension` as a Composer package type [#29](https://github.com/joomlatools/joomlatools-composer/issues/29)
  * Added manifest copy support to extension installer [#28](https://github.com/joomlatools/joomlatools-composer/issues/28)
