@@ -276,7 +276,7 @@ class Application extends JApplicationCli
      */
     public function isSite()
     {
-        return false;
+        return $this->isClient('site');
     }
 
     /**
@@ -286,7 +286,21 @@ class Application extends JApplicationCli
      */
     public function isAdmin()
     {
-        return true;
+        return $this->isClient('administrator');
+    }
+
+    /**
+    * Check the client interface by name.
+    *
+    * @param string  $identifier  String identifier for the application interface
+    *
+    * @return boolean  True if this application is of the given type client interface.
+    *
+    * @since 3.7.0
+    */
+    public function isClient($identifier)
+    {
+        return $this->getName() === $identifier;
     }
 
     /**
