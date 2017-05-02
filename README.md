@@ -87,24 +87,13 @@ You can now publish your extension on [Packagist](https://packagist.org/) or ser
 
 For more information on rolling your own package, please refer to the [Composer documentation](http://getcomposer.org/doc/02-libraries.md).
 
+### More
 
-### Change the user
+For more information, FAQ and examples, refer to our [developer documentation](https://www.joomlatools.com/developer/tools/composer/).
 
-The installer injects a user called `root` into the Joomla application at runtime to make sure that the installer scripts have the necessary permissions to execute.
+## Development
 
-If for some reason, you need to change the details of this mock user, you can override them by adding a `joomla` block into the `config` section of your `composer.json`. Example:  
-
-```json
-{
-    "config": {
-        "joomla": {
-            "username":  "johndoe",
-            "name":		 "John Doe",
-            "email": 	 "john@doe.com"
-        }
-    }
-}
-```
+Refer to [the wiki](https://github.com/joomlatools/joomlatools-composer/wiki#development-set-up) on how to set up this repository for local development.
 
 ## Debugging
 
