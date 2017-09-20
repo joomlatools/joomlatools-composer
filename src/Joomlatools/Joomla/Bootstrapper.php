@@ -188,7 +188,6 @@ class Bootstrapper
             define('JPATH_BASE', $base);
 
             require_once JPATH_BASE . '/includes/defines.php';
-            require_once JPATH_BASE . '/includes/framework.php';
         }
 
         require_once JPATH_LIBRARIES . '/import.php';
