@@ -454,7 +454,7 @@ class Application extends JApplicationCli
      */
     protected function _setupLogging($loglevel)
     {
-        require_once JPATH_LIBRARIES . '/joomla/log/log.php';
+        require_once JPATH_LIBRARIES . '/src/Log/Log.php';
 
         if ($loglevel == OutputInterface::VERBOSITY_NORMAL) {
             return;
