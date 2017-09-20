@@ -157,6 +157,7 @@ class Bootstrapper
         $_SERVER['HTTP_USER_AGENT'] = 'Composer';
 
         define('DS', DIRECTORY_SEPARATOR);
+        define('JDEBUG', $this->_application->getCfg('debug'));
 
         $base = realpath('.');
 
