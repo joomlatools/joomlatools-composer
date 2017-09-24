@@ -157,7 +157,6 @@ class Bootstrapper
         $_SERVER['HTTP_USER_AGENT'] = 'Composer';
 
         define('DS', DIRECTORY_SEPARATOR);
-        define('JDEBUG', '0');
 
         $base = realpath('.');
 
