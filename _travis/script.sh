@@ -15,7 +15,7 @@ echo "Matched $COUNT rows\n"
 [ $COUNT -gt 0 ] && true || false
 
 echo "** Uninstalling test extension"
-composer remove -v --working-dir=$DOCUMENTROOT/testsite --no-interaction joomlatools/composer-helloworld
+composer remove -v --no-update --working-dir=$DOCUMENTROOT/testsite --no-interaction joomlatools/composer-helloworld
 
 # Verify if component file has been removed
 [ ! -f $DOCUMENTROOT/testsite/administrator/components/com_helloworld/helloworld.php ] && true || false
