@@ -1,0 +1,30 @@
+language: php
+sudo: false
+
+php:
+  - 7.1
+env:
+  - RELEASE=3.6 REPO=https://github.com/joomla/joomla-cms.git
+  - RELEASE=3.7 REPO=https://github.com/joomla/joomla-cms.git
+  - RELEASE=latest REPO=https://github.com/joomla/joomla-cms.git
+  - RELEASE=latest REPO=https://github.com/joomlatools/joomlatools-platform.git
+
+services:
+  - mysql
+
+git:
+  depth: 999999 # We can't use a shallow clone for testing. See: https://github.com/travis-ci/travis-ci/issues/4942#issuecomment-159132444
+
+before_install:
+ - export PATH=$PATH:/home/travis/.composer/vendor/bin/
+ - export DOCUMENTROOT=/tmp/www/
+ - chmod +x $TRAVIS_BUILD_DIR/_travis/install.sh
+ - $TRAVIS_BUILD_DIR/_travis/install.sh
+
+before_script:
+ - chmod +x $TRAVIS_BUILD_DIR/_travis/setup.sh
+ - $TRAVIS_BUILD_DIR/_travis/setup.sh
+
+script:
+ - chmod +x $TRAVIS_BUILD_DIR/_travis/script.sh
+ - $TRAVIS_BUILD_DIR/_travis/script.sh
