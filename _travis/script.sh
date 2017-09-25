@@ -13,8 +13,8 @@ if [ "$REPO" == "platform" ]; then
 fi
 
 echo "** Verifying helloworld.php contents"
-[ -f $DOCUMENTROOT/testsite/administrator/components/com_helloworld/helloworld.php ] && true || false
-grep -q "echo 'Hello World\!'" $DOCUMENTROOT/testsite/administrator/components/com_helloworld/helloworld.php && true || false
+[ -f $FILE ] && true || false
+grep -q "echo 'Hello World\!'" $FILE && true || false
 
 # Test if the row exists in the database
 echo "** Verifying extensions row in database"
