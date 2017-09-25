@@ -7,6 +7,9 @@ php:
 addons:
   mariadb: '10.1'
 
+git:
+  depth: 100
+
 before_install:
  - export PATH=$PATH:/home/travis/.composer/vendor/bin/
  - export DOCUMENTROOT=/tmp/www/
