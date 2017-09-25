@@ -3,6 +3,8 @@ sudo: false
 
 php:
   - 7.1
+env:
+  - RELEASE=latest REPO=platform
 
 services:
   - mysql
