@@ -62,8 +62,6 @@ class ExtensionInstaller
 
     public function install(PackageInterface $package, $installPath)
     {
-        throw new Exception('Foobar!');
-
         if (Util::isReusableComponent($package)) {
             return $this->_installReusableComponent($package, $installPath);
         }
