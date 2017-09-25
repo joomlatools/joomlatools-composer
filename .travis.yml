@@ -22,6 +22,7 @@ before_script:
  - $TRAVIS_BUILD_DIR/_travis/setup.sh
 
 script:
+  - set -e
   - joomla site:create --www=$DOCUMENTROOT --mysql-login="root" composer
   - composer require -vvv --working-dir=$DOCUMENTROOT/composer --no-interaction joomlatools/composer-helloworld
   # Verify if component file is present
@@ -37,6 +38,4 @@ script:
   # Ensure extensions table has been updated
   - COUNT=$(mysql -uroot -s -N -e "SELECT COUNT(extension_id) FROM sites_composer.j_extensions WHERE element = 'com_helloworld';")
   - "[ $COUNT -eq 0 ] && true || false"
-
-matrix:
-  fast_finish: true
+  - set +e
