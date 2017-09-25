@@ -2,7 +2,7 @@
 
 set -e
 
-echo "Installing test extension"
+echo "** Installing test extension"
 composer require -v --working-dir=$DOCUMENTROOT/testsite --no-interaction joomlatools/composer-helloworld:dev-testbranch
 
 # Verify if component file is present
@@ -14,7 +14,7 @@ COUNT=$(mysql -uroot -s -N -e "SELECT COUNT(extension_id) FROM sites_testsite.j_
 echo "Matched $COUNT rows\n"
 "[ $COUNT -gt 0 ] && true || false"
 
-# Test uninstall
+echo "** Uninstalling test extension"
 composer remove -v --working-dir=$DOCUMENTROOT/composer --no-interaction joomlatools/composer-helloworld
 
 # Verify if component file has been removed
