@@ -30,7 +30,7 @@ EOL
 
 git commit -a -m "Add test dependencies"
 
-echo "** Set up test site"
+echo "** Set up test site v$RELEASE (from $REPO)"
 joomla site:create --www=$DOCUMENTROOT --repo=$REPO --release=$RELEASE --mysql-login="root" testsite
 
 composer --no-interaction --working-dir=$DOCUMENTROOT/testsite config repositories.plugin vcs file:///$TRAVIS_BUILD_DIR
