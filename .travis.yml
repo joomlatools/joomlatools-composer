@@ -2,9 +2,9 @@ language: php
 sudo: false
 
 php:
-  - 5.6
   - 7.1
 env:
+  - RELEASE=3.6 REPO=https://github.com/joomla/joomla-cms.git
   - RELEASE=3.7 REPO=https://github.com/joomla/joomla-cms.git
   - RELEASE=latest REPO=https://github.com/joomla/joomla-cms.git
   - RELEASE=latest REPO=https://github.com/joomlatools/joomlatools-platform.git
