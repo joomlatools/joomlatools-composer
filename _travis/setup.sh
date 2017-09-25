@@ -11,6 +11,7 @@ mkdir -p $DOCUMENTROOT
 
 echo "** Checkout test branch"
 git checkout -b testbranch
+git commit -a -m "Commit PR changes"
 
 # Based on the instructions from https://github.com/joomlatools/joomlatools-composer/wiki
 echo "** Set up joomlatools/composer-helloworld"
