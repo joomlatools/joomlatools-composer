@@ -18,13 +18,16 @@ git clone https://github.com/joomlatools/joomlatools-composer.git /tmp/joomlatoo
 
 cd /tmp/joomlatools-composer-helloworld/
 git checkout -b testbranch
-cat >composer.json <<EOL
+cat >/tmp/joomlatools-composer-helloworld/composer.json <<EOL
 {
     "require": {
          "joomlatools/composer": "dev-testbranch"
     }
 }
 EOL
+
+cat /tmp/joomlatools-composer-helloworld/composer.json
+
 git commit -a -m "Add test dependencies"
 
 echo "** Set up test site"
@@ -32,6 +35,8 @@ joomla site:create --www=$DOCUMENTROOT --mysql-login="root" testsite
 composer --working-dir=$DOCUMENTROOT/testsite config repositories.plugin vcs file:///$TRAVIS_BUILD_DIR
 composer --working-dir=$DOCUMENTROOT/testsite config repositories.component vcs /tmp/joomlatools-composer-helloworld/
 composer --working-dir=$DOCUMENTROOT/testsite config minimum-stability dev
+
+cat $DOCUMENTROOT/testsite/composer.json
 
 # Reset working directory
 cd $TRAVIS_BUILD_DIR
