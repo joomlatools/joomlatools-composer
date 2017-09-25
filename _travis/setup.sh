@@ -14,7 +14,7 @@ git checkout -b testbranch
 
 # Based on the instructions from https://github.com/joomlatools/joomlatools-composer/wiki
 echo "Set up joomlatools/composer-helloworld"
-git clone git@github.com:joomlatools/joomlatools-composer-helloworld.git /tmp/
+git clone git@github.com:joomlatools/joomlatools-composer-helloworld.git /tmp/joomlatools-composer-helloworld/
 
 cd /tmp/joomlatools-composer-helloworld/
 git checkout -b testbranch
