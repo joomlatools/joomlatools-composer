@@ -9,8 +9,7 @@ addons:
 
 cache:
   directories:
-    - vendor
-    - $HOME/.composer/cache
+    - $HOME/.composer
 
 before_install:
  - export PATH=$PATH:/home/travis/.composer/vendor/bin/
@@ -25,6 +24,19 @@ before_script:
 script:
   - joomla site:create --www=$DOCUMENTROOT --mysql-login="root" composer
   - composer require -vvv --working-dir=$DOCUMENTROOT/composer --no-interaction joomlatools/composer-helloworld
+  # Verify if component file is present
+  - "[ -f $DOCUMENTROOT/composer/administrator/components/com_helloworld/helloworld.php ] && true || false"
+  - grep -q "echo 'Hello World\!'" helloworld.php && true || false
+  # Test if the row exists in the database
+  - COUNT=$(mysql -uroot -s -N -e "SELECT COUNT(extension_id) FROM sites_composer.j_extensions WHERE element = 'com_helloworld';")
+  - "[ $COUNT -gt 0 ] && true || false"
+  # Test uninstall
+  - composer remove -vvv --working-dir=$DOCUMENTROOT/composer --no-interaction joomlatools/composer-helloworld
+  # Verify if component file has been removed
+  - "[ ! -f $DOCUMENTROOT/composer/administrator/components/com_helloworld/helloworld.php ] && true || false"
+  # Ensure extensions table has been updated
+  - COUNT=$(mysql -uroot -s -N -e "SELECT COUNT(extension_id) FROM sites_composer.j_extensions WHERE element = 'com_helloworld';")
+  - "[ $COUNT -eq 0 ] && true || false"
 
 matrix:
   fast_finish: true
