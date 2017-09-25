@@ -1,0 +1,31 @@
+language: php
+dist: precise
+sudo: false
+
+php:
+  - 7.1
+
+addons:
+  mariadb: '10.1'
+
+cache:
+  directories:
+    - vendor
+    - $HOME/.composer/cache
+
+before_install:
+ - export PATH=$PATH:/home/travis/.composer/vendor/bin/
+ - export DOCUMENTROOT=/tmp/www/
+ - chmod +x $TRAVIS_BUILD_DIR/_travis/install.sh
+ - $TRAVIS_BUILD_DIR/_travis/install.sh
+
+before_script:
+ - chmod +x $TRAVIS_BUILD_DIR/_travis/setup.sh
+ - $TRAVIS_BUILD_DIR/_travis/setup.sh
+
+script:
+  - joomla site:create --www=$DOCUMENTROOT --mysql-login="root" composer
+  - composer require -vvv --working-dir=$DOCUMENTROOT --no-interaction joomlatools/composer-helloworld
+
+matrix:
+  fast_finish: true
