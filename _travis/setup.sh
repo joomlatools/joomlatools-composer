@@ -29,9 +29,9 @@ git commit -a -m "Add test dependencies"
 
 echo "** Set up test site"
 joomla site:create --www=$DOCUMENTROOT --mysql-login="root" testsite
-composer --working-dir=$DOCUMENTROOT/composer config repositories.plugin vcs file:///$TRAVIS_BUILD_DIR
-composer --working-dir=$DOCUMENTROOT/composer config repositories.component vcs /tmp/joomlatools-composer-helloworld/
-composer --working-dir=$DOCUMENTROOT/composer config minimum-stability dev
+composer --working-dir=$DOCUMENTROOT/testsite config repositories.plugin vcs file:///$TRAVIS_BUILD_DIR
+composer --working-dir=$DOCUMENTROOT/testsite config repositories.component vcs /tmp/joomlatools-composer-helloworld/
+composer --working-dir=$DOCUMENTROOT/testsite config minimum-stability dev
 
 # Reset working directory
 cd $TRAVIS_BUILD_DIR
