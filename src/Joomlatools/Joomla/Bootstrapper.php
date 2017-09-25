@@ -181,6 +181,8 @@ class Bootstrapper
 
             require_once JPATH_ROOT . '/app/defines.php';
             require_once JPATH_ROOT . '/app/bootstrap.php';
+
+            require_once JPATH_LIBRARIES . '/import.php';
         }
         else
         {
@@ -191,7 +193,6 @@ class Bootstrapper
             require_once JPATH_BASE . '/includes/framework.php';
         }
 
-        require_once JPATH_LIBRARIES . '/import.php';
         require_once JPATH_LIBRARIES . '/cms.php';
 
         $this->_bootstrapped = true;
