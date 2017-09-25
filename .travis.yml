@@ -1,5 +1,4 @@
 language: php
-dist: precise
 sudo: false
 
 php:
@@ -25,7 +24,7 @@ before_script:
 
 script:
   - joomla site:create --www=$DOCUMENTROOT --mysql-login="root" composer
-  - composer require -vvv --working-dir=$DOCUMENTROOT --no-interaction joomlatools/composer-helloworld
+  - composer require -vvv --working-dir=$DOCUMENTROOT/composer --no-interaction joomlatools/composer-helloworld
 
 matrix:
   fast_finish: true
