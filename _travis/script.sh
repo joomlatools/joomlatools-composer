@@ -8,7 +8,7 @@ composer require -vv --working-dir=$DOCUMENTROOT/testsite --no-interaction jooml
 # Verify if component file is present
 FILE="$DOCUMENTROOT/testsite/administrator/components/com_helloworld/helloworld.php"
 echo "** Looking for $FILE"
-if [ "$REPO" == "platform" ]; then
+if [[ "$REPO" == *"joomlatools/joomlatools-platform"* ]]; then
   FILE="$DOCUMENTROOT/testsite/app/administrator/components/com_helloworld/helloworld.php"
 fi
 
