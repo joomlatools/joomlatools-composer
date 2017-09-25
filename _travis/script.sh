@@ -30,7 +30,7 @@ fi
 # Test if the row exists in the database
 echo "** Verifying extensions row in database"
 
-COUNT=$(mysql -uroot -s -N -e "SELECT COUNT(extension_id) FROM sites_testsite.$DB WHERE element = 'com_helloworld';")
+COUNT=$(mysql -uroot -s -N -e "SELECT COUNT(extension_id) FROM $DB WHERE element = 'com_helloworld';")
 echo "Matched $COUNT rows"
 
 if [ $COUNT -le 0 ]; then
