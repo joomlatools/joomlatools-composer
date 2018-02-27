@@ -1,7 +1,7 @@
 {
     "name": "joomlatools/composer",
     "type": "composer-plugin",
-    "license": "GPLv3",
+    "license": "GPL-3.0-only",
     "description": "A Composer plugin to install Joomla extensions into your installation.",
     "keywords": ["joomla", "extension", "installer", "composer"],
     "homepage": "https://github.com/joomlatools/joomlatools-composer",
