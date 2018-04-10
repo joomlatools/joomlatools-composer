@@ -292,8 +292,13 @@ class ExtensionInstaller
      */
     protected function _enablePlugin(PackageInterface $package, $installPath, $subdirectory = '')
     {
+        $file = false;
         $path = realpath($installPath . '/' . $subdirectory);
-        $file = Util::getPackageManifest($path);
+
+        if($path !== false)
+        {
+            $file = Util::getPackageManifest($path);
+        }
 
         if($file !== false)
         {
