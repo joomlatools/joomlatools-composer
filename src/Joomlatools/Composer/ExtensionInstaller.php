@@ -83,8 +83,6 @@ class ExtensionInstaller
             throw new \RuntimeException($error);
         }
 
-        $this->_enablePlugin($package, $installPath);
-
         if ($copied_files) {
             foreach ($copied_files as $file) {
                 if (is_file($file)) {
@@ -282,54 +280,5 @@ class ExtensionInstaller
         }
 
         return $descriptions;
-    }
-
-    /**
-     * Enable all plugins that were installed with this package.
-     *
-     * @param PackageInterface $package
-     * @param string           $subdirectory Subdirectory in package install path to look for plugin manifests
-     */
-    protected function _enablePlugin(PackageInterface $package, $installPath, $subdirectory = '')
-    {
-        $file = false;
-        $path = realpath($installPath . '/' . $subdirectory);
-
-        if($path !== false)
-        {
-            $file = Util::getPackageManifest($path);
-        }
-
-        if($file !== false)
-        {
-            $manifest = simplexml_load_file($file);
-            $type     = (string) $manifest->attributes()->type;
-
-            if ($type == 'plugin')
-            {
-                $name  = Util::getNameFromManifest($installPath);
-                $group = (string) $manifest->attributes()->group;
-
-                $extension = Bootstrapper::getInstance()->getApplication()->getExtension($name, 'plugin', $group);
-
-                if (is_object($extension) && $extension->id > 0)
-                {
-                    $sql = "UPDATE `#__extensions`"
-                        ." SET `enabled` = 1"
-                        ." WHERE `extension_id` = ".$extension->id;
-
-                    \JFactory::getDbo()->setQuery($sql)->execute();
-                }
-            }
-            elseif ($type == 'package')
-            {
-                foreach($manifest->files->children() as $file)
-                {
-                    if ((string) $file->attributes()->type == 'plugin') {
-                        $this->_enablePlugin($package, $installPath, (string) $file);
-                    }
-                }
-            }
-        }
     }
 }
