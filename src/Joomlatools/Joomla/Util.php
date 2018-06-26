@@ -202,7 +202,7 @@ class Util
                 }
                 break;
             case 'language':
-                $element = $xml->get('tag');
+                $element = (string) $xml->tag;
                 break;
             case 'template':
                 $name    = preg_replace('/[^A-Z0-9_ \.-]/i', '', $xml->name);
