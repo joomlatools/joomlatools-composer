@@ -7,6 +7,9 @@ in 1.x versions.
 To get the diff for a specific change, go to https://github.com/joomlatools/joomlatools-composer/commit/xxx where xxx is the change hash.
 To view the diff between two versions, go to https://github.com/joomlatools/joomlatools-composer/compare/v1.0.0...v1.0.1
 
+* 1.1.3 (2018-09-25)
+  * Fix language package installations [#40](https://github.com/joomlatools/joomlatools-composer/pull/40)
+
 * 1.1.2 (2017-09-25)
   * Fixed Joomla 3.8 compatibility [#34](https://github.com/joomlatools/joomlatools-composer/issues/34)
   * Added Initial implementation of Travis CI tests [#35](https://github.com/joomlatools/joomlatools-composer/issues/35)
