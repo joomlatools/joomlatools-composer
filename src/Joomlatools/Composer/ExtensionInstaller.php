@@ -114,8 +114,6 @@ class ExtensionInstaller
             return $this->_uninstallReusableComponent($package, $installPath);
         }
 
-        $this->_copyManifestFiles($package, $installPath);
-
         $file           = Util::getPackageManifest($installPath);
 
         if($file !== false && file_exists($file))
