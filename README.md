@@ -1,4 +1,4 @@
-# Joomlatools Composer Installer
+# Joomlatools Composer Installer [![Build Status](https://travis-ci.org/joomlatools/joomlatools-composer.svg?branch=master)](https://travis-ci.org/joomlatools/joomlatools-composer)
 
 This Composer plugin will install extensions into your Joomla setup.
 
@@ -11,13 +11,13 @@ The easiest way to get started is by defining a custom package in your `composer
 Create the `composer.json` file in the root directory of your Joomla installation and have it look something like this:
 
 ```json
-	{
+{
     	"repositories": [
         	{
             	"type": "package",
             	"package": {
                 	"name": "vendor/extension",
-                	"type": "joomlatools-composer",
+                	"type": "joomlatools-extension",
                 	"version": "1.0.0",
                 	"dist": {
                     	"url": "file:////Users/johndoe/Downloads/com_extension.1.0.0.tar.gz",
@@ -33,12 +33,12 @@ Create the `composer.json` file in the root directory of your Joomla installatio
     	"require": {
     		"vendor/extension": "1.0.0"
     	}
-	}
+}
 ```
 
 Using this JSON file, we have now defined our own custom package. Pay attention to the following settings:
 
-* The `type` has to be set to `joomlatools-composer`
+* The `type` has to be set to `joomlatools-extension`
 * Make sure the `url` directive points to the location of the install package.
 
 Executing `composer install` will now fetch the `joomlatools/composer` plugin and use it to install the package into your Joomla installation.
@@ -54,7 +54,7 @@ The package definition should contain the following basic information to make it
 ```json
 {
     	"name": "vendor/my-extension",
-		"type": "joomlatools-composer",
+		"type": "joomlatools-extension",
     	"require": {
         	"joomlatools/composer": "*"
     	}
@@ -63,28 +63,37 @@ The package definition should contain the following basic information to make it
 
 If you want to make your extension available directly from Github or any other VCS, you want to make sure that the file layout in your repo resembles your install package.
 
+If you want to move the main Joomla installer manifest to the repository root before running the installation, provide the following information in your `composer.json`file:
+
+```json
+{
+	"extra": {
+    	"manifest": "path/to/manifest/joomlatools.xml"
+	}
+}
+```
+
+If the package is for a Joomlatools Framework reusable component, provide the following information in your `composer.json`file:
+
+```json
+{
+	"extra": {
+    	"joomlatools-component": "component-name"
+	}
+}
+```
+
 You can now publish your extension on [Packagist](https://packagist.org/) or serve it yourself using your own [Satis repository](http://getcomposer.org/doc/articles/handling-private-packages-with-satis.md).
 
 For more information on rolling your own package, please refer to the [Composer documentation](http://getcomposer.org/doc/02-libraries.md).
 
+### More
 
-### Change the user
+For more information, FAQ and examples, refer to our [developer documentation](https://www.joomlatools.com/developer/tools/composer/).
 
-The installer injects a user called `root` into the Joomla application at runtime to make sure that the installer scripts have the necessary permissions to execute.
+## Development
 
-If for some reason, you need to change the details of this mock user, you can override them by adding a `joomla` block into the `config` section of your `composer.json`. Example:  
-
-```json
-{
-    "config": {
-        "joomla": {
-            "username":  "johndoe",
-            "name":		 "John Doe",
-            "email": 	 "john@doe.com"
-        }
-    }
-}
-```
+Refer to [the wiki](https://github.com/joomlatools/joomlatools-composer/wiki#development-set-up) on how to set up this repository for local development.
 
 ## Debugging
 
@@ -93,22 +102,21 @@ Having trouble? You can increase Composer's verbosity setting (`-v|vv|vvv`) to g
 ## Requirements
 
 * Composer
-* Joomla version 2.5 and up.
+* Joomla version 3.6+
 
 ## Contributing
 
-The `joomlatools/installer` plugin is an open source, community-driven project. Contributions are welcome from everyone. We have [contributing guidelines](CONTRIBUTING.md) to help you get started.
+The `joomlatools/composer` plugin is an open source, community-driven project. Contributions are welcome from everyone. We have [contributing guidelines](CONTRIBUTING.md) to help you get started.
 
 ## Contributors
 
-See the list of [contributors](https://github.com/joomlatools/joomlatools-console/contributors).
+See the list of [contributors](https://github.com/joomlatools/joomlatools-composer/contributors).
 
 ## License 
 
-The `joomlatools/installer` plugin is free and open-source software licensed under the [GPLv3 license](LICENSE.txt).
+The `joomlatools/composer` plugin is free and open-source software licensed under the [GPLv3 license](LICENSE.txt).
 
 ## Community
-=======
 
 Keep track of development and community news.
 
@@ -117,5 +125,4 @@ Keep track of development and community news.
 * Read the [Joomlatools Developer Blog](https://www.joomlatools.com/developer/blog/)
 * Subscribe to the [Joomlatools Developer Newsletter](https://www.joomlatools.com/developer/newsletter/)
 
-[gitflow-model]: http://nvie.com/posts/a-successful-git-branching-model/
 [gplv3-license]: https://github.com/nooku/nooku-framework/blob/master/LICENSE.txt

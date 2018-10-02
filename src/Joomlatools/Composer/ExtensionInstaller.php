@@ -31,19 +31,26 @@ class ExtensionInstaller
         $this->_io = $io;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public function supports($packageType)
+    {
+        return in_array($packageType, array('joomlatools-composer', 'joomlatools-extension', 'joomlatools-installer', 'joomla-installer'));
+    }
+
     public function execute()
     {
         $application = Bootstrapper::getInstance()->getApplication();
 
         if ($application === false)
         {
-            $platformStr = Util::isJoomlatoolsPlatform() ? 'Joomlatools Platform' : 'Joomla';
-            $this->_io->write(sprintf('[<error>ERROR</error>] Failed to initialize the %1$s application! %1$s extensions will not be installed or removed. Is the application properly configured?', $platformStr));
+            $this->_io->write(sprintf('[<error>ERROR</error>] Failed to initialize the %1$s application! %1$s extensions will not be installed or removed. Is the application properly configured?', Util::getPlatformName()));
 
             return;
         }
 
-        foreach (Taskqueue::getInstance() as $task)
+        foreach (TaskQueue::getInstance() as $task)
         {
             list($action, $package, $installPath) = $task;
 
@@ -56,7 +63,10 @@ class ExtensionInstaller
     public function install(PackageInterface $package, $installPath)
     {
         $application = Bootstrapper::getInstance()->getApplication();
-        $platformStr = Util::isJoomlatoolsPlatform() ? 'Joomlatools Platform' : 'Joomla';
+
+        if (Util::isReusableComponent($package)) {
+            return $this->_installReusableComponent($package, $installPath);
+        }
 
         if ($application->isInstalled($installPath))
         {
@@ -69,7 +79,9 @@ class ExtensionInstaller
             return;
         }
 
-        $this->_io->write(sprintf("Installing the %s extension <info>%s</info> <comment>%s</comment>", $platformStr, $package->getName(), $package->getFullPrettyVersion()));
+        $copied_files = $this->_copyManifestFiles($package, $installPath);
+
+        $this->_io->write(sprintf("Installing the %s extension <info>%s</info> <comment>%s</comment>", Util::getPlatformName(), $package->getName(), $package->getFullPrettyVersion()));
 
         if(!$application->install($installPath))
         {
@@ -85,16 +97,29 @@ class ExtensionInstaller
         }
 
         $this->_enablePlugin($package, $installPath);
+
+        if ($copied_files) {
+            foreach ($copied_files as $file) {
+                if (is_file($file)) {
+                    unlink($file);
+                }
+            }
+        }
     }
 
     public function update(PackageInterface $package, $installPath)
     {
-        $platformStr = Util::isJoomlatoolsPlatform() ? 'Joomlatools Platform' : 'Joomla';
+        if (Util::isReusableComponent($package)) {
+            return $this->_installReusableComponent($package, $installPath);
+        }
 
-        $this->_io->write(sprintf("Updating the %s extension <info>%s</info> to <comment>%s</comment>", $platformStr, $package->getName(), $package->getFullPrettyVersion()));
+        $copied_files = $this->_copyManifestFiles($package, $installPath);
+
+        $this->_io->write(sprintf("Updating the %s extension <info>%s</info> to <comment>%s</comment>", Util::getPlatformName(), $package->getName(), $package->getFullPrettyVersion()));
 
         if(!Bootstrapper::getInstance()->getApplication()->update($installPath))
         {
+
             // Get all error messages that were stored in the message queue
             $descriptions = $this->_getApplicationMessages();
 
@@ -105,6 +130,14 @@ class ExtensionInstaller
 
             throw new \RuntimeException($error);
         }
+
+        if ($copied_files) {
+            foreach ($copied_files as $file) {
+                if (is_file($file)) {
+                    unlink($file);
+                }
+            }
+        }
     }
 
     /**
@@ -112,12 +145,17 @@ class ExtensionInstaller
      */
     public function uninstall(PackageInterface $package, $installPath)
     {
-        $platformString = Util::isJoomlatoolsPlatform() ? 'Joomlatools Platform' : 'Joomla';
+        if (Util::isReusableComponent($package)) {
+            return $this->_uninstallReusableComponent($package, $installPath);
+        }
+
+        $this->_copyManifestFiles($package, $installPath);
+
         $file           = Util::getPackageManifest($installPath);
 
         if($file !== false && file_exists($file))
         {
-            $this->_io->write(sprintf("Uninstalling the %s extension <info>%s</info>", $platformString, $package->getName()));
+            $this->_io->write(sprintf("Uninstalling the %s extension <info>%s</info>", Util::getPlatformName(), $package->getName()));
 
             $manifest = simplexml_load_file($file);
 
@@ -134,17 +172,111 @@ class ExtensionInstaller
                 }
             }
         }
-        else $this->_io->write(sprintf("[<error>WARNING</error>] Can not uninstall the %s extension <info>%s</info>: XML manifest not found.", $platformString, $package->getName()));
+        else $this->_io->write(sprintf("[<error>WARNING</error>] Can not uninstall the %s extension <info>%s</info>: XML manifest not found.", Util::getPlatformName(), $package->getName()));
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function supports($packageType)
+    protected function _installReusableComponent(PackageInterface $package, $installPath)
     {
-        return in_array($packageType, array('joomlatools-composer', 'joomlatools-installer', 'joomla-installer'));
+        Bootstrapper::getInstance()->getApplication(); // required to load Joomla libs
+
+        \jimport('joomla.filesystem.folder');
+        \jimport('joomla.filesystem.file');
+
+        $this->_io->write(sprintf("Installing the %s reusable component <info>%s</info> <comment>%s</comment>", Util::getPlatformName(), $package->getName(), $package->getFullPrettyVersion()));
+
+        $extra = $package->getExtra();
+        $name  = $extra['joomlatools-component'];
+        $map = array(
+            $installPath                     => JPATH_LIBRARIES.'/joomlatools-components/'.$name,
+            $installPath.'/resources/assets' => JPATH_ROOT.'/media/koowa/com_'.$name
+        );
+
+        foreach ($map as $from => $to)
+        {
+            $temp   = $to.'_tmp';
+
+            if (!is_dir($from)) {
+                continue;
+            }
+
+            if (is_dir($temp)) {
+                \JFolder::delete($temp);
+            }
+
+            \JFolder::copy($from, $temp);
+
+            if (is_dir($to)) {
+                \JFolder::delete($to);
+            }
+
+            \JFolder::move($temp, $to);
+        }
+
+        $install_sql = JPATH_LIBRARIES.'/joomlatools-components/'.$name.'/resources/install/install.sql';
+        if (is_file($install_sql)) {
+            $db = \JFactory::getDbo();
+            $queries = $db->splitSql(file_get_contents($install_sql));
+
+            if ($queries) {
+                foreach ($queries as $query) {
+                    $query = trim($query);
+
+                    if ($query != '' && $query{0} != '#') {
+                        try {
+                            $db->setQuery($query)->execute();
+                        } catch (\Exception $e) {
+                        }
+                    }
+                }
+            }
+        }
     }
-    
+
+    protected function _uninstallReusableComponent(PackageInterface $package, $installPath)
+    {
+        Bootstrapper::getInstance()->getApplication(); // required to load Joomla libs
+
+        \jimport('joomla.filesystem.folder');
+        \jimport('joomla.filesystem.file');
+
+        $this->_io->write(sprintf("Uninstalling the %s reusable component <info>%s</info> <comment>%s</comment>", Util::getPlatformName(), $package->getName(), $package->getFullPrettyVersion()));
+
+        $name    = $package->getExtra()['joomlatools-component'];
+        $folders = array(
+            JPATH_LIBRARIES.'/joomlatools-components/'.$name,
+            JPATH_ROOT.'/media/koowa/com_'.$name
+        );
+
+        foreach ($folders as $folder)
+        {
+            if (is_dir($folder)) {
+                \JFolder::delete($folder);
+            }
+        }
+    }
+
+    protected function _copyManifestFiles(PackageInterface $package, $installPath)
+    {
+        $copied_files = [];
+        $extra        = $package->getExtra();
+
+        if (is_array($extra) && isset($extra['manifest'])) {
+            $manifest_name = basename($extra['manifest']);
+            $manifest_dir  = $installPath.'/'.dirname($extra['manifest']);
+            $target_dir    = is_dir($installPath.'/code') ? $installPath.'/code' : $installPath;
+
+            copy($manifest_dir.'/'.$manifest_name, $target_dir.'/'.$manifest_name);
+            $copied_files[]= $target_dir.'/'.$manifest_name;
+
+            if (is_file($manifest_dir.'/script.php')) {
+                copy($manifest_dir.'/script.php', $target_dir.'/script.php');
+                $copied_files[]= $target_dir.'/script.php';
+            }
+        }
+
+        return $copied_files;
+    }
+
     /**
      * Fetches the enqueued flash messages from the Joomla application object.
      *

@@ -89,6 +89,9 @@ class Application extends JApplicationCli
 
         jimport('joomla.application.module.helper');
 
+        jimport('joomla.filesystem.folder');
+        jimport('joomla.filesystem.file');
+
         // Tell JFactory where to find the current application object
         JFactory::$application = $this;
 
@@ -316,7 +319,7 @@ class Application extends JApplicationCli
      */
     public function isSite()
     {
-        return false;
+        return $this->isClient('site');
     }
 
     /**
@@ -326,7 +329,21 @@ class Application extends JApplicationCli
      */
     public function isAdmin()
     {
-        return true;
+        return $this->isClient('administrator');
+    }
+
+    /**
+    * Check the client interface by name.
+    *
+    * @param string  $identifier  String identifier for the application interface
+    *
+    * @return boolean  True if this application is of the given type client interface.
+    *
+    * @since 3.7.0
+    */
+    public function isClient($identifier)
+    {
+        return $this->getName() === $identifier;
     }
 
     /**
@@ -419,6 +436,15 @@ class Application extends JApplicationCli
     {
         return false;
     }
+    
+    /**
+     * Does nothing
+     * 
+     * This method is a stub; Some extensions use JFactory::getApplication()->redirect() inside their installscripts (such as NoNumberInstallerHelper)
+     */
+    public function redirect()
+    {
+    }
 
     /**
      * Flush the media version to refresh versionable assets
@@ -471,7 +497,12 @@ class Application extends JApplicationCli
      */
     protected function _setupLogging($loglevel)
     {
-        require_once JPATH_LIBRARIES . '/joomla/log/log.php';
+        // Backwards compatibility
+        if (file_exists(JPATH_LIBRARIES . '/src/Log/Log.php')) {
+          require_once JPATH_LIBRARIES . '/src/Log/Log.php';
+        } else {
+          require_once JPATH_LIBRARIES . '/joomla/log/log.php';
+        }
 
         if ($loglevel == OutputInterface::VERBOSITY_NORMAL) {
             return;

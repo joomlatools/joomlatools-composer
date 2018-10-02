@@ -98,7 +98,7 @@ class ComposerInstaller extends LibraryInstaller
      */
     public function supports($packageType)
     {
-        return in_array($packageType, array('joomlatools-composer', 'joomlatools-installer', 'joomla-installer'));
+        return in_array($packageType, array('joomlatools-composer', 'joomlatools-extension', 'joomlatools-installer', 'joomla-installer'));
     }
 
     /**
@@ -106,6 +106,10 @@ class ComposerInstaller extends LibraryInstaller
      */
     public function isInstalled(InstalledRepositoryInterface $repo, PackageInterface $package)
     {
+        if (Util::isReusableComponent($package)) {
+            return true; // If Composer didn't error out, we can conclude it is installed
+        }
+
         $application = Bootstrapper::getInstance()->getApplication();
 
         if ($application === false)
