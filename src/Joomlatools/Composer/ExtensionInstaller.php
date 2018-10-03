@@ -31,14 +31,6 @@ class ExtensionInstaller
         $this->_io = $io;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function supports($packageType)
-    {
-        return in_array($packageType, array('joomlatools-composer', 'joomlatools-extension', 'joomlatools-installer', 'joomla-installer'));
-    }
-
     public function execute()
     {
         $application = Bootstrapper::getInstance()->getApplication();
@@ -62,15 +54,17 @@ class ExtensionInstaller
 
     public function install(PackageInterface $package, $installPath)
     {
+        $application = Bootstrapper::getInstance()->getApplication();
+
         if (Util::isReusableComponent($package)) {
             return $this->_installReusableComponent($package, $installPath);
         }
 
-        $copied_files = $this->_copyManifestFiles($package, $installPath);
+        $this->_copyManifestFiles($package, $installPath);
 
         $this->_io->write(sprintf("Installing the %s extension <info>%s</info> <comment>%s</comment>", Util::getPlatformName(), $package->getName(), $package->getFullPrettyVersion()));
 
-        if(!Bootstrapper::getInstance()->getApplication()->install($installPath))
+        if(!$application->install($installPath))
         {
             // Get all error messages that were stored in the message queue
             $descriptions = $this->_getApplicationMessages();
@@ -84,14 +78,6 @@ class ExtensionInstaller
         }
 
         $this->_enablePlugin($package, $installPath);
-
-        if ($copied_files) {
-            foreach ($copied_files as $file) {
-                if (is_file($file)) {
-                    unlink($file);
-                }
-            }
-        }
     }
 
     public function update(PackageInterface $package, $installPath)
@@ -100,7 +86,7 @@ class ExtensionInstaller
             return $this->_installReusableComponent($package, $installPath);
         }
 
-        $copied_files = $this->_copyManifestFiles($package, $installPath);
+        $this->_copyManifestFiles($package, $installPath);
 
         $this->_io->write(sprintf("Updating the %s extension <info>%s</info> to <comment>%s</comment>", Util::getPlatformName(), $package->getName(), $package->getFullPrettyVersion()));
 
@@ -117,14 +103,6 @@ class ExtensionInstaller
 
             throw new \RuntimeException($error);
         }
-
-        if ($copied_files) {
-            foreach ($copied_files as $file) {
-                if (is_file($file)) {
-                    unlink($file);
-                }
-            }
-        }
     }
 
     /**
@@ -135,8 +113,6 @@ class ExtensionInstaller
         if (Util::isReusableComponent($package)) {
             return $this->_uninstallReusableComponent($package, $installPath);
         }
-
-        $this->_copyManifestFiles($package, $installPath);
 
         $file           = Util::getPackageManifest($installPath);
 
@@ -244,24 +220,20 @@ class ExtensionInstaller
 
     protected function _copyManifestFiles(PackageInterface $package, $installPath)
     {
-        $copied_files = [];
-        $extra        = $package->getExtra();
+        $extra = $package->getExtra();
 
-        if (is_array($extra) && isset($extra['manifest'])) {
+        if (is_array($extra) && isset($extra['manifest']))
+        {
             $manifest_name = basename($extra['manifest']);
             $manifest_dir  = $installPath.'/'.dirname($extra['manifest']);
             $target_dir    = is_dir($installPath.'/code') ? $installPath.'/code' : $installPath;
 
             copy($manifest_dir.'/'.$manifest_name, $target_dir.'/'.$manifest_name);
-            $copied_files[]= $target_dir.'/'.$manifest_name;
 
             if (is_file($manifest_dir.'/script.php')) {
                 copy($manifest_dir.'/script.php', $target_dir.'/script.php');
-                $copied_files[]= $target_dir.'/script.php';
             }
         }
-
-        return $copied_files;
     }
 
     /**

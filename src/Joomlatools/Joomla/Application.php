@@ -9,6 +9,8 @@
 
 namespace Joomlatools\Joomla;
 
+use Composer\Package\PackageInterface;
+
 use Symfony\Component\Console\Output\OutputInterface;
 
 use \JApplicationCli as JApplicationCli;
@@ -127,6 +129,47 @@ class Application extends JApplicationCli
         JFactory::getSession()->set('user', $user);
     }
 
+    /**
+     * Check if the Composer package located at the given path is installed or not.
+     * 
+     * This method will look for the package manifest at the given
+     * directory. It will extract the extension name from the manifest
+     * and see if that element is installed in the database.
+     * 
+     * @param string $installPath Path to Composer package
+     * @return bool
+     */
+    public function isInstalled($installPath)
+    {
+        $manifest = Util::getPackageManifest($installPath);
+
+        if ($manifest === false) {
+            return false;
+        }
+
+        $xml = simplexml_load_file($manifest);
+
+        if($xml instanceof \SimpleXMLElement)
+        {
+            $type    = (string) $xml->attributes()->type;
+            $element = Util::getNameFromManifest($installPath);
+
+            if (empty($element)) {
+                return false;
+            }
+
+            $extension = $this->getExtension($element, $type);
+
+            if (!is_object($extension)) {
+                return false;
+            }
+
+            return isset($extension->id) && $extension->id > 0;
+        }
+        
+        return false;
+    }
+    
     /**
      * Get the extension info from Joomla's #__extensions table
      *
