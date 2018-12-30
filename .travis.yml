@@ -16,7 +16,6 @@ git:
   depth: 999999 # We can't use a shallow clone for testing. See: https://github.com/travis-ci/travis-ci/issues/4942#issuecomment-159132444
 
 before_install:
- - export PATH=$PATH:$HOME/.composer/vendor/bin/
  - export DOCUMENTROOT=/tmp/www/
  - chmod +x $TRAVIS_BUILD_DIR/_travis/install.sh
  - $TRAVIS_BUILD_DIR/_travis/install.sh
