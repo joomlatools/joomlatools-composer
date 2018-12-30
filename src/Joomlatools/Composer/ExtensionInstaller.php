@@ -62,17 +62,6 @@ class ExtensionInstaller
 
         $this->_copyManifestFiles($package, $installPath);
 
-        if ($application->isInstalled($package))
-        {
-            if ($this->_io->isVerbose()) {
-                $this->_io->write(sprintf("  - Extension <comment>%s</comment> is already installed, updating instead", $package->getName()), true);
-            }
-
-            $this->update($package, $installPath);
-
-            return;
-        }
-
         $this->_io->write(sprintf("Installing the %s extension <info>%s</info> <comment>%s</comment>", Util::getPlatformName(), $package->getName(), $package->getFullPrettyVersion()));
 
         if(!$application->install($installPath))
