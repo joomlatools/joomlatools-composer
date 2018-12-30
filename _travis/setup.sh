@@ -32,7 +32,7 @@ EOL
 git commit -a -m "Add test dependencies"
 
 echo "** Set up test site v$RELEASE (from $REPO)"
-composer global exec -v -- "composer global exec joomla site:create --www=$DOCUMENTROOT --repo=$REPO --release=$RELEASE --mysql-login=root testsite"
+composer global exec -v -- "joomla site:create --www=$DOCUMENTROOT --repo=$REPO --release=$RELEASE --mysql-login=root testsite"
 
 composer --no-interaction --working-dir=$DOCUMENTROOT/testsite config repositories.plugin vcs file:///$TRAVIS_BUILD_DIR
 composer --no-interaction --working-dir=$DOCUMENTROOT/testsite config repositories.component vcs file:////tmp/joomlatools-composer-helloworld/
