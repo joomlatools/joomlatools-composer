@@ -7,6 +7,9 @@ in 1.x versions.
 To get the diff for a specific change, go to https://github.com/joomlatools/joomlatools-composer/commit/xxx where xxx is the change hash.
 To view the diff between two versions, go to https://github.com/joomlatools/joomlatools-composer/compare/v1.0.0...v1.0.1
 
+* 1.1.5 (2019-01-17)
+  * Media files not properly moved in Joomlatools Platform [#42](https://github.com/joomlatools/joomlatools-composer/issues/42)
+
 * 1.1.4 (2018-10-03)
   * Fire upgrade if extension is already registered [#23](https://github.com/joomlatools/joomlatools-composer/issues/23)
 
