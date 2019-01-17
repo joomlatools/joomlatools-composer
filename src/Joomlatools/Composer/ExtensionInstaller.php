@@ -151,7 +151,7 @@ class ExtensionInstaller
         $name  = $extra['joomlatools-component'];
         $map = array(
             $installPath                     => JPATH_LIBRARIES.'/joomlatools-components/'.$name,
-            $installPath.'/resources/assets' => JPATH_ROOT.'/media/koowa/com_'.$name
+            $installPath.'/resources/assets' => (Util::isJoomlatoolsPlatform() ? JPATH_WEB : JPATH_ROOT) . '/media/koowa/com_'.$name
         );
 
         foreach ($map as $from => $to)
@@ -207,7 +207,7 @@ class ExtensionInstaller
         $name    = $package->getExtra()['joomlatools-component'];
         $folders = array(
             JPATH_LIBRARIES.'/joomlatools-components/'.$name,
-            JPATH_ROOT.'/media/koowa/com_'.$name
+            (Util::isJoomlatoolsPlatform() ? JPATH_WEB : JPATH_ROOT) . '/media/koowa/com_'.$name
         );
 
         foreach ($folders as $folder)
