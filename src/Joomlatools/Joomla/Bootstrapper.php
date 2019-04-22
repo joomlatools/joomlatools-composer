@@ -197,7 +197,7 @@ class Bootstrapper
 
         require_once JPATH_LIBRARIES . '/cms.php';
 
-        stream_wrapper_restore('Phar');
+        stream_wrapper_restore('phar');
 
         $this->_bootstrapped = true;
 
