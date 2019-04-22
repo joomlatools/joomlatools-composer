@@ -194,16 +194,10 @@ class Bootstrapper
         }
 
         // cache the current phar stream wrapper
-        $wrappers = stream_get_wrappers();
 
         require_once JPATH_LIBRARIES . '/cms.php';
 
-        if (in_array('phar', stream_get_wrappers()) && isset($wrappers['phar']))
-        {
-            stream_wrapper_unregister('phar');
-            stream_wrapper_register('phar', $wrappers['phar']);
-        }
-
+        stream_wrapper_restore('Phar');
 
         $this->_bootstrapped = true;
 
