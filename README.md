@@ -8,7 +8,7 @@ This Composer plugin will install extensions into your Joomla setup.
 
 The easiest way to get started is by defining a custom package in your `composer.json` file.  All you need is the package file for the extension you wish to install. (ie. the installer file you downloaded from the vendor's website)
 
-Create the `composer.json` file in the root directory of your Joomla installation and have it look something like this:
+Update the `composer.json` file in the root directory of your Joomla installation and by adding the following properties:
 
 ```json
 {
@@ -30,7 +30,10 @@ Create the `composer.json` file in the root directory of your Joomla installatio
         	}
     	],
 
+        ...
+
     	"require": {
+	        ...
     		"vendor/extension": "1.0.0"
     	}
 }
