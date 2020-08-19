@@ -9,6 +9,7 @@ To view the diff between two versions, go to https://github.com/joomlatools/joom
 
 * 1.1.6 (2020-08-19)
   * Reset the phar wrapper [#44](https://github.com/joomlatools/joomlatools-composer/issues/44)
+  * Only run stream_wrapper_restore on Joomla 3.9 [#48](https://github.com/joomlatools/joomlatools-composer/issues/48)
 
 * 1.1.5 (2019-01-17)
   * Media files not properly moved in Joomlatools Platform [#42](https://github.com/joomlatools/joomlatools-composer/issues/42)
