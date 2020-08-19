@@ -183,6 +183,8 @@ class Bootstrapper
             require_once JPATH_ROOT . '/app/bootstrap.php';
 
             require_once JPATH_LIBRARIES . '/import.php';
+
+            require_once JPATH_LIBRARIES . '/cms.php';
         }
         else
         {
@@ -191,13 +193,13 @@ class Bootstrapper
 
             require_once JPATH_BASE . '/includes/defines.php';
             require_once JPATH_BASE . '/includes/framework.php';
+
+            require_once JPATH_LIBRARIES . '/cms.php';
+
+            if(version_compare(JVERSION, '3.9.0', '>=') && version_compare(JVERSION, '4.0', '<')) {
+                stream_wrapper_restore('phar');
+            }
         }
-
-        // cache the current phar stream wrapper
-
-        require_once JPATH_LIBRARIES . '/cms.php';
-
-        stream_wrapper_restore('phar');
 
         $this->_bootstrapped = true;
 
