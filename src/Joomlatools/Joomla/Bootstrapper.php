@@ -193,8 +193,14 @@ class Bootstrapper
             require_once JPATH_BASE . '/includes/framework.php';
         }
 
+        // cache the current phar stream wrapper
+
         require_once JPATH_LIBRARIES . '/cms.php';
 
+        stream_wrapper_restore('phar');
+
         $this->_bootstrapped = true;
+
+
     }
 }
