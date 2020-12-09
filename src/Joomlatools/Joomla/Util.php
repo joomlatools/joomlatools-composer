@@ -29,7 +29,7 @@ class Util
      *
      * @return bool
      */
-    public function isStandalone()
+    public static function isStandalone()
     {
         $directories = array('./components', './web');
 
