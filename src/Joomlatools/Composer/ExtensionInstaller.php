@@ -33,6 +33,12 @@ class ExtensionInstaller
 
     public function execute()
     {
+        $isStandalone = Util::isStandalone();
+
+        if ($isStandalone){
+            return true;
+        }
+
         $application = Bootstrapper::getInstance()->getApplication();
 
         if ($application === false)
