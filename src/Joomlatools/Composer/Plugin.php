@@ -73,4 +73,14 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         $extensionInstaller = new ExtensionInstaller($this->_io);
         $extensionInstaller->execute();
     }
+
+    public function uninstall(Composer $composer, IOInterface $io)
+    {
+        // TODO: Implement uninstall() method.
+    }
+
+    public function deactivate(Composer $composer, IOInterface $io)
+    {
+        // TODO: Implement deactivate() method.
+    }
 }
