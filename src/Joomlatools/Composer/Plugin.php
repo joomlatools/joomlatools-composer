@@ -40,12 +40,14 @@ class Plugin implements PluginInterface, EventSubscriberInterface
      */
     public function activate(Composer $composer, IOInterface $io)
     {
-        if (!Util::isJoomla() && !Util::isJoomlatoolsPlatform()) {
-            throw new \RuntimeException('Working directory is not a valid install destination');
-        }
-
+        //still firing postAutoloadDump for standalone so this needs to be set
         $this->_composer = $composer;
         $this->_io = $io;
+
+        //if neither must be standalone
+        if (!Util::isJoomla() && !Util::isJoomlatoolsPlatform()) {
+            return true;
+        }
 
         $credentials = $this->_composer->getConfig()->get('joomla');
 
