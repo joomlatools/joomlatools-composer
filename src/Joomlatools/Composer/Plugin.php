@@ -40,7 +40,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
      */
     public function activate(Composer $composer, IOInterface $io)
     {
-        if (!Util::isJoomla() && !Util::isJoomlatoolsPlatform() && !Util::isStandalone()) {
+        if (!Util::isJoomla() && !Util::isJoomlatoolsPlatform()) {
             throw new \RuntimeException('Working directory is not a valid install destination');
         }
 

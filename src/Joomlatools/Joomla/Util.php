@@ -25,27 +25,6 @@ class Util
     }
 
     /**
-     * Validate if the current working directory is a Standalone app
-     *
-     * @return bool
-     */
-    public static function isStandalone()
-    {
-        $directories = array('./components', './web');
-
-        foreach ($directories as $directory)
-        {
-            $path = realpath($directory);
-
-            if (!file_exists($path)){
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    /**
      * Validate if the current working directory has a valid Joomla installation
      *
      * @return bool

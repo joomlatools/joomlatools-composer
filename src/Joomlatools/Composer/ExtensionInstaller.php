@@ -33,9 +33,7 @@ class ExtensionInstaller
 
     public function execute()
     {
-        $isStandalone = Util::isStandalone();
-
-        if ($isStandalone){
+        if (!Util::isJoomla() && !Util::isJoomlatoolsPlatform()) {
             return true;
         }
 
