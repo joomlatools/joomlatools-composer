@@ -33,7 +33,7 @@ class ExtensionInstaller
 
     public function execute()
     {
-        if (!Util::isJoomla() && !Util::isJoomlatoolsPlatform()) {
+        if (!Util::isJoomla() && !Util::isJoomlatoolsPlatform() && !Util::isJoomla4()) {
             return true;
         }
 
