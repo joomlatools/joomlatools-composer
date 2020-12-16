@@ -40,12 +40,12 @@ class Plugin implements PluginInterface, EventSubscriberInterface
      */
     public function activate(Composer $composer, IOInterface $io)
     {
-        if (!Util::isJoomla() && !Util::isJoomlatoolsPlatform()) {
-            throw new \RuntimeException('Working directory is not a valid Joomla installation');
-        }
-
         $this->_composer = $composer;
         $this->_io = $io;
+
+        if (!Util::isJoomla() && !Util::isJoomlatoolsPlatform()) {
+            return true;
+        }
 
         $credentials = $this->_composer->getConfig()->get('joomla');
 
@@ -64,7 +64,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return array(
-            ScriptEvents::POST_AUTOLOAD_DUMP => 'postAutoloadDump'
+            'post-autoload-dump' => 'postAutoloadDump'
         );
     }
 
@@ -72,5 +72,15 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     {
         $extensionInstaller = new ExtensionInstaller($this->_io);
         $extensionInstaller->execute();
+    }
+
+    public function uninstall(Composer $composer, IOInterface $io)
+    {
+        // TODO: Implement uninstall() method.
+    }
+
+    public function deactivate(Composer $composer, IOInterface $io)
+    {
+        // TODO: Implement deactivate() method.
     }
 }
