@@ -19,6 +19,6 @@
         "class": "Joomlatools\\Composer\\Plugin"
     },
     "require": {
-        "composer-plugin-api": "^2.0"
+        "composer-plugin-api": "^1.0"
     }
 }

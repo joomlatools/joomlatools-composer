@@ -66,7 +66,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return array(
-            'post-autoload-dump' => 'postAutoloadDump'
+            ScriptEvents::POST_AUTOLOAD_DUMP => 'postAutoloadDump'
         );
     }
 
@@ -76,13 +76,4 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         $extensionInstaller->execute();
     }
 
-    public function uninstall(Composer $composer, IOInterface $io)
-    {
-        // TODO: Implement uninstall() method.
-    }
-
-    public function deactivate(Composer $composer, IOInterface $io)
-    {
-        // TODO: Implement deactivate() method.
-    }
 }
