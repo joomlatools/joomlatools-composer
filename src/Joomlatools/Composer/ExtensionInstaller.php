@@ -33,6 +33,10 @@ class ExtensionInstaller
 
     public function execute()
     {
+        if (!Util::isJoomla() && !Util::isJoomlatoolsPlatform()) {
+            return true;
+        }
+
         $application = Bootstrapper::getInstance()->getApplication();
 
         if ($application === false)
