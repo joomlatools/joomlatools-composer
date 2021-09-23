@@ -29,15 +29,23 @@ class ComposerInstaller extends LibraryInstaller
      */
     public function install(InstalledRepositoryInterface $repo, PackageInterface $package)
     {
-        parent::install($repo, $package);
-
         $platformStr = Util::isJoomlatoolsPlatform() ? 'Joomlatools Platform' : 'Joomla';
+        $afterInstall = function () use ($package, $platformStr) {
+            if ($this->io->isVerbose()) {
+                $this->io->write(sprintf("  - Queuing <comment>%s</comment> for installation in %s", $package->getName(), $platformStr), true);
+            }
 
-        if ($this->io->isVerbose()) {
-            $this->io->write(sprintf("  - Queuing <comment>%s</comment> for installation in %s", $package->getName(), $platformStr), true);
+            TaskQueue::getInstance()->enqueue(array('install', $package, $this->getInstallPath($package)));
+        };
+
+        $promise = parent::install($repo, $package);
+
+        // Composer v2 might return a promise here
+        if ($promise instanceof \React\Promise\PromiseInterface) {
+            return $promise->then($afterInstall);
         }
 
-        TaskQueue::getInstance()->enqueue(array('install', $package, $this->getInstallPath($package)));
+        $afterInstall();
     }
 
     /**
@@ -45,15 +53,24 @@ class ComposerInstaller extends LibraryInstaller
      */
     public function update(InstalledRepositoryInterface $repo, PackageInterface $initial, PackageInterface $target)
     {
-        parent::update($repo, $initial, $target);
-
         $platformStr = Util::isJoomlatoolsPlatform() ? 'Joomlatools Platform' : 'Joomla';
+        $afterUpdate = function () use ($target, $platformStr) {
+            if ($this->io->isVerbose()) {
+                $this->io->write(sprintf("  - Queuing <comment>%s</comment> for upgrading in %s", $target->getName(), $platformStr), true);
+            }
+    
+            TaskQueue::getInstance()->enqueue(array('update', $target, $this->getInstallPath($target)));
+        };
 
-        if ($this->io->isVerbose()) {
-            $this->io->write(sprintf("  - Queuing <comment>%s</comment> for upgrading in %s", $target->getName(), $platformStr), true);
+        $promise = parent::update($repo, $initial, $target);
+
+        // Composer v2 might return a promise here
+        if ($promise instanceof \React\Promise\PromiseInterface) {
+            return $promise->then($afterUpdate);
         }
 
-        TaskQueue::getInstance()->enqueue(array('update', $target, $this->getInstallPath($target)));
+        $afterUpdate();
+        
     }
 
     /**
@@ -66,6 +83,13 @@ class ComposerInstaller extends LibraryInstaller
         }
 
         $platformStr = Util::isJoomlatoolsPlatform() ? 'Joomlatools Platform' : 'Joomla';
+        $afterUninstall = function () use ($package, $platformStr) {
+            if ($this->io->isVerbose()) {
+                $this->io->write(sprintf("  - Queuing <comment>%s</comment> for upgrading in %s", $target->getName(), $platformStr), true);
+            }
+    
+            TaskQueue::getInstance()->enqueue(array('update', $target, $this->getInstallPath($target)));
+        };
 
         if ($this->io->isVerbose()) {
             $this->io->write(sprintf("  - Queuing <comment>%s</comment> for removal from %s", $package->getName(), $platformStr), true);
@@ -73,24 +97,29 @@ class ComposerInstaller extends LibraryInstaller
 
         TaskQueue::getInstance()->enqueue(array('uninstall', $package, $this->getInstallPath($package)));
 
-        // Find the manifest and set it aside so we can query it when actually uninstalling the extension
-        $installPath = $this->getInstallPath($package);
-        $manifest    = Util::getPackageManifest($installPath);
-        $prefix      = str_replace(DIRECTORY_SEPARATOR, '-', $package->getName());
-        $tmpFile     = tempnam(sys_get_temp_dir(), $prefix);
-
-        if (copy($manifest, $tmpFile))
-        {
-            Util::setPackageManifest($installPath, $tmpFile);
-
+        if (Util::isReusableComponent($package)) {
             parent::uninstall($repo, $package);
-        }
-        else
-        {
-            if ($this->io->isVerbose()) {
-                $this->io->write(sprintf("    [<error>ERROR</error>] Could not copy manifest %s to %s. Skipping uninstall of <info>%s</info>.", $manifest, $tmpFile, $package->getName()), true);
+        } else {
+            // Find the manifest and set it aside so we can query it when actually uninstalling the extension
+            $installPath = $this->getInstallPath($package);
+            $manifest    = Util::getPackageManifest($installPath);
+            $prefix      = str_replace(DIRECTORY_SEPARATOR, '-', $package->getName());
+            $tmpFile     = tempnam(sys_get_temp_dir(), $prefix);
+
+            if (copy($manifest, $tmpFile))
+            {
+                Util::setPackageManifest($installPath, $tmpFile);
+
+                parent::uninstall($repo, $package);
+            }
+            else
+            {
+                if ($this->io->isVerbose()) {
+                    $this->io->write(sprintf("    [<error>ERROR</error>] Could not copy manifest %s to %s. Skipping uninstall of <info>%s</info>.", $manifest, $tmpFile, $package->getName()), true);
+                }
             }
         }
+        
     }
 
     /**
