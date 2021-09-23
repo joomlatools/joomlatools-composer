@@ -188,7 +188,7 @@ class ExtensionInstaller
                 foreach ($queries as $query) {
                     $query = trim($query);
 
-                    if ($query != '' && $query{0} != '#') {
+                    if ($query != '' && $query[0] != '#') {
                         try {
                             $db->setQuery($query)->execute();
                         } catch (\Exception $e) {
