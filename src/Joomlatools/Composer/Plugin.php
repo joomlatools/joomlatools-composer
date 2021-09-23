@@ -40,12 +40,10 @@ class Plugin implements PluginInterface, EventSubscriberInterface
      */
     public function activate(Composer $composer, IOInterface $io)
     {
-        //still firing postAutoloadDump for standalone so this needs to be set
         $this->_composer = $composer;
         $this->_io = $io;
 
-        //if neither must be standalone
-        if (!Util::isJoomla() && !Util::isJoomlatoolsPlatform()) {
+        if (!Util::isJoomla() && !Util::isJoomlatoolsPlatform() && !Util::isJoomla4()) {
             return true;
         }
 

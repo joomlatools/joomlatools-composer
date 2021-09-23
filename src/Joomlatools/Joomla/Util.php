@@ -29,9 +29,26 @@ class Util
      *
      * @return bool
      */
+
     public static function isJoomla()
     {
         $directories = array('./libraries/cms', './libraries/joomla', './index.php', './administrator/index.php');
+
+        foreach ($directories as $directory)
+        {
+            $path = realpath($directory);
+
+            if (!file_exists($path)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public static function isJoomla4()
+    {
+        $directories = array('./libraries/src', './libraries/vendor/joomla', './index.php', './administrator/index.php');
 
         foreach ($directories as $directory)
         {
