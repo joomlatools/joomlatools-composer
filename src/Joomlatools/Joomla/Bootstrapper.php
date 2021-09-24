@@ -181,7 +181,7 @@ class Bootstrapper
 
             require_once JPATH_ROOT . '/app/defines.php';
             require_once JPATH_ROOT . '/app/bootstrap.php';
-
+            
             require_once JPATH_LIBRARIES . '/import.php';
 
             require_once JPATH_LIBRARIES . '/cms.php';
@@ -196,9 +196,7 @@ class Bootstrapper
 
             require_once JPATH_LIBRARIES . '/cms.php';
 
-            if(version_compare(JVERSION, '3.9.0', '>=') && version_compare(JVERSION, '4.0', '<')) {
-                stream_wrapper_restore('phar');
-            }
+            stream_wrapper_restore('phar');
         }
 
         $this->_bootstrapped = true;
