@@ -1,4 +1,4 @@
-# Joomlatools Composer Installer [![Build Status](https://travis-ci.org/joomlatools/joomlatools-composer.svg?branch=master)](https://travis-ci.org/joomlatools/joomlatools-composer)
+# Joomlatools Composer Installer 
 
 This Composer plugin will install extensions into your Joomla setup.
 
